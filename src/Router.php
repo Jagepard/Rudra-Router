@@ -179,9 +179,9 @@ final class Router
     }
 
     /**
-     * @return iApplication
+     * @return iContainer
      */
-    public function getDi(): iApplication
+    public function getDi(): iContainer
     {
         return $this->di;
     }
