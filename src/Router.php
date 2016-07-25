@@ -11,10 +11,10 @@ namespace Rudra;
  */
 
 /**
- * Class Route
+ * Class Router
  * @package Core
  */
-final class Route
+final class Router
 {
     /**
      * @var bool
