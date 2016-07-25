@@ -27,15 +27,15 @@ final class Router
     private $new;
 
     /**
-     * @var iApplication
+     * @var iContainer
      */
     private $di;
 
     /**
      * Route constructor.
-     * @param iApplication $di
+     * @param iContainer $di
      */
-    public function __construct(iApplication $di)
+    public function __construct(iContainer $di)
     {
         $this->di = $di;
     }
