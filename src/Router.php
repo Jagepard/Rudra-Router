@@ -2,13 +2,13 @@
 
 namespace Rudra;
 
-/**
- * Date: 14.07.15
- * Time: 14:51
- * @author    : Korotkov Danila <dankorot@gmail.com>
- * @copyright Copyright (c) 2014, Korotkov Danila
- * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
- */
+    /**
+     * Date: 14.07.15
+     * Time: 14:51
+     * @author    : Korotkov Danila <dankorot@gmail.com>
+     * @copyright Copyright (c) 2014, Korotkov Danila
+     * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
+     */
 
 /**
  * Class Router
@@ -52,7 +52,7 @@ final class Router
         $i = 0;
 
         // Строка запроса
-        $InRequestUrl = trim($_SERVER['REQUEST_URI'], '/');
+        $InRequestUrl = trim($this->di->getServer('REQUEST_URI'), '/');
 
         // Разбираем заврос в массив по '/'
         $requestArray = explode('/', $request);
@@ -121,7 +121,7 @@ final class Router
 
         // Если запрашиваем метод совпадаеи с $_SERVER['REQUEST_METHOD']
         // и $realRequestString совпадает с $_SERVER['REQUEST_URI']
-        if ($requestMethod == $_SERVER['REQUEST_METHOD'] && $realRequestString == $OutRequestUrl[0]) {
+        if ($requestMethod == $this->di->getServer('REQUEST_METHOD') && $realRequestString == $OutRequestUrl[0]) {
             // Устанавливаем token true
             $this->setToken(true);
 
