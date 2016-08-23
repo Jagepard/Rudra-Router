@@ -1,9 +1,10 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: root
  * Date: 23.08.16
- * Time: 10:51
+ * Time: 14:51
+ * @author    : Korotkov Danila <dankorot@gmail.com>
+ * @copyright Copyright (c) 2014, Korotkov Danila
+ * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
 namespace Rudra;
