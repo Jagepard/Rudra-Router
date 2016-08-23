@@ -41,6 +41,11 @@ GET-роут к экшену контроллера в котором указа
 Маршруты не определяются, маршрутизация происходит автоматически
 исходя из данных адресной строки
 
+Маршрутизатор иницианализируется в app/public/index.php
+
+    $di->set('router', new \Core\Router($di));
+    $di->get('router')->run(\Config\Config::class, $di);
+
     '/'                  --- [DefaultModule][DefaultController][DefaultAction]			
     '/Controller'        --- [DefaultModule]Controller[DefaultAction]		
     '/Action'            --- [DefaultModule][DefaultController]Action		
