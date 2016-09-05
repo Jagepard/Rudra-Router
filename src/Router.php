@@ -3,7 +3,7 @@
 namespace Rudra;
 
     /**
-     * Date: 14.07.15
+     * Date: 05.09.16
      * Time: 14:51
      * @author    : Korotkov Danila <dankorot@gmail.com>
      * @copyright Copyright (c) 2014, Korotkov Danila
@@ -41,82 +41,62 @@ final class Router
     }
 
     /**
-     * @param string $request
+     * @param string $pattern
      * @param        $classAndMethod
      * @param string $requestMethod
      * @return bool
      */
-    public function set(string $request, $classAndMethod, string $requestMethod = 'GET')
+    public function set(string $pattern, $classAndMethod, string $requestMethod = 'GET')
     {
         // Исходные данные для инкремента
         $i = 0;
 
         // Строка запроса
-        $InRequestUrl = trim($this->di->getServer('REQUEST_URI'), '/');
+        $requestUrl = trim($this->di->getServer('REQUEST_URI'), '/');
+        // Разбираем данные $_SERVER['REQUEST_URI'] по '/'
+        $requestArray = explode('/', $requestUrl);
 
-        // Разбираем заврос в массив по '/'
-        $requestArray = explode('/', $request);
-
-        // Обходим элементы массива
-        foreach ($requestArray as $url) {
-            // Инкремент
-            $i++;
-            // Ищем совпадение строки запроса с шаблоном {?...}
-            if (preg_match('/{\?[a-zA-Z0-9]+}/', $url, $matches) != 0) {
-                // Разбираем данные $_SERVER['REQUEST_URI'] по '/'
-                $serverRequest = explode('/', $InRequestUrl);
-                // Если есть элемент массива $i - 1
-                if (isset($serverRequest[$i - 1])) {
+        // Обходим элементы массива $pattern
+        foreach (explode('/', $pattern) as $itemPattern) {
+            // Ищем совпадение строки запроса с шаблоном {...}
+            if (preg_match('/{[a-zA-Z0-9]+}/', $itemPattern, $matchesPattern) != 0) {
+                // Если есть элемент массива $i
+                if (isset($requestArray[$i])) {
+                    // Убираем {} из названия будующего ключа массива параметров
+                    preg_match('/[a-zA-Z0-9]+/', $matchesPattern[0], $paramsKey);
                     // Присваиваем найденому параметру соответсвующий uri
-                    $params[$matches[0]] = $serverRequest[$i - 1];
+                    $params[$paramsKey[0]] = $requestArray[$i];
                 }
+                $completeRequestArray[] = $requestArray[$i];
                 // Если совпадений нет, то записываем данные не совпадающие
                 // с шаблоном в отдельный массив
             } else {
-                $newRequestArray[] = $url;
+                $completeRequestArray[] = $itemPattern;
             }
+            // Инкремент
+            $i++;
         }
 
-        // Если массив параметров не пуст
-        if (isset($params)) {
-            // Строка параметров типа param1\/param2\/paramN
-            $paramsString = implode('\/', $params);
-            // Строка параметров типа param1/param2/paramN
-            $realParamsString = implode('/', $params);
+        if (isset($completeRequestArray)) {
+            $requestString     = implode('\/', $completeRequestArray);
+            $realRequestString = implode('/', $completeRequestArray);
+        }
 
-            // Если в запросе есть данные не являющиеся параметрами
-            if (isset($newRequestArray)) {
-                // Создаем строки из данных не являющихся параметрами
-                // добавляем уже созданные строки параметров
-                $requestString     = implode('\/', $newRequestArray) . '\/' . $paramsString;
-                $realRequestString = implode('/', $newRequestArray) . '/' . $realParamsString;
-            } else {
-                // Это на случай ели других данных помимо параметров нет
-                $requestString     = $paramsString;
-                $realRequestString = $realParamsString;
-            }
-
-            // Это в случае если параметров нет
+        if (strpos($requestUrl, '?') !== false) {
+            preg_match('~[/[:word:]-]+(?=\?)~', $requestUrl, $OutRequestUrl);
         } else {
-            $requestString     = implode('\/', $newRequestArray);
-            $realRequestString = implode('/', $newRequestArray);
+            $OutRequestUrl[0] = $requestUrl;
         }
 
         // Это нужно для обработки 404 ошибки
         if (isset($requestString)) {
             // Проверяем строку запроса на соответсвие маршруту
-            preg_match("/$requestString/", $InRequestUrl, $matches);
+            preg_match("/$requestString/", $requestUrl, $matches);
 
             // Если совпадений нет, то возвращаем $this->isToken() == false
             if (!isset($matches[0])) {
                 return $this->isToken();
             }
-        }
-
-        if (strpos($InRequestUrl, '?') !== false) {
-            preg_match('~[/[:word:]-]+(?=\?)~', $InRequestUrl, $OutRequestUrl);
-        } else {
-            $OutRequestUrl[0] = $InRequestUrl;
         }
 
         // Если запрашиваем метод совпадаеи с $_SERVER['REQUEST_METHOD']
@@ -133,7 +113,6 @@ final class Router
 
             // Создаем экземпляр класса
             $this->setNew(new $classAndMethod[0]());
-
             // Инициализуруем
             $this->getNew()->init($this->getDi());
             // Выполняем метод before до основного вызова
