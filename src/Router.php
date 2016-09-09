@@ -58,6 +58,19 @@ final class Router
 
         // Обходим элементы массива $pattern
         foreach (explode('/', $pattern) as $itemPattern) {
+
+            if (strpos($itemPattern, '::') !== false) {
+                $patternData      = explode('::', $itemPattern);
+                $hasMethod = 'has' . ucfirst($patternData[1]);
+                $getMethod = 'get' . ucfirst($patternData[1]);
+                $key       = $patternData[2];
+
+                if ($this->getDi()->$hasMethod($key)) {
+                    $itemPattern  = $patternData[0];
+                    $params[$key] = $this->getDi()->$getMethod($key);
+                }
+            }
+
             // Ищем совпадение строки запроса с шаблоном {...}
             if (preg_match('/{[a-zA-Z0-9]+}/', $itemPattern, $matchesPattern) != 0) {
                 // Если есть элемент массива $i
@@ -73,6 +86,7 @@ final class Router
             } else {
                 $completeRequestArray[] = $itemPattern;
             }
+
             // Инкремент
             $i++;
         }
@@ -118,6 +132,7 @@ final class Router
             // Выполняем метод before до основного вызова
             $this->getNew()->before();
             // Собственно вызываем экшн, в зависимости от наличия параметров
+
             isset($params) ? $this->getNew()->{$classAndMethod[1]}($params) : $this->getNew()->{$classAndMethod[1]}();
             // Выполняем метод after
             $this->getNew()->after();
@@ -165,11 +180,9 @@ final class Router
         return $this->di;
     }
 
-    /**
-     * @param Controller $obj
-     */
-    public function error404(Controller $obj)
+    public function error404()
     {
-        return $obj->errorPage();
+        $this->getDi()->get('redirect')->responseCode('404');
+        echo 'Нет такой страницы: <h1>«Ошибка 404»</h1>';
     }
 }
