@@ -27,7 +27,7 @@ GET-роут к экшену контроллера
 
 GET-роут к экшену контроллера в котором указаны параметры, которые можно получить в виде массива аргументов
 
-    $this->app->set('{?url}',
+    $this->app->set('{url}',
         ['App\\Main\\Controller\\MainController', 'actionIndex']
     );
 
