@@ -52,7 +52,7 @@ final class Router
         $i = 0;
 
         // Строка запроса
-        $requestUrl = trim($this->di->getServer('REQUEST_URI'), '/');
+        $requestUrl = trim($this->getDi()->getServer('REQUEST_URI'), '/');
         // Разбираем данные $_SERVER['REQUEST_URI'] по '/'
         $requestArray = explode('/', $requestUrl);
 
@@ -115,7 +115,7 @@ final class Router
 
         // Если запрашиваем метод совпадаеи с $_SERVER['REQUEST_METHOD']
         // и $realRequestString совпадает с $_SERVER['REQUEST_URI']
-        if ($requestMethod == $this->di->getServer('REQUEST_METHOD') && $realRequestString == $OutRequestUrl[0]) {
+        if ($requestMethod == $this->getDi()->getServer('REQUEST_METHOD') && $realRequestString == $OutRequestUrl[0]) {
             // Устанавливаем token true
             $this->setToken(true);
 
