@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Date: 23.08.16
  * Time: 14:51
+ * 
  * @author    : Korotkov Danila <dankorot@gmail.com>
  * @copyright Copyright (c) 2014, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
@@ -9,9 +11,13 @@
 
 namespace Rudra;
 
-
+/**
+ * Class Autorouter
+ * @package Rudra
+ */
 final class Autorouter
 {
+
     // Контроллер по умолчанию
     /**
      * @var
@@ -57,15 +63,15 @@ final class Autorouter
     private $params;
 
     /**
-     * @var iContainer
+     * @var IContainer
      */
     private $di;
 
     /**
      * Router constructor.
-     * @param iContainer $di
+     * @param IContainer $di
      */
-    public function __construct(iContainer $di)
+    public function __construct(IContainer $di)
     {
         $this->di = $di;
     }
@@ -78,7 +84,7 @@ final class Autorouter
      */
     public function run($config)
     {
-        $this->defaultController = $config::$defaultController;
+        $this->setDefaultController($config::$defaultController);
         $this->request($config);
     }
 
@@ -95,13 +101,13 @@ final class Autorouter
          * Присваевает значение $this->request
          * в зависимости от наличия get запроса
          */
-        if (strpos($this->request, '?') !== false) {
-            preg_match('~[/[:word:]-]+(?=\?)~', $this->request, $matches);
+        if (strpos($this->getRequest(), '?') !== false) {
+            preg_match('~[/[:word:]-]+(?=\?)~', $this->getRequest(), $matches);
         } else {
-            $matches[0] = $this->request;
+            $matches[0] = $this->getRequest();
         }
         // Результат присваиваем $this->request
-        $this->request = $matches[0];
+        $this->setRequest($matches[0]);
 
         /*
          * Устанавливает имя метода и контроллера
@@ -109,7 +115,7 @@ final class Autorouter
          */
         $this->setName();
         // Вызывает необходимый метод контроллера
-        $this->newObject($this->params);
+        $this->newObject($this->getParams());
         exit;
     }
 
@@ -121,13 +127,10 @@ final class Autorouter
      */
     private function returnRequest($config)
     {
-        switch ($config::URI) {
-            case 'REQUEST':
-                $this->request = trim($_SERVER['REQUEST_URI'], '/');
-                break;
-            case 'GET':
-                $this->request = trim($_GET['r'], '/');
-                break;
+        if ('REQUEST' == $config::URI) {
+            $this->setRequest(trim($this->getDi()->getServer('REQUEST_URI'), '/'));
+        } elseif ('GET' == $config::URI) {
+            $this->setRequest(trim($this->getDi()->getGet('r'), '/'));
         }
     }
 
@@ -142,100 +145,95 @@ final class Autorouter
          * Если в строке запроса есть хотя бы 1 '/'
          * Например: http://domain.com/value/value
          */
-        if (strpos($this->request, '/') !== false) {
-            $this->request = explode('/', $this->request);
+        if (strpos($this->getRequest(), '/') !== false) {
+            $this->setRequest(explode('/', $this->getRequest()));
 
             /*
              * Убираем пустые элементы массива, которые могли образоваться
              * если в адресной строке были указаны лишние '/'
              */
-            foreach ($this->request as $item) {
+            foreach ($this->getRequest() as $item) {
                 if (!$item == '') {
                     $request[] = $item;
                 }
             }
-            $this->request = $request;
+            $this->setRequest($request);
 
             //Action/params
-            if (method_exists($this->defaultController[1], $this->methodName($this->request[0]))) {
-                $this->className = $this->defaultController[1];
-                $this->methodName = $this->methodName($this->request[0]);
+            if (method_exists($this->getDefaultController(1), $this->methodName($this->getRequestKey(0)))) {
+                $this->setClassName($this->getDefaultController(1));
+                $this->setMethodName($this->methodName($this->getRequestKey(0)));
                 $this->fetchParams(1);
-
-            } elseif (class_exists(ucfirst($this->request[0]) . '\\' . $this->className($this->request[1]))) {
-                $this->className = ucfirst($this->request[0]) . '\\' . $this->className($this->request[1]);
+            } elseif (class_exists(ucfirst($this->getRequestKey(0)) . '\\' . $this->className($this->getRequestKey(1)))) {
+                $this->setClassName(ucfirst($this->getRequestKey(0)) . '\\' . $this->className($this->getRequestKey(1)));
 
                 //Module/Controller/Action/params
-                if (isset($this->request[2])) {
-                    if (method_exists($this->className, $this->methodName($this->request[2]))) {
-                        $this->methodName = $this->methodName($this->request[2]);
+                if (null !== $this->getRequestKey(2)) {
+                    if (method_exists($this->getClassName(), $this->methodName($this->getRequestKey(2)))) {
+                        $this->setMethodName($this->methodName($this->getRequestKey(2)));
                         $this->fetchParams(3);
 
                         //Module/Controller[DefaultAction]/params
                     } else {
-                        $this->methodName = $this->methodName($this->defaultController[3]);
+                        $this->setMethodName($this->methodName($this->getDefaultController(3)));
                         $this->fetchParams(2);
                     }
                 } else {
-                    if (method_exists($this->className, $this->methodName(null))) {
-                        $this->methodName = $this->methodName(null);
+                    if (method_exists($this->getClassName(), $this->methodName(null))) {
+                        $this->setMethodName($this->methodName(null));
                         $this->fetchParams(3);
 
                         //Module/Controller[DefaultAction]/params
                     } else {
-                        $this->methodName = $this->methodName($this->defaultController[3]);
+                        $this->setMethodName($this->methodName($this->getDefaultController(3)));
                         $this->fetchParams(2);
                     }
                 }
-
-            } elseif (class_exists(ucfirst($this->defaultController[0]) . '\\' . $this->className($this->request[0]))) {
-                $this->className = ucfirst($this->defaultController[0]) . '\\' . $this->className($this->request[0]);
+            } elseif (class_exists(ucfirst($this->getDefaultController(0)) . '\\' . $this->className($this->getRequestKey(0)))) {
+                $this->setClassName(ucfirst($this->getDefaultController(0)) . '\\' . $this->className($this->getRequestKey(0)));
 
                 //[DefaultModule]Controller/Action/params
-                if (method_exists($this->className, $this->methodName($this->request[1]))) {
-                    $this->methodName = $this->methodName($this->request[1]);
+                if (method_exists($this->getClassName(), $this->methodName($this->getRequestKey(1)))) {
+                    $this->setMethodName($this->methodName($this->getRequestKey(1)));
                     $this->fetchParams(2);
 
                     //[DefaultModule]Controller[Action]/params
                 } else {
-                    $this->methodName = $this->methodName($this->defaultController[3]);
+                    $this->setMethodName($this->methodName($this->getDefaultController(3)));
                     $this->fetchParams(1);
                 }
                 //[DefaultModule][DefaultController]Action/params
             } else {
                 $this->fetchParams(0);
-                $this->className = $this->defaultController[1];
-                $this->methodName = $this->methodName($this->defaultController[2]);
+                $this->setClassName($this->getDefaultController(1));
+                $this->setMethodName($this->methodName($this->getDefaultController(2)));
             }
-
         } else {
             //[DefaultModule][DefaultController][DefaultAction]
-            if (empty($this->request)) {
-                $this->className = $this->defaultController[1];
-                $this->methodName = $this->methodName($this->defaultController[2]);
+            if (empty($this->getRequest())) {
+                $this->setClassName($this->getDefaultController(1));
+                $this->setMethodName($this->methodName($this->getDefaultController(2)));
 
                 //Если есть значение http://root/[value]
-            } elseif (isset($this->request)) {
+            } elseif (null !== $this->getRequest()) {
                 //[DefaultModule][DefaultController]Action
-                if (method_exists($this->defaultController[1], $this->methodName($this->request))) {
-                    $this->className = $this->defaultController[1];
-                    $this->methodName = $this->methodName($this->request);
+                if (method_exists($this->getDefaultController(1), $this->methodName($this->getRequest()))) {
+                    $this->setClassName($this->getDefaultController(1));
+                    $this->setMethodName($this->methodName($this->getRequest()));
 
                     //[DefaultModule])Controller[DefaultAction]
-                } elseif (class_exists(ucfirst($this->defaultController[0]) . '\\' . $this->className($this->request))
-                    and method_exists(
-                        ucfirst($this->defaultController[0]) . '\\' . $this->className($this->request),
-                        $this->methodName($this->defaultController[3])
-                    )
+                } elseif (class_exists(ucfirst($this->getDefaultController(0)) . '\\' . $this->className($this->getRequest()))
+                        and method_exists(
+                                ucfirst($this->getDefaultController(0)) . '\\' . $this->className($this->getRequest()), $this->methodName($this->getDefaultController(3))
+                        )
                 ) {
-                    $this->className = ucfirst($this->defaultController[0]) . '\\' . $this->className($this->request);
-                    $this->methodName = $this->methodName($this->defaultController[3]);
-
+                    $this->setClassName(ucfirst($this->getDefaultController(0)) . '\\' . $this->className($this->getRequest()));
+                    $this->setMethodName($this->methodName($this->getDefaultController(3)));
                 } else {
                     //params
-                    $this->params[] = $this->request;
-                    $this->className = $this->defaultController[1];
-                    $this->methodName = $this->methodName($this->defaultController[2]);
+                    $this->setParams($this->getRequest());
+                    $this->setClassName($this->getDefaultController(1));
+                    $this->setMethodName($this->methodName($this->getDefaultController(2)));
                 }
             }
         }
@@ -257,10 +255,10 @@ final class Autorouter
      */
     private function fetchParams($value)
     {
-        if (isset($this->request[$value])) {
-            if (count($this->request) > $value) {
-                for ($i = $value; $i < count($this->request); $i++) {
-                    $this->params[] = $this->request[$i];
+        if (null !== $this->getRequestKey($value)) {
+            if (count($this->getRequest()) > $value) {
+                for ($i = $value; $i < count($this->getRequest()); $i++) {
+                    $this->setParams($this->getRequestKey($i));
                 }
             }
         }
@@ -282,14 +280,124 @@ final class Autorouter
      */
     private function newObject($params = false)
     {
-        if (class_exists($this->className)) {
-            if (method_exists($this->className, $this->methodName)) {
-                $this->newObject[$this->className] = new $this->className();
-                $this->newObject[$this->className]->init($this->di);
-                $this->newObject[$this->className]->before();
-                $this->newObject[$this->className]->{$this->methodName}($params);
-                $this->newObject[$this->className]->after();
+        if (class_exists($this->getClassName())) {
+            if (method_exists($this->getClassName(), $this->getMethodName())) {
+                $this->setNewObject($this->getClassName());
+                $this->getNewObject($this->getClassName())->init($this->getDi());
+                $this->getNewObject($this->getClassName())->before();
+                $this->getNewObject($this->getClassName())->{$this->getMethodName()}($params);
+                $this->getNewObject($this->getClassName())->after();
             }
         }
     }
+
+    /**
+     * @param $className
+     */
+    public function setNewObject($className)
+    {
+        $this->newObject[$className] = new $className;
+    }
+
+    /**
+     * @param $className
+     * @return mixed
+     */
+    public function getNewObject($className)
+    {
+        return $this->newObject[$className];
+    }
+
+    /**
+     * @return IContainer
+     */
+    public function getDi(): IContainer
+    {
+        return $this->di;
+    }
+
+    /**
+     * @param mixed $className
+     */
+    public function setClassName($className)
+    {
+        $this->className = $className;
+    }
+
+    /**
+     * @param mixed $methodName
+     */
+    public function setMethodName($methodName)
+    {
+        $this->methodName = $methodName;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClassName()
+    {
+        return $this->className;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMethodName()
+    {
+        return $this->methodName;
+    }
+
+    /**
+     * @param $defaultController
+     */
+    public function setDefaultController($defaultController)
+    {
+        $this->defaultController = $defaultController;
+    }
+
+    /**
+     * @param $key
+     * @return mixed
+     */
+    public function getDefaultController($key)
+    {
+        return $this->defaultController[$key];
+    }
+
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+     * @param $key
+     * @return mixed
+     */
+    public function getRequestKey($key)
+    {
+        return $this->request[$key];
+    }
+
+    /**
+     * @param $request
+     */
+    public function setRequest($request)
+    {
+        $this->request = $request;
+    }
+
+    public function getParams()
+    {
+        return $this->params;
+    }
+
+    /**
+     * @param mixed $params
+     */
+    public function setParams($params)
+    {
+        $this->params[] = $params;
+    }
+
 }

@@ -1,21 +1,24 @@
-<?php declare(strict_types = 1);
+<?php
+
+/**
+ * Date: 05.09.16
+ * Time: 14:51
+ * 
+ * @author    : Korotkov Danila <dankorot@gmail.com>
+ * @copyright Copyright (c) 2014, Korotkov Danila
+ * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
+ */
+declare(strict_types = 1);
 
 namespace Rudra;
 
-    /**
-     * Date: 05.09.16
-     * Time: 14:51
-     * @author    : Korotkov Danila <dankorot@gmail.com>
-     * @copyright Copyright (c) 2014, Korotkov Danila
-     * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
-     */
-
 /**
  * Class Router
- * @package Core
+ * @package Rudra
  */
 final class Router
 {
+
     /**
      * @var bool
      */
@@ -27,15 +30,15 @@ final class Router
     private $new;
 
     /**
-     * @var iContainer
+     * @var IContainer
      */
     private $di;
 
     /**
      * Route constructor.
-     * @param iContainer $di
+     * @param IContainer $di
      */
-    public function __construct(iContainer $di)
+    public function __construct(IContainer $di)
     {
         $this->di = $di;
     }
@@ -52,7 +55,7 @@ final class Router
         $i = 0;
 
         // Строка запроса
-        $requestUrl = trim($this->getDi()->getServer('REQUEST_URI'), '/');
+        $requestUrl   = trim($this->getDi()->getServer('REQUEST_URI'), '/');
         // Разбираем данные $_SERVER['REQUEST_URI'] по '/'
         $requestArray = explode('/', $requestUrl);
 
@@ -60,10 +63,10 @@ final class Router
         foreach (explode('/', $pattern) as $itemPattern) {
 
             if (strpos($itemPattern, '::') !== false) {
-                $patternData      = explode('::', $itemPattern);
-                $hasMethod = 'has' . ucfirst($patternData[1]);
-                $getMethod = 'get' . ucfirst($patternData[1]);
-                $key       = $patternData[2];
+                $patternData = explode('::', $itemPattern);
+                $hasMethod   = 'has' . ucfirst($patternData[1]);
+                $getMethod   = 'get' . ucfirst($patternData[1]);
+                $key         = $patternData[2];
 
                 if ($this->getDi()->$hasMethod($key)) {
                     $itemPattern  = $patternData[0];
@@ -173,9 +176,9 @@ final class Router
     }
 
     /**
-     * @return iContainer
+     * @return IContainer
      */
-    public function getDi(): iContainer
+    public function getDi(): IContainer
     {
         return $this->di;
     }
@@ -185,4 +188,5 @@ final class Router
         $this->getDi()->get('redirect')->responseCode('404');
         echo 'Нет такой страницы: <h1>«Ошибка 404»</h1>';
     }
+
 }
