@@ -35,12 +35,19 @@ final class Router
     private $di;
 
     /**
-     * Route constructor.
-     * @param IContainer $di
+     * @var
      */
-    public function __construct(IContainer $di)
+    private $namespace;
+
+    /**
+     * Router constructor.
+     * @param \Rudra\IContainer $di
+     * @param                   $namespace
+     */
+    public function __construct(IContainer $di, $namespace)
     {
-        $this->di = $di;
+        $this->di        = $di;
+        $this->namespace = $namespace;
     }
 
     /**
@@ -152,21 +159,28 @@ final class Router
     {
         $annotations = $this->getDi()->get('annotation');
 
+        if (strpos($class, '::namespase') !== false) {
+            $classParams = explode('::', $method);
+            $class       = $classParams[0];
+        } else {
+            $class = $this->getNamespace() . $class;
+        }
+
         if (strpos($method, '::') !== false) {
             $arrayParams = explode('::', $method);
             $method = $arrayParams[0];
             $requestMethod = $arrayParams[1];
         }
 
-        $result = $annotations->getMethodAnnotations('App\Main\Controller\\' . $class, $method);
+        $result = $annotations->getMethodAnnotations($class, $method);
 
         if (isset($result['Routing'])) {
 
             if (isset($requestMethod)) {
-                $this->set($result['Routing'][$number]['url'], ['App\\Main\\Controller\\' . $class, $method], $requestMethod);
+                $this->set($result['Routing'][$number]['url'], [$class, $method], $requestMethod);
             }
 
-            $this->set($result['Routing'][$number]['url'], ['App\\Main\\Controller\\' . $class, $method]);
+            $this->set($result['Routing'][$number]['url'], [$class, $method]);
         }
     }
 
@@ -208,6 +222,14 @@ final class Router
     public function getDi(): IContainer
     {
         return $this->di;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNamespace()
+    {
+        return $this->namespace;
     }
 
     public function error404()
