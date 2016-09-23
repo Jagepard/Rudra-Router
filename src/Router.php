@@ -3,7 +3,7 @@
 /**
  * Date: 05.09.16
  * Time: 14:51
- * 
+ *
  * @author    : Korotkov Danila <dankorot@gmail.com>
  * @copyright Copyright (c) 2014, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
@@ -140,6 +140,33 @@ final class Router
             // Выполняем метод after
             $this->getNew()->after();
             exit;
+        }
+    }
+
+    /**
+     * @param     $class
+     * @param     $method
+     * @param int $number
+     */
+    public function annotation($class, $method, $number = 0)
+    {
+        $annotations = $this->getDi()->get('annotation');
+
+        if (strpos($method, '::') !== false) {
+            $arrayParams = explode('::', $method);
+            $method = $arrayParams[0];
+            $requestMethod = $arrayParams[1];
+        }
+
+        $result = $annotations->getMethodAnnotations('App\Main\Controller\\' . $class, $method);
+
+        if (isset($result['Routing'])) {
+
+            if (isset($requestMethod)) {
+                $this->set($result['Routing'][$number]['url'], ['App\\Main\\Controller\\' . $class, $method], $requestMethod);
+            }
+
+            $this->set($result['Routing'][$number]['url'], ['App\\Main\\Controller\\' . $class, $method]);
         }
     }
 
