@@ -157,8 +157,6 @@ final class Router
      */
     public function annotation($class, $method, $number = 0)
     {
-        $annotations = $this->getDi()->get('annotation');
-
         if (strpos($class, '::namespace') !== false) {
             $classParams = explode('::', $class);
             $class       = $classParams[0];
@@ -172,7 +170,7 @@ final class Router
             $requestMethod = $arrayParams[1];
         }
 
-        $result = $annotations->getMethodAnnotations($class, $method);
+        $result = $this->getDi()->get('annotation')->getMethodAnnotations($class, $method);
 
         if (isset($result['Routing'])) {
 
