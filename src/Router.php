@@ -159,7 +159,7 @@ final class Router
     {
         $annotations = $this->getDi()->get('annotation');
 
-        if (strpos($class, '::namespase') !== false) {
+        if (strpos($class, '::namespace') !== false) {
             $classParams = explode('::', $method);
             $class       = $classParams[0];
         } else {
