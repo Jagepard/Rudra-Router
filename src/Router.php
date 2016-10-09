@@ -14,6 +14,7 @@ namespace Rudra;
 
 /**
  * Class Router
+ *
  * @package Rudra
  */
 final class Router
@@ -41,6 +42,7 @@ final class Router
 
     /**
      * Router constructor.
+     *
      * @param \Rudra\IContainer $di
      * @param                   $namespace
      */
@@ -54,6 +56,7 @@ final class Router
      * @param string $pattern
      * @param        $classAndMethod
      * @param string $requestMethod
+     *
      * @return bool
      */
     public function set(string $pattern, $classAndMethod, string $requestMethod = 'GET')
@@ -62,7 +65,7 @@ final class Router
         $i = 0;
 
         // Строка запроса
-        $requestUrl   = trim($this->getDi()->getServer('REQUEST_URI'), '/');
+        $requestUrl = trim($this->getDi()->getServer('REQUEST_URI'), '/');
         // Разбираем данные $_SERVER['REQUEST_URI'] по '/'
         $requestArray = explode('/', $requestUrl);
 
@@ -88,9 +91,9 @@ final class Router
                     // Убираем {} из названия будующего ключа массива параметров
                     preg_match('/[a-zA-Z0-9]+/', $matchesPattern[0], $paramsKey);
                     // Присваиваем найденому параметру соответсвующий uri
-                    $params[$paramsKey[0]] = $requestArray[$i];
+                    $params[$paramsKey[0]]  = $requestArray[$i];
+                    $completeRequestArray[] = $requestArray[$i];
                 }
-                $completeRequestArray[] = $requestArray[$i];
                 // Если совпадений нет, то записываем данные не совпадающие
                 // с шаблоном в отдельный массив
             } else {
@@ -165,8 +168,8 @@ final class Router
         }
 
         if (strpos($method, '::') !== false) {
-            $arrayParams = explode('::', $method);
-            $method = $arrayParams[0];
+            $arrayParams   = explode('::', $method);
+            $method        = $arrayParams[0];
             $requestMethod = $arrayParams[1];
         }
 
