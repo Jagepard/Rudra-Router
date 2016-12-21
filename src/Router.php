@@ -74,14 +74,18 @@ final class Router
             if (strpos($itemPattern, '::') !== false) {
                 $patternData   = explode('::', $itemPattern);
                 $requestMethod = ($patternData[1] !== null) ? $patternData[1] : 'GET';
-                $hasMethod     = 'has' . ucfirst(strtolower($patternData[1]));
-                $getMethod     = 'get' . ucfirst(strtolower($patternData[1]));
-                $key           = $patternData[2];
+                $itemPattern   = $patternData[0];
 
-                if ($this->getDi()->$hasMethod($key)) {
-                    $itemPattern  = $patternData[0];
-                    $params[$key] = $this->getDi()->$getMethod($key);
+                if (array_key_exists(2, $patternData)) {
+                    $hasMethod = 'has' . ucfirst(strtolower($patternData[1]));
+                    $getMethod = 'get' . ucfirst(strtolower($patternData[1]));
+                    $key       = $patternData[2];
+
+                    if ($this->getDi()->$hasMethod($key)) {
+                        $params[$key] = $this->getDi()->$getMethod($key);
+                    }
                 }
+
             } else {
                 $requestMethod = 'GET';
             }
@@ -231,7 +235,6 @@ final class Router
 
     public function error404()
     {
-
         $this->getDi()->get('redirect')->responseCode('404');
         echo 'Нет такой страницы: <h1>«Ошибка 404»</h1>';
     }
