@@ -55,11 +55,10 @@ final class Router
     /**
      * @param string $pattern
      * @param        $classAndMethod
-     * @param string $requestMethod
      *
      * @return bool
      */
-    public function set(string $pattern, $classAndMethod, string $requestMethod = 'GET')
+    public function set(string $pattern, $classAndMethod)
     {
         // Исходные данные для инкремента
         $i = 0;
@@ -73,15 +72,18 @@ final class Router
         foreach (explode('/', $pattern) as $itemPattern) {
 
             if (strpos($itemPattern, '::') !== false) {
-                $patternData = explode('::', $itemPattern);
-                $hasMethod   = 'has' . ucfirst($patternData[1]);
-                $getMethod   = 'get' . ucfirst($patternData[1]);
-                $key         = $patternData[2];
+                $patternData   = explode('::', $itemPattern);
+                $requestMethod = ($patternData[1] !== null) ? $patternData[1] : 'GET';
+                $hasMethod     = 'has' . ucfirst(strtolower($patternData[1]));
+                $getMethod     = 'get' . ucfirst(strtolower($patternData[1]));
+                $key           = $patternData[2];
 
                 if ($this->getDi()->$hasMethod($key)) {
                     $itemPattern  = $patternData[0];
                     $params[$key] = $this->getDi()->$getMethod($key);
                 }
+            } else {
+                $requestMethod = 'GET';
             }
 
             // Ищем совпадение строки запроса с шаблоном {...}
@@ -168,19 +170,13 @@ final class Router
         }
 
         if (strpos($method, '::') !== false) {
-            $arrayParams   = explode('::', $method);
-            $method        = $arrayParams[0];
-            $requestMethod = $arrayParams[1];
+            $arrayParams = explode('::', $method);
+            $method      = $arrayParams[0];
         }
 
         $result = $this->getDi()->get('annotation')->getMethodAnnotations($class, $method);
 
         if (isset($result['Routing'])) {
-
-            if (isset($requestMethod)) {
-                $this->set($result['Routing'][$number]['url'], [$class, $method], $requestMethod);
-            }
-
             $this->set($result['Routing'][$number]['url'], [$class, $method]);
         }
     }
@@ -235,6 +231,7 @@ final class Router
 
     public function error404()
     {
+
         $this->getDi()->get('redirect')->responseCode('404');
         echo 'Нет такой страницы: <h1>«Ошибка 404»</h1>';
     }
