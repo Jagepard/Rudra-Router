@@ -160,6 +160,26 @@ final class Router
     }
 
     /**
+     * @param      $classAndMethod
+     * @param null $params
+     */
+    public function directCall($classAndMethod, $params = null)
+    {
+        // Создаем экземпляр класса
+        $this->setNew(new $classAndMethod[0]());
+        // Инициализуруем
+        $this->getNew()->init($this->getDi());
+        // Выполняем метод before до основного вызова
+        $this->getNew()->before();
+        // Собственно вызываем экшн, в зависимости от наличия параметров
+
+        isset($params) ? $this->getNew()->{$classAndMethod[1]}($params) : $this->getNew()->{$classAndMethod[1]}();
+        // Выполняем метод after
+        $this->getNew()->after();
+        exit;
+    }
+
+    /**
      * @param     $class
      * @param     $method
      * @param int $number
