@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /**
  * Date: 05.09.16
  * Time: 14:51
@@ -8,9 +10,12 @@
  * @copyright Copyright (c) 2014, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
-declare(strict_types = 1);
 
 namespace Rudra;
+
+
+use App\Config;
+
 
 /**
  * Class Router
@@ -33,7 +38,7 @@ final class Router
     /**
      * @var IContainer
      */
-    private $di;
+    private $container;
 
     /**
      * @var
@@ -43,13 +48,14 @@ final class Router
     /**
      * Router constructor.
      *
-     * @param \Rudra\IContainer $di
+     * @param \Rudra\IContainer $container
      * @param                   $namespace
      */
-    public function __construct(IContainer $di, $namespace)
+    public function __construct(IContainer $container, $namespace)
     {
-        $this->di        = $di;
+        $this->container = $container;
         $this->namespace = $namespace;
+        set_exception_handler([new RouterException(), 'handler']);
     }
 
     /**
@@ -64,7 +70,7 @@ final class Router
         $i = 0;
 
         // Строка запроса
-        $requestUrl = trim($this->getDi()->getServer('REQUEST_URI'), '/');
+        $requestUrl = trim($this->container()->getServer('REQUEST_URI'), '/');
         // Разбираем данные $_SERVER['REQUEST_URI'] по '/'
         $requestArray = explode('/', $requestUrl);
 
@@ -81,8 +87,8 @@ final class Router
                     $getMethod = 'get' . ucfirst(strtolower($patternData[1]));
                     $key       = $patternData[2];
 
-                    if ($this->getDi()->$hasMethod($key)) {
-                        $params[$key] = $this->getDi()->$getMethod($key);
+                    if ($this->container()->$hasMethod($key)) {
+                        $params[$key] = $this->container()->$getMethod($key);
                     }
                 }
 
@@ -134,7 +140,9 @@ final class Router
 
         // Если запрашиваем метод совпадаеи с $_SERVER['REQUEST_METHOD']
         // и $realRequestString совпадает с $_SERVER['REQUEST_URI']
-        if ($requestMethod == $this->getDi()->getServer('REQUEST_METHOD') && $realRequestString == $OutRequestUrl[0]) {
+        if ($requestMethod == $this->container()->getServer('REQUEST_METHOD')
+            && $realRequestString == $OutRequestUrl[0]
+        ) {
             // Устанавливаем token true
             $this->setToken(true);
 
@@ -144,53 +152,53 @@ final class Router
                 return $classAndMethod();
             }
 
-            // Создаем экземпляр класса
-            $this->setNew(new $classAndMethod[0]());
-            // Инициализуруем
-            $this->getNew()->init($this->getDi());
-            // Выполняем метод before до основного вызова
-            $this->getNew()->before();
-            // Собственно вызываем экшн, в зависимости от наличия параметров
-
-            isset($params) ? $this->getNew()->{$classAndMethod[1]}($params) : $this->getNew()->{$classAndMethod[1]}();
-            // Выполняем метод after
-            $this->getNew()->after();
-            exit;
+            exit(isset($params) ? $this->directCall($classAndMethod, $params) : $this->directCall($classAndMethod));
         }
     }
 
     /**
-     * @param      $classAndMethod
-     * @param null $params
+     * @param array $classAndMethod
+     * @param null  $params
      */
-    public function directCall($classAndMethod, $params = null)
+    public function directCall(array $classAndMethod, $params = null)
     {
-        // Создаем экземпляр класса
-        $this->setNew(new $classAndMethod[0]());
-        // Инициализуруем
-        $this->getNew()->init($this->getDi());
-        // Выполняем метод before до основного вызова
-        $this->getNew()->before();
-        // Собственно вызываем экшн, в зависимости от наличия параметров
+        $controller = $this->container()->new($classAndMethod[0]);
+        $method     = $classAndMethod[1];
 
-        isset($params) ? $this->getNew()->{$classAndMethod[1]}($params) : $this->getNew()->{$classAndMethod[1]}();
+        // Инициализуруем
+        $controller->init($this->container(), Config::TE);
+        // Выполняем метод before до основного вызова
+        $controller->before();
+        // Собственно вызываем экшн, в зависимости от наличия параметров
+        isset($params) ? $controller->{$method}($params) : $controller->{$method}();
         // Выполняем метод after
-        $this->getNew()->after();
-        exit;
+        $controller->after();
     }
 
     /**
      * @param     $class
      * @param     $method
      * @param int $number
+     *
+     * @throws \Exception
      */
     public function annotation($class, $method, $number = 0)
     {
         if (strpos($class, '::namespace') !== false) {
-            $classParams = explode('::', $class);
-            $class       = $classParams[0];
+            $classArray = explode('::', $class);
+
+            if (class_exists($classArray[0])) {
+                $class = $classArray[0];
+            } else {
+                throw new RouterException('503');
+            }
         } else {
-            $class = $this->getNamespace() . $class;
+
+            if (class_exists($this->getNamespace() . $class)) {
+                $class = $this->getNamespace() . $class;
+            } else {
+                throw new RouterException('503');
+            }
         }
 
         if (strpos($method, '::') !== false) {
@@ -198,7 +206,8 @@ final class Router
             $method      = $arrayParams[0];
         }
 
-        $result = $this->getDi()->get('annotation')->getMethodAnnotations($class, $method);
+        $result = $this->container()->get('annotation')->getMethodAnnotations($class, $method);
+
 
         if (isset($result['Routing'])) {
             $this->set($result['Routing'][$number]['url'], [$class, $method]);
@@ -222,27 +231,11 @@ final class Router
     }
 
     /**
-     * @return Controller
-     */
-    public function getNew(): Controller
-    {
-        return $this->new;
-    }
-
-    /**
-     * @param Controller $new
-     */
-    public function setNew(Controller $new)
-    {
-        $this->new = $new;
-    }
-
-    /**
      * @return IContainer
      */
-    public function getDi(): IContainer
+    public function container(): IContainer
     {
-        return $this->di;
+        return $this->container;
     }
 
     /**
@@ -252,11 +245,4 @@ final class Router
     {
         return $this->namespace;
     }
-
-    public function error404()
-    {
-        $this->getDi()->get('redirect')->responseCode('404');
-        echo 'Нет такой страницы: <h1>«Ошибка 404»</h1>';
-    }
-
 }
