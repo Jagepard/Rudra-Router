@@ -1,7 +1,7 @@
 {
     "name"        : "rudra/router",
     "description" : "The Rudra framework",
-    "version"     : "1.0.0-dev",
+    "version"     : "dev-master",
     "type"        : "library",
     "keywords"    : [
         "rudra",
@@ -21,10 +21,10 @@
         "skype": "jagepard.ru"
     },
     "require"     : {
-        "php": ">=7.0"
+        "php": ">=7.1"
     },
     "require-dev" : {
-        "codeception/codeception": "*"
+        "satooshi/php-coveralls": "dev-master"
     },
     "autoload"    : {
         "psr-4": {
