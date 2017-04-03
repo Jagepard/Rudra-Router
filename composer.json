@@ -1,7 +1,6 @@
 {
     "name"        : "rudra/router",
     "description" : "The Rudra framework",
-    "version"     : "dev-master",
     "type"        : "library",
     "keywords"    : [
         "rudra",
@@ -30,5 +29,9 @@
         "psr-4": {
             "Rudra\\": "src/"
         }
+    },
+    "minimum-stability" : "dev",
+    "config"            : {
+        "optimize-autoloader" : true
     }
 }
