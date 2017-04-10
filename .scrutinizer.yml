@@ -1,0 +1,8 @@
+checks:
+    php: true
+filter: {  }
+coding_style:
+    php:
+        spaces:
+            around_operators:
+                concatenation: true
