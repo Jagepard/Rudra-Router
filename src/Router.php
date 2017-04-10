@@ -13,43 +13,46 @@ declare(strict_types = 1);
 
 namespace Rudra;
 
-
-use App\Config;
-
-
 /**
  * Class Router
  *
  * @package Rudra
  */
-final class Router
+class Router
 {
 
     /**
      * @var bool
      */
-    private $token = false;
+    protected $token = false;
 
     /**
      * @var ContainerInterface
      */
-    private $container;
+    protected $container;
 
     /**
      * @var
      */
-    private $namespace;
+    protected $namespace;
+
+    /**
+     * @var
+     */
+    protected $templateEngine;
 
     /**
      * Router constructor.
      *
-     * @param \Rudra\ContainerInterface $container
-     * @param                   $namespace
+     * @param ContainerInterface $container
+     * @param                    $namespace
+     * @param                    $templateEngine
      */
-    public function __construct(ContainerInterface $container, $namespace)
+    public function __construct(ContainerInterface $container, $namespace, $templateEngine)
     {
-        $this->container = $container;
-        $this->namespace = $namespace;
+        $this->container      = $container;
+        $this->namespace      = $namespace;
+        $this->templateEngine = $templateEngine;
         set_exception_handler([new RouterException(), 'handler']);
     }
 
@@ -135,9 +138,7 @@ final class Router
 
         // Если запрашиваем метод совпадаеи с $_SERVER['REQUEST_METHOD']
         // и $realRequestString совпадает с $_SERVER['REQUEST_URI']
-        if ($requestMethod == $this->container()->getServer('REQUEST_METHOD')
-            && $realRequestString == $OutRequestUrl[0]
-        ) {
+        if ($requestMethod == $this->container()->getServer('REQUEST_METHOD') && $realRequestString == $OutRequestUrl[0]) {
             // Устанавливаем token true
             $this->setToken(true);
 
@@ -147,7 +148,9 @@ final class Router
                 return $classAndMethod();
             }
 
-            exit(isset($params) ? $this->directCall($classAndMethod, $params) : $this->directCall($classAndMethod));
+            isset($params) ? $this->directCall($classAndMethod, $params) : $this->directCall($classAndMethod);
+
+            return false;
         }
     }
 
@@ -161,7 +164,7 @@ final class Router
         $method     = $classAndMethod[1];
 
         // Инициализуруем
-        $controller->init($this->container(), Config::TE);
+        $controller->init($this->container(), $this->getTemplateEngine());
         // Выполняем метод before до основного вызова
         $controller->before();
         // Собственно вызываем экшн, в зависимости от наличия параметров
@@ -175,10 +178,11 @@ final class Router
      * @param     $method
      * @param int $number
      *
-     * @throws \Exception
+     * @throws RouterException
      */
     public function annotation($class, $method, $number = 0)
     {
+        /* class with namespace */
         if (strpos($class, '::namespace') !== false) {
             $classArray = explode('::', $class);
 
@@ -196,13 +200,7 @@ final class Router
             }
         }
 
-        if (strpos($method, '::') !== false) {
-            $arrayParams = explode('::', $method);
-            $method      = $arrayParams[0];
-        }
-
         $result = $this->container()->get('annotation')->getMethodAnnotations($class, $method);
-
 
         if (isset($result['Routing'])) {
             $this->set($result['Routing'][$number]['url'], [$class, $method]);
@@ -239,5 +237,13 @@ final class Router
     public function namespace()
     {
         return $this->namespace;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTemplateEngine()
+    {
+        return $this->templateEngine;
     }
 }
