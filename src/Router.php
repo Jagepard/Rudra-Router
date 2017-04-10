@@ -31,12 +31,7 @@ final class Router
     private $token = false;
 
     /**
-     * @var Controller
-     */
-    private $new;
-
-    /**
-     * @var IContainer
+     * @var ContainerInterface
      */
     private $container;
 
@@ -48,10 +43,10 @@ final class Router
     /**
      * Router constructor.
      *
-     * @param \Rudra\IContainer $container
+     * @param \Rudra\ContainerInterface $container
      * @param                   $namespace
      */
-    public function __construct(IContainer $container, $namespace)
+    public function __construct(ContainerInterface $container, $namespace)
     {
         $this->container = $container;
         $this->namespace = $namespace;
@@ -194,8 +189,8 @@ final class Router
             }
         } else {
 
-            if (class_exists($this->getNamespace() . $class)) {
-                $class = $this->getNamespace() . $class;
+            if (class_exists($this->namespace() . $class)) {
+                $class = $this->namespace() . $class;
             } else {
                 throw new RouterException('503');
             }
@@ -231,9 +226,9 @@ final class Router
     }
 
     /**
-     * @return IContainer
+     * @return ContainerInterface
      */
-    public function container(): IContainer
+    public function container(): ContainerInterface
     {
         return $this->container;
     }
@@ -241,7 +236,7 @@ final class Router
     /**
      * @return mixed
      */
-    public function getNamespace()
+    public function namespace()
     {
         return $this->namespace;
     }
