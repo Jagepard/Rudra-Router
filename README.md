@@ -1,71 +1,9 @@
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Jagepard/Rudra-Router/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Jagepard/Rudra-Router/?branch=master)
+[![Code Climate](https://codeclimate.com/github/Jagepard/Rudra-Router/badges/gpa.svg)](https://codeclimate.com/github/Jagepard/Rudra-Router)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/86edd8dbec394319afd00d7c5eff88bc)](https://www.codacy.com/app/Jagepard/Rudra-Router?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Jagepard/Rudra-Router&amp;utm_campaign=Badge_Grade)
+[![Latest Stable Version](https://poser.pugx.org/rudra/validation/v/stable)](https://packagist.org/packages/rudra/router)
+[![Total Downloads](https://poser.pugx.org/rudra/validation/downloads)](https://packagist.org/packages/rudra/router)
+[![License](https://poser.pugx.org/rudra/validation/license)](https://packagist.org/packages/rudra/router)
+
 # Rudra-Router
 
-При использовании класса Router (ручная маршрутизация)
-Маршруты определяются по соглашению в файле
-app/config/Routing.php
-
-Маршрутизатор иницианализируется в app/public/index.php
-
-    $app = new \App\Config\Routing(
-        new \Rudra\Router($di)
-    );
-
-Простейший GET-роут:
-
-    $this->app->set('',
-        function () 
-        {
-            echo "Hello World!!!";
-        }
-    );
-
-GET-роут к экшену контроллера
-
-    $this->app->set('',
-        ['App\\Main\\Controller\\MainController', 'actionIndex']
-    );
-
-GET-роут к экшену контроллера в котором указаны параметры, которые можно получить в виде массива аргументов
-
-    $this->app->set('{url}',
-        ['App\\Main\\Controller\\MainController', 'actionIndex']
-    );
-
-Простейший POST-роут:
-
-    $this->app->set('',
-        ['App\\Main\\Controller\\MainController', 'addPost'], 'POST'
-    );
-
-При использовании класса Autorouter (автоматическая маршрутизация)
-Маршруты не определяются, маршрутизация происходит автоматически
-исходя из данных адресной строки
-
-Маршрутизатор иницианализируется в app/public/index.php
-
-    $di->set('router', new \Core\Router($di));
-    $di->get('router')->run(\Config\Config::class, $di);
-
-    '/'                  --- [DefaultModule][DefaultController][DefaultAction]			
-    '/Controller'        --- [DefaultModule]Controller[DefaultAction]		
-    '/Action'            --- [DefaultModule][DefaultController]Action		
-    '/Controller/Action' --- [DefaultModule]Controller/Action	
-    
-    '/Controller/Action' --- Module/Controller[DefaultAction]	
-    'Module/Controller/Action' --- Module/Controller/Action
-
-
-
-Маршрут по умолчанию указывается в файле app/config/Config.php
-в статическом свойстве $defaultController
-
-    public static $defaultController = [
-        //Базовый модуль
-        'main',
-        //Базовый Контроллер
-        'Main\\MainController',
-        //Базовый экшн
-        'index',
-        // Имя Метода по умолчанию для всех контроллеров
-        'index'
-    ];
