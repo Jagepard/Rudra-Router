@@ -78,25 +78,43 @@ class Router
         }
 
         if ($this->container()->getServer('REQUEST_METHOD') == 'GET') {
-            $this->matchRequest($route);
+            $this->matchHttpMethod($route);
         }
 
         if ($this->container()->getServer('REQUEST_METHOD') == 'POST') {
-            $this->matchRequest($route);
+            $this->matchHttpMethod($route);
         }
 
         if (($this->container()->getServer('REQUEST_METHOD') == 'PUT')) {
             parse_str(file_get_contents('php://input'), $_PUT);
-            $this->matchRequest($route);
+            $this->matchHttpMethod($route);
         }
 
         if (($this->container()->getServer('REQUEST_METHOD') == 'PATCH')) {
             parse_str(file_get_contents('php://input'), $_PATCH);
-            $this->matchRequest($route);
+            $this->matchHttpMethod($route);
         }
 
         if (($this->container()->getServer('REQUEST_METHOD') == 'DELETE')) {
             parse_str(file_get_contents('php://input'), $_DELETE);
+            $this->matchHttpMethod($route);
+        }
+    }
+
+    /**
+     * @param array $route
+     */
+    protected function matchHttpMethod(array $route)
+    {
+
+        if (strpos($route['http_method'], '|') !== false) {
+            $httpArray = explode('|', $route['http_method']);
+
+            foreach ($httpArray as $httpItem) {
+                $route['http_method'] = $httpItem;
+                $this->matchRequest($route);
+            }
+        } else {
             $this->matchRequest($route);
         }
     }
