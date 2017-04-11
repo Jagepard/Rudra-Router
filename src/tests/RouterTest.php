@@ -38,7 +38,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
     protected function setUp(): void
     {
-        $_SERVER['REQUEST_URI']    = '';
+        $_SERVER['REQUEST_URI']    = 'test/page';
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $this->container           = Container::app();
         $this->container->setBinding(ContainerInterface::class, Container::$app);
@@ -46,39 +46,21 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->container->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => 'twig']);
     }
 
+
     public function testRouter(): void
     {
         $this->assertInstanceOf(Router::class, $this->container()->get('router'));
-    }
 
-    /**
-     * @runInSeparateProcess
-     */
-    public function testAnnotation(): void
-    {
-        $this->assertNull($this->container()->get('router')->annotation('MainController', 'actionIndex'));
-        $this->assertEquals(123, $this->container()->get('equals'));
-    }
+        $this->container()->get('router')->set([
+                'name'        => 'main_page',
+                'pattern'     => '/test/page',
+                'http_method' => 'GET',
+                'controller'  => 'stub\\MainController',
+                'method'      => 'actionIndex'
+            ]
+        );
 
-    /**
-     * @runInSeparateProcess
-     */
-    public function testAnnotationWithNamespace(): void
-    {
-        $this->assertNull($this->container()->get('router')->annotation('stub\\MainController::namespace', 'actionIndex'));
-        $this->assertEquals(123, $this->container()->get('equals'));
-    }
-
-    public function testAnnotationException(): void
-    {
-        $this->expectException(RouterException::class);
-        $this->container()->get('router')->annotation('FalseController', 'actionIndex');
-    }
-
-    public function testAnnotationExceptionWithNamespace(): void
-    {
-        $this->expectException(RouterException::class);
-        $this->container()->get('router')->annotation('stub\\FalseController::namespace', 'actionIndex');
+        $this->assertEquals(123, Container::$app->get('actionIndex'));
     }
 
     /**
