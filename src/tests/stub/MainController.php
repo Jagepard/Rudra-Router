@@ -35,7 +35,6 @@ class MainController
      */
     public function actionIndex()
     {
-        var_dump(123456789);
         Container::$app->set('actionIndex', 123, 'raw');
     }
 
