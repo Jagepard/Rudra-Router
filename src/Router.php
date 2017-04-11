@@ -101,7 +101,6 @@ class Router
     {
         $settersName = 'set' . ucfirst(strtolower($requestMethodName));
         parse_str(file_get_contents('php://input'), $data);
-        var_dump($settersName);
         $this->container()->$settersName($data);
     }
 
@@ -191,7 +190,6 @@ class Router
      */
     protected function matchHttpMethod(array $route)
     {
-        var_dump($route);
         if (strpos($route['http_method'], '|') !== false) {
             $httpArray = explode('|', $route['http_method']);
 
@@ -276,11 +274,41 @@ class Router
                     return $route['method']();
                 }
 
+                $controller = $this->getControllerName($route['controller']);
+
                 isset($params)
-                    ? $this->directCall([$route['controller'], $route['method']], $params)
-                    : $this->directCall([$route['controller'], $route['method']]);
+                    ? $this->directCall([$controller, $route['method']], $params)
+                    : $this->directCall([$controller, $route['method']]);
             }
         }
+    }
+
+    /**
+     * @param $controllerName
+     *
+     * @return string
+     * @throws RouterException
+     */
+    protected function getControllerName($controllerName)
+    {
+        if (strpos($controllerName, '::namespace') !== false) {
+            $controllerArray = explode('::', $controllerName);
+
+            if (class_exists($controllerArray[0])) {
+                $controller = $controllerArray[0];
+            } else {
+                throw new RouterException('503');
+            }
+        } else {
+
+            if (class_exists($this->namespace() . $controllerName)) {
+                $controller = $this->namespace() . $controllerName;
+            } else {
+                throw new RouterException('503');
+            }
+        }
+
+        return $controller;
     }
 
     /**
