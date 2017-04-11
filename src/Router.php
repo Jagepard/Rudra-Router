@@ -57,100 +57,127 @@ class Router
     }
 
     /**
-     * @param string $pattern
-     * @param        $classAndMethod
+     * @param array $route
      *
      * @return bool
      */
-    public function set(string $pattern, $classAndMethod)
+    public function set(array $route)
     {
-        // Исходные данные для инкремента
-        $i = 0;
+        if ($this->container()->hasPost('_method')) {
+            switch ($this->container()->getPost('_method')) {
+                case 'PUT':
+                    $this->container()->setServer('REQUEST_METHOD', 'PUT');
+                    break;
+                case 'PATCH':
+                    $this->container()->setServer('REQUEST_METHOD', 'PATCH');
+                    break;
+                case 'DELETE':
+                    $this->container()->setServer('REQUEST_METHOD', 'DELETE');
+                    break;
+            }
+        }
 
-        // Строка запроса
-        $requestUrl = trim($this->container()->getServer('REQUEST_URI'), '/');
-        // Разбираем данные $_SERVER['REQUEST_URI'] по '/'
-        $requestArray = explode('/', $requestUrl);
+        if ($this->container()->getServer('REQUEST_METHOD') == 'GET') {
+            $this->matchRequest($route);
+        }
 
-        // Обходим элементы массива $pattern
-        foreach (explode('/', $pattern) as $itemPattern) {
+        if ($this->container()->getServer('REQUEST_METHOD') == 'POST') {
+            $this->matchRequest($route);
+        }
 
-            if (strpos($itemPattern, '::') !== false) {
-                $patternData   = explode('::', $itemPattern);
-                $requestMethod = ($patternData[1] !== null) ? $patternData[1] : 'GET';
-                $itemPattern   = $patternData[0];
+        if (($this->container()->getServer('REQUEST_METHOD') == 'PUT')) {
+            parse_str(file_get_contents('php://input'), $_PUT);
+            $this->matchRequest($route);
+        }
 
-                if (array_key_exists(2, $patternData)) {
-                    $hasMethod = 'has' . ucfirst(strtolower($patternData[1]));
-                    $getMethod = 'get' . ucfirst(strtolower($patternData[1]));
-                    $key       = $patternData[2];
+        if (($this->container()->getServer('REQUEST_METHOD') == 'PATCH')) {
+            parse_str(file_get_contents('php://input'), $_PATCH);
+            $this->matchRequest($route);
+        }
 
-                    if ($this->container()->$hasMethod($key)) {
-                        $params[$key] = $this->container()->$getMethod($key);
+        if (($this->container()->getServer('REQUEST_METHOD') == 'DELETE')) {
+            parse_str(file_get_contents('php://input'), $_DELETE);
+            $this->matchRequest($route);
+        }
+    }
+
+    /**
+     * @param array $route
+     *
+     * @return bool
+     */
+    protected function matchRequest(array $route)
+    {
+        if ($route['http_method'] == $this->container()->getServer('REQUEST_METHOD')) {
+
+            // Строка запроса
+            $requestUrl = trim($this->container()->getServer('REQUEST_URI'), '/');
+            // Разбираем данные $_SERVER['REQUEST_URI'] по '/'
+            $requestArray = explode('/', $requestUrl);
+
+            // Исходные данные для инкремента
+            $i = 0;
+            // Обходим элементы массива $pattern
+            foreach (explode('/', ltrim($route['pattern'] , '/')) as $itemPattern) {
+
+                // Ищем совпадение строки запроса с шаблоном {...}
+                if (preg_match('/{[a-zA-Z0-9]+}/', $itemPattern, $matchesPattern) != 0) {
+                    // Если есть элемент массива $i
+                    if (isset($requestArray[$i])) {
+                        // Убираем {} из названия будующего ключа массива параметров
+                        preg_match('/[a-zA-Z0-9]+/', $matchesPattern[0], $paramsKey);
+                        // Присваиваем найденому параметру соответсвующий uri
+                        $params[$paramsKey[0]]  = $requestArray[$i];
+                        $completeRequestArray[] = $requestArray[$i];
                     }
+                    // Если совпадений нет, то записываем данные не совпадающие
+                    // с шаблоном в отдельный массив
+                } else {
+                    $completeRequestArray[] = $itemPattern;
                 }
 
-            } else {
-                $requestMethod = 'GET';
+                // Инкремент
+                $i++;
             }
 
-            // Ищем совпадение строки запроса с шаблоном {...}
-            if (preg_match('/{[a-zA-Z0-9]+}/', $itemPattern, $matchesPattern) != 0) {
-                // Если есть элемент массива $i
-                if (isset($requestArray[$i])) {
-                    // Убираем {} из названия будующего ключа массива параметров
-                    preg_match('/[a-zA-Z0-9]+/', $matchesPattern[0], $paramsKey);
-                    // Присваиваем найденому параметру соответсвующий uri
-                    $params[$paramsKey[0]]  = $requestArray[$i];
-                    $completeRequestArray[] = $requestArray[$i];
+            if (isset($completeRequestArray)) {
+                $requestString     = implode('\/', $completeRequestArray);
+                $realRequestString = implode('/', $completeRequestArray);
+            }
+
+            if (strpos($requestUrl, '?') !== false) {
+                preg_match('~[/[:word:]-]+(?=\?)~', $requestUrl, $OutRequestUrl);
+            } else {
+                $OutRequestUrl[0] = $requestUrl;
+            }
+
+            // Это нужно для обработки 404 ошибки
+            if (isset($requestString)) {
+                // Проверяем строку запроса на соответсвие маршруту
+                preg_match("/$requestString/", $requestUrl, $matches);
+
+                // Если совпадений нет, то возвращаем $this->isToken() == false
+                if (!isset($matches[0])) {
+                    return $this->isToken();
                 }
-                // Если совпадений нет, то записываем данные не совпадающие
-                // с шаблоном в отдельный массив
-            } else {
-                $completeRequestArray[] = $itemPattern;
             }
 
-            // Инкремент
-            $i++;
-        }
+            // Если $realRequestString совпадает с $_SERVER['REQUEST_URI']
+            if ($realRequestString == $OutRequestUrl[0]) {
+                // Устанавливаем token true
+                $this->setToken(true);
 
-        if (isset($completeRequestArray)) {
-            $requestString     = implode('\/', $completeRequestArray);
-            $realRequestString = implode('/', $completeRequestArray);
-        }
+                $classAndMethod = [$route['controller'], $route['method']];
+                // Если $classAndMethod является экземпляром ксласса Closure
+                // возвращаем замыкание
+                if ($classAndMethod instanceof \Closure) {
+                    return $classAndMethod();
+                }
 
-        if (strpos($requestUrl, '?') !== false) {
-            preg_match('~[/[:word:]-]+(?=\?)~', $requestUrl, $OutRequestUrl);
-        } else {
-            $OutRequestUrl[0] = $requestUrl;
-        }
+                isset($params) ? $this->directCall($classAndMethod, $params) : $this->directCall($classAndMethod);
 
-        // Это нужно для обработки 404 ошибки
-        if (isset($requestString)) {
-            // Проверяем строку запроса на соответсвие маршруту
-            preg_match("/$requestString/", $requestUrl, $matches);
-
-            // Если совпадений нет, то возвращаем $this->isToken() == false
-            if (!isset($matches[0])) {
-                return $this->isToken();
+                return false;
             }
-        }
-
-        // Если запрашиваем метод совпадаеи с $_SERVER['REQUEST_METHOD']
-        // и $realRequestString совпадает с $_SERVER['REQUEST_URI']
-        if ($requestMethod == $this->container()->getServer('REQUEST_METHOD') && $realRequestString == $OutRequestUrl[0]) {
-            // Устанавливаем token true
-            $this->setToken(true);
-
-            // Если $classAndMethod является экземпляром ксласса Closure
-            // возвращаем замыкание
-            if ($classAndMethod instanceof \Closure) {
-                return $classAndMethod();
-            }
-
-            isset($params) ? $this->directCall($classAndMethod, $params) : $this->directCall($classAndMethod);
-
-            return false;
         }
     }
 
@@ -166,11 +193,11 @@ class Router
         // Инициализуруем
         $controller->init($this->container(), $this->getTemplateEngine());
         // Выполняем метод before до основного вызова
-        $controller->before();
+        $controller->before(); // --- middleware before
         // Собственно вызываем экшн, в зависимости от наличия параметров
         isset($params) ? $controller->{$method}($params) : $controller->{$method}();
         // Выполняем метод after
-        $controller->after();
+        $controller->after(); // --- middleware after
     }
 
     /**
