@@ -13,6 +13,7 @@ namespace stub;
 
 
 use Rudra\ContainerInterface;
+use Rudra\Container;
 
 
 /**
@@ -34,7 +35,7 @@ class MainController
      */
     public function actionIndex()
     {
-        $this->container()->set('equals', 123, 'raw');
+        Container::$app->set('actionIndex', 123, 'raw');
     }
 
     public function init($container, ...$params)
