@@ -104,9 +104,62 @@ class Router
     /**
      * @param array $route
      */
+    public function get(array $route)
+    {
+        $route['http_method'] = 'GET';
+        $this->set($route);
+    }
+
+    /**
+     * @param array $route
+     */
+    public function post(array $route)
+    {
+        $route['http_method'] = 'POST';
+        $this->set($route);
+    }
+
+    /**
+     * @param array $route
+     */
+    public function put(array $route)
+    {
+        $route['http_method'] = 'PUT';
+        $this->set($route);
+    }
+
+    /**
+     * @param array $route
+     */
+    public function patch(array $route)
+    {
+        $route['http_method'] = 'PATCH';
+        $this->set($route);
+    }
+
+    /**
+     * @param array $route
+     */
+    public function delete(array $route)
+    {
+        $route['http_method'] = 'DELETE';
+        $this->set($route);
+    }
+
+    /**
+     * @param array $route
+     */
+    public function any(array $route)
+    {
+        $route['http_method'] = 'GET|POST|PUT|PATCH|DELETE';
+        $this->set($route);
+    }
+
+    /**
+     * @param array $route
+     */
     protected function matchHttpMethod(array $route)
     {
-
         if (strpos($route['http_method'], '|') !== false) {
             $httpArray = explode('|', $route['http_method']);
 
@@ -136,7 +189,7 @@ class Router
             // Исходные данные для инкремента
             $i = 0;
             // Обходим элементы массива $pattern
-            foreach (explode('/', ltrim($route['pattern'] , '/')) as $itemPattern) {
+            foreach (explode('/', ltrim($route['pattern'], '/')) as $itemPattern) {
 
                 // Ищем совпадение строки запроса с шаблоном {...}
                 if (preg_match('/{[a-zA-Z0-9]+}/', $itemPattern, $matchesPattern) != 0) {
