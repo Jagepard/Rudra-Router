@@ -66,39 +66,70 @@ class Router
         if ($this->container()->hasPost('_method')) {
             switch ($this->container()->getPost('_method')) {
                 case 'PUT':
-                    $this->container()->setServer('REQUEST_METHOD', 'PUT');
+                    $this->setRequestMethod('PUT');
                     break;
                 case 'PATCH':
-                    $this->container()->setServer('REQUEST_METHOD', 'PATCH');
+                    $this->setRequestMethod('PATCH');
                     break;
                 case 'DELETE':
-                    $this->container()->setServer('REQUEST_METHOD', 'DELETE');
+                    $this->setRequestMethod('DELETE');
                     break;
             }
         }
 
-        if ($this->container()->getServer('REQUEST_METHOD') == 'GET') {
+        if (($this->container()->getServer('REQUEST_METHOD') === 'GET') ||
+            $this->container()->getServer('REQUEST_METHOD') === 'POST'
+        ) {
             $this->matchHttpMethod($route);
+            return false;
         }
 
-        if ($this->container()->getServer('REQUEST_METHOD') == 'POST') {
+        if (($this->container()->getServer('REQUEST_METHOD') === 'PUT') ||
+            ($this->container()->getServer('REQUEST_METHOD') === 'PATCH') ||
+            ($this->container()->getServer('REQUEST_METHOD') === 'DELETE')
+        ) {
+            $this->parsePhpInput($this->container()->getServer('REQUEST_METHOD'));
             $this->matchHttpMethod($route);
+            return false;
+        }
+    }
+
+    /**
+     * @param $requestMethodName
+     */
+    protected function parsePhpInput($requestMethodName)
+    {
+        $settersName = 'set' . ucfirst(strtolower($requestMethodName));
+        parse_str(file_get_contents('php://input'), $data);
+        var_dump($settersName);
+        $this->container()->$settersName($data);
+    }
+
+    /**
+     * @param array $route
+     */
+    public function resource(array $route)
+    {
+        switch ($this->container()->getServer('REQUEST_METHOD')) {
+            case 'GET':
+                $route['http_method'] = 'GET';
+                $route['method']      = 'read';
+                break;
+            case 'POST':
+                $route['http_method'] = 'POST';
+                $route['method']      = 'create';
+                break;
+            case 'PUT':
+                $route['http_method'] = 'PUT';
+                $route['method']      = 'update';
+                break;
+            case 'DELETE':
+                $route['http_method'] = 'DELETE';
+                $route['method']      = 'delete';
+                break;
         }
 
-        if (($this->container()->getServer('REQUEST_METHOD') == 'PUT')) {
-            parse_str(file_get_contents('php://input'), $_PUT);
-            $this->matchHttpMethod($route);
-        }
-
-        if (($this->container()->getServer('REQUEST_METHOD') == 'PATCH')) {
-            parse_str(file_get_contents('php://input'), $_PATCH);
-            $this->matchHttpMethod($route);
-        }
-
-        if (($this->container()->getServer('REQUEST_METHOD') == 'DELETE')) {
-            parse_str(file_get_contents('php://input'), $_DELETE);
-            $this->matchHttpMethod($route);
-        }
+        $this->set($route);
     }
 
     /**
@@ -160,6 +191,7 @@ class Router
      */
     protected function matchHttpMethod(array $route)
     {
+        var_dump($route);
         if (strpos($route['http_method'], '|') !== false) {
             $httpArray = explode('|', $route['http_method']);
 
@@ -238,16 +270,15 @@ class Router
                 // Устанавливаем token true
                 $this->setToken(true);
 
-                $classAndMethod = [$route['controller'], $route['method']];
-                // Если $classAndMethod является экземпляром ксласса Closure
+                // Если $route['method'] является экземпляром ксласса Closure
                 // возвращаем замыкание
-                if ($classAndMethod instanceof \Closure) {
-                    return $classAndMethod();
+                if ($route['method'] instanceof \Closure) {
+                    return $route['method']();
                 }
 
-                isset($params) ? $this->directCall($classAndMethod, $params) : $this->directCall($classAndMethod);
-
-                return false;
+                isset($params)
+                    ? $this->directCall([$route['controller'], $route['method']], $params)
+                    : $this->directCall([$route['controller'], $route['method']]);
             }
         }
     }
@@ -343,5 +374,13 @@ class Router
     public function getTemplateEngine()
     {
         return $this->templateEngine;
+    }
+
+    /**
+     * @param $requestMethod
+     */
+    protected function setRequestMethod($requestMethod)
+    {
+        $this->container()->setServer('REQUEST_METHOD', $requestMethod);
     }
 }
