@@ -117,4 +117,11 @@ trait RouterMethodTrait
      * @return mixed
      */
     protected abstract function setRequestMethod(string $param = null);
+
+    /**
+     * @param array $route
+     *
+     * @return bool
+     */
+    public abstract function set(array $route);
 }
