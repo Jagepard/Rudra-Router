@@ -110,4 +110,11 @@ trait RouterMethodTrait
      * @return ContainerInterface
      */
     protected abstract function container(): ContainerInterface;
+
+    /**
+     * @param string|null $param
+     *
+     * @return mixed
+     */
+    protected abstract function setRequestMethod(string $param = null);
 }
