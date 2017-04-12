@@ -47,51 +47,11 @@ trait RouterMatchTrait
     {
         if ($route['http_method'] == $this->container()->getServer('REQUEST_METHOD')) {
 
-            // Строка запроса
-            $requestUrl = trim($this->container()->getServer('REQUEST_URI'), '/');
-            // Разбираем данные REQUEST_URI по '/'
-            $requestArray = explode('/', $requestUrl);
-
-            // Исходные данные
-            $i                    = 0;
-            $params               = [];
-            $completeRequestArray = [];
-            $OutRequestUrl        = [];
-            $requestString        = null;
-            $realRequestString    = null;
-
-            // Обходим элементы массива $pattern
-            foreach (explode('/', ltrim($route['pattern'], '/')) as $itemPattern) {
-                // Ищем совпадение строки запроса с шаблоном {...}
-                if (preg_match('/{[a-zA-Z0-9]+}/', $itemPattern, $matchesPattern) != 0) {
-                    // Если есть элемент массива $i
-                    if (isset($requestArray[$i])) {
-                        // Убираем {} из названия будующего ключа массива параметров
-                        preg_match('/[a-zA-Z0-9]+/', $matchesPattern[0], $paramsKey);
-                        // Присваиваем найденому параметру соответсвующий uri
-                        $params[$paramsKey[0]]  = $requestArray[$i];
-                        $completeRequestArray[] = $requestArray[$i];
-                    }
-                    // Если совпадений нет, то записываем данные не совпадающие
-                    // с шаблоном в отдельный массив
-                } else {
-                    $completeRequestArray[] = $itemPattern;
-                }
-
-                // Инкремент
-                $i++;
-            }
-
-            if (isset($completeRequestArray)) {
-                $requestString     = implode('\/', $completeRequestArray);
-                $realRequestString = implode('/', $completeRequestArray);
-            }
-
-            if (strpos($requestUrl, '?') !== false) {
-                preg_match('~[/[:word:]-]+(?=\?)~', $requestUrl, $OutRequestUrl);
-            } else {
-                $OutRequestUrl[0] = $requestUrl;
-            }
+            $requestUrl                              = trim($this->container()->getServer('REQUEST_URI'), '/');
+            $requestArray                            = explode('/', $requestUrl);
+            list($params, $completeRequestArray)     = $this->handlePattern($route, $requestArray);
+            list($requestString, $realRequestString) = $this->handleCompleteRequestArray($completeRequestArray);
+            $OutRequestUrl                           = $this->getOutRequestUrl($requestUrl);
 
             // Это нужно для обработки 404 ошибки
             if (isset($requestString)) {
@@ -104,23 +64,7 @@ trait RouterMatchTrait
                 }
             }
 
-            // Если $realRequestString совпадает с 'REQUEST_URI'
-            if ($realRequestString == $OutRequestUrl[0]) {
-                // Устанавливаем token true
-                $this->setToken(true);
-
-                // Если $route['method'] является экземпляром ксласса Closure
-                // возвращаем замыкание
-                if ($route['method'] instanceof \Closure) {
-                    return $route['method']();
-                }
-
-                $controller = $this->controllerName($route['controller']);
-
-                isset($params)
-                    ? $this->directCall([$controller, $route['method']], $params)
-                    : $this->directCall([$controller, $route['method']]);
-            }
+            return $this->setCallable($route, $realRequestString, $OutRequestUrl, $params);
         }
     }
 
@@ -153,23 +97,115 @@ trait RouterMatchTrait
     }
 
     /**
+     * @param array $route
+     * @param array $requestArray
+     *
+     * @return array
+     */
+    protected function handlePattern(array $route, array $requestArray): array
+    {
+        $i                    = 0;
+        $params               = [];
+        $paramsKey            = [];
+        $matchesPattern       = [];
+        $completeRequestArray = [];
+
+        // Обходим элементы массива $pattern
+        foreach (explode('/', ltrim($route['pattern'], '/')) as $itemPattern) {
+            // Ищем совпадение строки запроса с шаблоном {...}
+            if (preg_match('/{[a-zA-Z0-9]+}/', $itemPattern, $matchesPattern) != 0) {
+                // Если есть элемент массива $i
+                if (isset($requestArray[$i])) {
+                    // Убираем {} из названия будующего ключа массива параметров
+                    preg_match('/[a-zA-Z0-9]+/', $matchesPattern[0], $paramsKey);
+                    // Присваиваем найденому параметру соответсвующий uri
+                    $params[$paramsKey[0]]  = $requestArray[$i];
+                    $completeRequestArray[] = $requestArray[$i];
+                }
+                // Если совпадений нет, то записываем данные не совпадающие
+                // с шаблоном в отдельный массив
+            } else {
+                $completeRequestArray[] = $itemPattern;
+            }
+
+            $i++;
+        }
+
+        return [$params, $completeRequestArray];
+    }
+
+    /**
+     * @param $completeRequestArray
+     *
+     * @return array
+     */
+    protected function handleCompleteRequestArray($completeRequestArray)
+    {
+        $requestString     = '';
+        $realRequestString = '';
+
+        if (isset($completeRequestArray)) {
+            $requestString     = implode('\/', $completeRequestArray);
+            $realRequestString = implode('/', $completeRequestArray);
+            return array($requestString, $realRequestString);
+        }
+        return array($requestString, $realRequestString);
+    }
+
+    /**
+     * @param $requestUrl
+     *
+     * @return mixed
+     */
+    protected function getOutRequestUrl($requestUrl)
+    {
+        $OutRequestUrl = [];
+
+        if (strpos($requestUrl, '?') !== false) {
+            preg_match('~[/[:word:]-]+(?=\?)~', $requestUrl, $OutRequestUrl);
+
+            return $OutRequestUrl;
+        }
+
+        $OutRequestUrl[0] = $requestUrl;
+
+        return $OutRequestUrl;
+    }
+
+    /**
+     * @param array $route
+     * @param       $realRequestString
+     * @param       $OutRequestUrl
+     * @param       $params
+     *
+     * @return mixed
+     */
+    protected function setCallable(array $route, $realRequestString, $OutRequestUrl, $params)
+    {
+        // Если $realRequestString совпадает с 'REQUEST_URI'
+        if ($realRequestString == $OutRequestUrl[0]) {
+            // Устанавливаем token true
+            $this->setToken(true);
+
+            // Если $route['method'] является экземпляром ксласса Closure
+            // возвращаем замыкание
+            if ($route['method'] instanceof \Closure) {
+                return $route['method']();
+            }
+
+            $controller = $this->controllerName($route['controller']);
+
+            isset($params)
+                ? $this->directCall([$controller, $route['method']], $params)
+                : $this->directCall([$controller, $route['method']]);
+        }
+    }
+
+    /**
      * @param array $classAndMethod
      * @param null  $params
      */
-    public function directCall(array $classAndMethod, $params = null): void
-    {
-        $controller = $this->container()->new($classAndMethod[0]);
-        $method     = $classAndMethod[1];
-
-        // Инициализуруем
-        $controller->init($this->container(), $this->templateEngine());
-        // Выполняем метод before до основного вызова
-        $controller->before(); // --- middleware before
-        // Собственно вызываем экшн, в зависимости от наличия параметров
-        isset($params) ? $controller->{$method}($params) : $controller->{$method}();
-        // Выполняем метод after
-        $controller->after(); // --- middleware after
-    }
+    public abstract function directCall(array $classAndMethod, $params = null): void;
 
     /**
      * @return ContainerInterface
