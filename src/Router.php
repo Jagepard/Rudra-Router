@@ -117,11 +117,6 @@ class Router implements RouterInterface
 
                     return $route;
             }
-
-            $route['http_method'] = 'POST';
-            $route['method']      = 'create';
-
-            return $route;
         } else {
             switch ($this->container()->getPost('_method')) {
                 case 'PUT':
