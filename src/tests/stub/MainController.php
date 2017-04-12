@@ -33,11 +33,10 @@ class MainController
      * @Routing(url = '')
      * @return string
      */
-    public function read(...$params)
+    public function read($params = null)
     {
         var_dump(__METHOD__);
-        var_dump($params);
-        var_dump($this->container()->getGet());
+        !isset($params) ?: var_dump($params);
         Container::$app->set('actionIndex', 123, 'raw');
     }
 
@@ -47,14 +46,14 @@ class MainController
         var_dump($this->container()->getPost());
     }
 
-    public function update(...$params)
+    public function update($params)
     {
         var_dump(__METHOD__);
         var_dump($params);
         var_dump($this->container()->getPut());
     }
 
-    public function delete(...$params)
+    public function delete($params)
     {
         var_dump(__METHOD__);
         var_dump($params);
