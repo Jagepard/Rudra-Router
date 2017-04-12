@@ -86,7 +86,12 @@ trait RouterMethodTrait
                 $route['method']      = 'read';
                 break;
             case 'POST':
-                $route = array_merge($route, $this->setRequestMethod('REST'));
+                if ($this->container()->hasPost('_method')) {
+                    $route = array_merge($route, $this->setRequestMethod('REST'));
+                } else {
+                    $route['http_method'] = 'POST';
+                    $route['method']      = 'create';
+                }
                 break;
             case 'PUT':
                 $route['http_method'] = 'PUT';
