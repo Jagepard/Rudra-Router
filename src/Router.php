@@ -21,6 +21,8 @@ namespace Rudra;
 class Router
 {
 
+    use RouterSetMethodTrait;
+
     /**
      * @var bool
      */
@@ -77,16 +79,16 @@ class Router
             }
         }
 
-        if (($this->container()->getServer('REQUEST_METHOD') === 'GET') ||
-            $this->container()->getServer('REQUEST_METHOD') === 'POST'
+        if (($this->container()->getServer('REQUEST_METHOD') === 'GET')
+            || $this->container()->getServer('REQUEST_METHOD') === 'POST'
         ) {
             $this->matchHttpMethod($route);
             return false;
         }
 
-        if (($this->container()->getServer('REQUEST_METHOD') === 'PUT') ||
-            ($this->container()->getServer('REQUEST_METHOD') === 'PATCH') ||
-            ($this->container()->getServer('REQUEST_METHOD') === 'DELETE')
+        if (($this->container()->getServer('REQUEST_METHOD') === 'PUT')
+            || ($this->container()->getServer('REQUEST_METHOD') === 'PATCH')
+            || ($this->container()->getServer('REQUEST_METHOD') === 'DELETE')
         ) {
             $this->parsePhpInput($this->container()->getServer('REQUEST_METHOD'));
             $this->matchHttpMethod($route);
@@ -102,87 +104,6 @@ class Router
         $settersName = 'set' . ucfirst(strtolower($requestMethodName));
         parse_str(file_get_contents('php://input'), $data);
         $this->container()->$settersName($data);
-    }
-
-    /**
-     * @param array $route
-     */
-    public function resource(array $route)
-    {
-        switch ($this->container()->getServer('REQUEST_METHOD')) {
-            case 'GET':
-                $route['http_method'] = 'GET';
-                $route['method']      = 'read';
-                break;
-            case 'POST':
-                $route['http_method'] = 'POST';
-                $route['method']      = 'create';
-                break;
-            case 'PUT':
-                $route['http_method'] = 'PUT';
-                $route['method']      = 'update';
-                break;
-            case 'DELETE':
-                $route['http_method'] = 'DELETE';
-                $route['method']      = 'delete';
-                break;
-        }
-
-        $this->set($route);
-    }
-
-    /**
-     * @param array $route
-     */
-    public function get(array $route)
-    {
-        $route['http_method'] = 'GET';
-        $this->set($route);
-    }
-
-    /**
-     * @param array $route
-     */
-    public function post(array $route)
-    {
-        $route['http_method'] = 'POST';
-        $this->set($route);
-    }
-
-    /**
-     * @param array $route
-     */
-    public function put(array $route)
-    {
-        $route['http_method'] = 'PUT';
-        $this->set($route);
-    }
-
-    /**
-     * @param array $route
-     */
-    public function patch(array $route)
-    {
-        $route['http_method'] = 'PATCH';
-        $this->set($route);
-    }
-
-    /**
-     * @param array $route
-     */
-    public function delete(array $route)
-    {
-        $route['http_method'] = 'DELETE';
-        $this->set($route);
-    }
-
-    /**
-     * @param array $route
-     */
-    public function any(array $route)
-    {
-        $route['http_method'] = 'GET|POST|PUT|PATCH|DELETE';
-        $this->set($route);
     }
 
     /**
