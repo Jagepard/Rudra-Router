@@ -18,7 +18,7 @@ namespace Rudra;
  *
  * @package Rudra
  */
-class Router
+class Router implements RouterInterface
 {
 
     use RouterMethodTrait;
@@ -48,10 +48,10 @@ class Router
      * Router constructor.
      *
      * @param ContainerInterface $container
-     * @param                    $namespace
-     * @param                    $templateEngine
+     * @param string             $namespace
+     * @param string             $templateEngine
      */
-    public function __construct(ContainerInterface $container, $namespace, $templateEngine)
+    public function __construct(ContainerInterface $container, string $namespace, string $templateEngine)
     {
         $this->container      = $container;
         $this->namespace      = $namespace;
@@ -106,7 +106,7 @@ class Router
      *
      * @throws RouterException
      */
-    public function annotation($class, $method, $number = 0)
+    public function annotation(string $class, string $method, int $number = 0): void
     {
         $result = $this->container()->get('annotation')->getMethodAnnotations($class, $method);
 
@@ -134,7 +134,7 @@ class Router
     /**
      * @return ContainerInterface
      */
-    public function container(): ContainerInterface
+    protected function container(): ContainerInterface
     {
         return $this->container;
     }
@@ -142,7 +142,7 @@ class Router
     /**
      * @return mixed
      */
-    public function namespace()
+    protected function namespace()
     {
         return $this->namespace;
     }
@@ -150,7 +150,7 @@ class Router
     /**
      * @return mixed
      */
-    public function templateEngine()
+    protected function templateEngine()
     {
         return $this->templateEngine;
     }
