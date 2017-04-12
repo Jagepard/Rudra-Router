@@ -90,6 +90,41 @@ class Router implements RouterInterface
     }
 
     /**
+     * @param array $classAndMethod
+     * @param null  $params
+     */
+    public function directCall(array $classAndMethod, $params = null): void
+    {
+        $controller = $this->container()->new($classAndMethod[0]);
+        $method     = $classAndMethod[1];
+
+        // Инициализуруем
+        $controller->init($this->container(), $this->templateEngine());
+        // Выполняем метод before до основного вызова
+        $controller->before(); // --- middleware before
+        // Собственно вызываем экшн, в зависимости от наличия параметров
+        isset($params) ? $controller->{$method}($params) : $controller->{$method}();
+        // Выполняем метод after
+        $controller->after(); // --- middleware after
+    }
+
+    /**
+     * @param     $class
+     * @param     $method
+     * @param int $number
+     *
+     * @throws RouterException
+     */
+    public function annotation(string $class, string $method, int $number = 0): void
+    {
+        $result = $this->container()->get('annotation')->getMethodAnnotations($class, $method);
+
+        if (isset($result['Routing'])) {
+            $this->set($result['Routing'][$number]['url'], [$class, $method]);
+        }
+    }
+
+    /**
      * @param string|null $param
      *
      * @return mixed
@@ -140,22 +175,6 @@ class Router implements RouterInterface
         $settersName = 'set' . ucfirst(strtolower($requestMethodName));
         parse_str(file_get_contents('php://input'), $data);
         $this->container()->$settersName($data);
-    }
-
-    /**
-     * @param     $class
-     * @param     $method
-     * @param int $number
-     *
-     * @throws RouterException
-     */
-    public function annotation(string $class, string $method, int $number = 0): void
-    {
-        $result = $this->container()->get('annotation')->getMethodAnnotations($class, $method);
-
-        if (isset($result['Routing'])) {
-            $this->set($result['Routing'][$number]['url'], [$class, $method]);
-        }
     }
 
     /**
