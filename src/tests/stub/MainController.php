@@ -29,50 +29,58 @@ class MainController
      */
     protected $container;
 
+    public function actionGet()
+    {
+        $this->container->set('actionGet', 'GET', 'raw');
+    }
+
+    public function actionPost()
+    {
+        $this->container->set('actionPost', 'POST', 'raw');
+    }
+
+    public function actionPut()
+    {
+        $this->container->set('actionPut', 'PUT', 'raw');
+    }
+
+    public function actionPatch()
+    {
+        $this->container->set('actionPatch', 'PATCH', 'raw');
+    }
+
+    public function actionDelete()
+    {
+        $this->container->set('actionDelete', 'DELETE', 'raw');
+    }
+
+    public function actionAny()
+    {
+        $this->container->set('actionAny', 'ANY', 'raw');
+    }
+
     /**
      * @Routing(url = '')
      * @return string
      */
     public function read($params = null)
     {
-        d($this->container()->getServer('REQUEST_METHOD'));
-        d(__METHOD__);
-        d($params);
-        Container::$app->set('actionIndex', 123, 'raw');
+        $this->container->set('actionDelete', 'DELETE', 'raw');
     }
 
     public function create()
     {
-        d($this->container()->getServer('REQUEST_METHOD'));
-        d(__METHOD__);
+        $this->container->set('actionDelete', 'DELETE', 'raw');
     }
 
     public function update($params)
     {
-        d($this->container()->getServer('REQUEST_METHOD'));
-        d(__METHOD__);
-        d($params);
+        $this->container->set('actionDelete', 'DELETE', 'raw');
     }
 
     public function delete($params)
     {
-        d($this->container()->getServer('REQUEST_METHOD'));
-        d(__METHOD__);
-        d($params);
-    }
-
-    public function index($params = null)
-    {
-
-        d($this->container()->getServer('REQUEST_METHOD'));
-        d(__METHOD__);
-        d($params);
-        Container::$app->set('actionIndex', 123, 'raw');
-    }
-
-    public function actionIndex()
-    {
-        echo json_encode($this->container()->getServer());
+        $this->container->set('actionDelete', 'DELETE', 'raw');
     }
 
     public function init($container, ...$params)
