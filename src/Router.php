@@ -22,6 +22,7 @@ class Router
 {
 
     use RouterSetMethodTrait;
+    use RouterMatchTrait;
 
     /**
      * @var bool
@@ -34,12 +35,12 @@ class Router
     protected $container;
 
     /**
-     * @var
+     * @var string
      */
     protected $namespace;
 
     /**
-     * @var
+     * @var string
      */
     protected $templateEngine;
 
@@ -68,13 +69,13 @@ class Router
         if ($this->container()->hasPost('_method')) {
             switch ($this->container()->getPost('_method')) {
                 case 'PUT':
-                    $this->setRequestMethod('PUT');
+                    $this->container()->setServer('REQUEST_METHOD', 'PUT');
                     break;
                 case 'PATCH':
-                    $this->setRequestMethod('PATCH');
+                    $this->container()->setServer('REQUEST_METHOD', 'PATCH');
                     break;
                 case 'DELETE':
-                    $this->setRequestMethod('DELETE');
+                    $this->container()->setServer('REQUEST_METHOD', 'DELETE');
                     break;
             }
         }
@@ -90,165 +91,12 @@ class Router
             || ($this->container()->getServer('REQUEST_METHOD') === 'PATCH')
             || ($this->container()->getServer('REQUEST_METHOD') === 'DELETE')
         ) {
-            $this->parsePhpInput($this->container()->getServer('REQUEST_METHOD'));
+            $settersName = 'set' . ucfirst(strtolower($this->container()->getServer('REQUEST_METHOD')));
+            parse_str(file_get_contents('php://input'), $data);
+            $this->container()->$settersName($data);
             $this->matchHttpMethod($route);
             return false;
         }
-    }
-
-    /**
-     * @param $requestMethodName
-     */
-    protected function parsePhpInput($requestMethodName)
-    {
-        $settersName = 'set' . ucfirst(strtolower($requestMethodName));
-        parse_str(file_get_contents('php://input'), $data);
-        $this->container()->$settersName($data);
-    }
-
-    /**
-     * @param array $route
-     */
-    protected function matchHttpMethod(array $route)
-    {
-        if (strpos($route['http_method'], '|') !== false) {
-            $httpArray = explode('|', $route['http_method']);
-
-            foreach ($httpArray as $httpItem) {
-                $route['http_method'] = $httpItem;
-                $this->matchRequest($route);
-            }
-        } else {
-            $this->matchRequest($route);
-        }
-    }
-
-    /**
-     * @param array $route
-     *
-     * @return bool
-     */
-    protected function matchRequest(array $route)
-    {
-        if ($route['http_method'] == $this->container()->getServer('REQUEST_METHOD')) {
-
-            // Строка запроса
-            $requestUrl = trim($this->container()->getServer('REQUEST_URI'), '/');
-            // Разбираем данные $_SERVER['REQUEST_URI'] по '/'
-            $requestArray = explode('/', $requestUrl);
-
-            // Исходные данные для инкремента
-            $i = 0;
-            // Обходим элементы массива $pattern
-            foreach (explode('/', ltrim($route['pattern'], '/')) as $itemPattern) {
-
-                // Ищем совпадение строки запроса с шаблоном {...}
-                if (preg_match('/{[a-zA-Z0-9]+}/', $itemPattern, $matchesPattern) != 0) {
-                    // Если есть элемент массива $i
-                    if (isset($requestArray[$i])) {
-                        // Убираем {} из названия будующего ключа массива параметров
-                        preg_match('/[a-zA-Z0-9]+/', $matchesPattern[0], $paramsKey);
-                        // Присваиваем найденому параметру соответсвующий uri
-                        $params[$paramsKey[0]]  = $requestArray[$i];
-                        $completeRequestArray[] = $requestArray[$i];
-                    }
-                    // Если совпадений нет, то записываем данные не совпадающие
-                    // с шаблоном в отдельный массив
-                } else {
-                    $completeRequestArray[] = $itemPattern;
-                }
-
-                // Инкремент
-                $i++;
-            }
-
-            if (isset($completeRequestArray)) {
-                $requestString     = implode('\/', $completeRequestArray);
-                $realRequestString = implode('/', $completeRequestArray);
-            }
-
-            if (strpos($requestUrl, '?') !== false) {
-                preg_match('~[/[:word:]-]+(?=\?)~', $requestUrl, $OutRequestUrl);
-            } else {
-                $OutRequestUrl[0] = $requestUrl;
-            }
-
-            // Это нужно для обработки 404 ошибки
-            if (isset($requestString)) {
-                // Проверяем строку запроса на соответсвие маршруту
-                preg_match("/$requestString/", $requestUrl, $matches);
-
-                // Если совпадений нет, то возвращаем $this->isToken() == false
-                if (!isset($matches[0])) {
-                    return $this->isToken();
-                }
-            }
-
-            // Если $realRequestString совпадает с $_SERVER['REQUEST_URI']
-            if ($realRequestString == $OutRequestUrl[0]) {
-                // Устанавливаем token true
-                $this->setToken(true);
-
-                // Если $route['method'] является экземпляром ксласса Closure
-                // возвращаем замыкание
-                if ($route['method'] instanceof \Closure) {
-                    return $route['method']();
-                }
-
-                $controller = $this->getControllerName($route['controller']);
-
-                isset($params)
-                    ? $this->directCall([$controller, $route['method']], $params)
-                    : $this->directCall([$controller, $route['method']]);
-            }
-        }
-    }
-
-    /**
-     * @param $controllerName
-     *
-     * @return string
-     * @throws RouterException
-     */
-    protected function getControllerName($controllerName)
-    {
-        if (strpos($controllerName, '::namespace') !== false) {
-            $controllerArray = explode('::', $controllerName);
-
-            if (class_exists($controllerArray[0])) {
-                $controller = $controllerArray[0];
-            } else {
-                throw new RouterException('503');
-            }
-        } else {
-
-            if (class_exists($this->namespace() . $controllerName)) {
-                $controller = $this->namespace() . $controllerName;
-            } else {
-                throw new RouterException('503');
-            }
-        }
-
-        return $controller;
-    }
-
-    /**
-     * @param array $classAndMethod
-     * @param null  $params
-     */
-    public function directCall(array $classAndMethod, $params = null)
-    {
-        $controller = $this->container()->new($classAndMethod[0]);
-        $method     = $classAndMethod[1];
-
-        // Инициализуруем
-        $controller->init($this->container(), $this->templateEngine());
-        // Выполняем метод before до основного вызова
-        $controller->before(); // --- middleware before
-        // Собственно вызываем экшн, в зависимости от наличия параметров
-        isset($params) ? $controller->{$method}($params) : $controller->{$method}();
-        // Выполняем метод after
-        $controller->after(); // --- middleware after
     }
 
     /**
@@ -305,13 +153,5 @@ class Router
     public function templateEngine()
     {
         return $this->templateEngine;
-    }
-
-    /**
-     * @param $requestMethod
-     */
-    protected function setRequestMethod($requestMethod)
-    {
-        $this->container()->setServer('REQUEST_METHOD', $requestMethod);
     }
 }
