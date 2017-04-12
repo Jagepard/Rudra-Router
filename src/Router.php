@@ -242,7 +242,7 @@ class Router
         $method     = $classAndMethod[1];
 
         // Инициализуруем
-        $controller->init($this->container(), $this->getTemplateEngine());
+        $controller->init($this->container(), $this->templateEngine());
         // Выполняем метод before до основного вызова
         $controller->before(); // --- middleware before
         // Собственно вызываем экшн, в зависимости от наличия параметров
@@ -260,24 +260,6 @@ class Router
      */
     public function annotation($class, $method, $number = 0)
     {
-        /* class with namespace */
-        if (strpos($class, '::namespace') !== false) {
-            $classArray = explode('::', $class);
-
-            if (class_exists($classArray[0])) {
-                $class = $classArray[0];
-            } else {
-                throw new RouterException('503');
-            }
-        } else {
-
-            if (class_exists($this->namespace() . $class)) {
-                $class = $this->namespace() . $class;
-            } else {
-                throw new RouterException('503');
-            }
-        }
-
         $result = $this->container()->get('annotation')->getMethodAnnotations($class, $method);
 
         if (isset($result['Routing'])) {
@@ -320,7 +302,7 @@ class Router
     /**
      * @return mixed
      */
-    public function getTemplateEngine()
+    public function templateEngine()
     {
         return $this->templateEngine;
     }
