@@ -51,7 +51,7 @@ trait RouterMatchTrait
             $requestArray                            = explode('/', $requestUrl);
             list($params, $completeRequestArray)     = $this->handlePattern($route, $requestArray);
             list($requestString, $realRequestString) = $this->handleCompleteRequestArray($completeRequestArray);
-            $OutRequestUrl                           = $this->getOutRequestUrl($requestUrl);
+            $outRequestUrl                           = $this->getOutRequestUrl($requestUrl);
 
             // Это нужно для обработки 404 ошибки
             if (isset($requestString)) {
@@ -64,7 +64,7 @@ trait RouterMatchTrait
                 }
             }
 
-            return $this->setCallable($route, $realRequestString, $OutRequestUrl, $params);
+            return $this->setCallable($route, $realRequestString, $outRequestUrl, $params);
         }
     }
 
@@ -159,31 +159,31 @@ trait RouterMatchTrait
      */
     protected function getOutRequestUrl($requestUrl)
     {
-        $OutRequestUrl = [];
+        $outRequestUrl = [];
 
         if (strpos($requestUrl, '?') !== false) {
-            preg_match('~[/[:word:]-]+(?=\?)~', $requestUrl, $OutRequestUrl);
+            preg_match('~[/[:word:]-]+(?=\?)~', $requestUrl, $outRequestUrl);
 
-            return $OutRequestUrl;
+            return $outRequestUrl;
         }
 
-        $OutRequestUrl[0] = $requestUrl;
+        $outRequestUrl[0] = $requestUrl;
 
-        return $OutRequestUrl;
+        return $outRequestUrl;
     }
 
     /**
      * @param array $route
      * @param       $realRequestString
-     * @param       $OutRequestUrl
+     * @param       $outRequestUrl
      * @param       $params
      *
      * @return mixed
      */
-    protected function setCallable(array $route, $realRequestString, $OutRequestUrl, $params)
+    protected function setCallable(array $route, $realRequestString, $outRequestUrl, $params)
     {
         // Если $realRequestString совпадает с 'REQUEST_URI'
-        if ($realRequestString == $OutRequestUrl[0]) {
+        if ($realRequestString == $outRequestUrl[0]) {
             // Устанавливаем token true
             $this->setToken(true);
 
