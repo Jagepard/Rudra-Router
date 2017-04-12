@@ -21,7 +21,7 @@ namespace Rudra;
 class Router
 {
 
-    use RouterSetMethodTrait;
+    use RouterMethodTrait;
     use RouterMatchTrait;
 
     /**
