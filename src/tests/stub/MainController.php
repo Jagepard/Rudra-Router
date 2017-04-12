@@ -35,29 +35,44 @@ class MainController
      */
     public function read($params = null)
     {
-        var_dump(__METHOD__);
-        !isset($params) ?: var_dump($params);
+        d($this->container()->getServer('REQUEST_METHOD'));
+        d(__METHOD__);
+        d($params);
         Container::$app->set('actionIndex', 123, 'raw');
     }
 
     public function create()
     {
-        var_dump(__METHOD__);
-        var_dump($this->container()->getPost());
+        d($this->container()->getServer('REQUEST_METHOD'));
+        d(__METHOD__);
     }
 
     public function update($params)
     {
-        var_dump(__METHOD__);
-        var_dump($params);
-        var_dump($this->container()->getPut());
+        d($this->container()->getServer('REQUEST_METHOD'));
+        d(__METHOD__);
+        d($params);
     }
 
     public function delete($params)
     {
-        var_dump(__METHOD__);
-        var_dump($params);
-        var_dump($this->container()->getDelete());
+        d($this->container()->getServer('REQUEST_METHOD'));
+        d(__METHOD__);
+        d($params);
+    }
+
+    public function index($params = null)
+    {
+
+        d($this->container()->getServer('REQUEST_METHOD'));
+        d(__METHOD__);
+        d($params);
+        Container::$app->set('actionIndex', 123, 'raw');
+    }
+
+    public function actionIndex()
+    {
+        echo json_encode($this->container()->getServer());
     }
 
     public function init($container, ...$params)
