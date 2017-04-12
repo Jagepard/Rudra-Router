@@ -101,4 +101,9 @@ trait RouterMethodTrait
 
         $this->set($route);
     }
+
+    /**
+     * @return ContainerInterface
+     */
+    protected abstract function container(): ContainerInterface;
 }
