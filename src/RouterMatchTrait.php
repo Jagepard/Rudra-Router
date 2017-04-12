@@ -49,14 +49,19 @@ trait RouterMatchTrait
 
             // Строка запроса
             $requestUrl = trim($this->container()->getServer('REQUEST_URI'), '/');
-            // Разбираем данные $_SERVER['REQUEST_URI'] по '/'
+            // Разбираем данные REQUEST_URI по '/'
             $requestArray = explode('/', $requestUrl);
 
-            // Исходные данные для инкремента
-            $i = 0;
+            // Исходные данные
+            $i                    = 0;
+            $params               = [];
+            $completeRequestArray = [];
+            $OutRequestUrl        = [];
+            $requestString        = null;
+            $realRequestString    = null;
+
             // Обходим элементы массива $pattern
             foreach (explode('/', ltrim($route['pattern'], '/')) as $itemPattern) {
-
                 // Ищем совпадение строки запроса с шаблоном {...}
                 if (preg_match('/{[a-zA-Z0-9]+}/', $itemPattern, $matchesPattern) != 0) {
                     // Если есть элемент массива $i
@@ -99,7 +104,7 @@ trait RouterMatchTrait
                 }
             }
 
-            // Если $realRequestString совпадает с $_SERVER['REQUEST_URI']
+            // Если $realRequestString совпадает с 'REQUEST_URI'
             if ($realRequestString == $OutRequestUrl[0]) {
                 // Устанавливаем token true
                 $this->setToken(true);
@@ -165,4 +170,19 @@ trait RouterMatchTrait
         // Выполняем метод after
         $controller->after(); // --- middleware after
     }
+
+    /**
+     * @return ContainerInterface
+     */
+    protected abstract function container(): ContainerInterface;
+
+    /**
+     * @return bool
+     */
+    public abstract function isToken(): bool;
+
+    /**
+     * @param bool $token
+     */
+    public abstract function setToken(bool $token);
 }
