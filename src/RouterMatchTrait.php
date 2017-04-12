@@ -151,7 +151,7 @@ trait RouterMatchTrait
      * @param array $classAndMethod
      * @param null  $params
      */
-    public function directCall(array $classAndMethod, $params = null)
+    public function directCall(array $classAndMethod, $params = null): void
     {
         $controller = $this->container()->new($classAndMethod[0]);
         $method     = $classAndMethod[1];
