@@ -14,11 +14,11 @@ declare(strict_types = 1);
 namespace Rudra;
 
 /**
- * Class RouterSetMethodTrait
+ * Class RouterMethodTrait
  *
  * @package Rudra
  */
-trait RouterSetMethodTrait
+trait RouterMethodTrait
 {
 
     /**
