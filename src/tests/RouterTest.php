@@ -198,12 +198,18 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('closure', $this->container()->get('closure'));
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function testRouterExceptionWithNamespace()
     {
         $this->expectException(RouterException::class);
         $this->setRouteEnvironment('test/page', 'GET', '/test/page', 'stub\\FalseController::namespace');
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function testRouterException()
     {
         $this->expectException(RouterException::class);
