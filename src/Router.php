@@ -168,16 +168,6 @@ class Router implements RouterInterface
     }
 
     /**
-     * @param $requestMethodName
-     */
-    protected function parsePhpInput($requestMethodName)
-    {
-        $settersName = 'set' . ucfirst(strtolower($requestMethodName));
-        parse_str(file_get_contents('php://input'), $data);
-        $this->container()->$settersName($data);
-    }
-
-    /**
      * @return bool
      */
     public function isToken(): bool
