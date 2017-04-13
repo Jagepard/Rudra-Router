@@ -38,96 +38,61 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
     protected function setContainer()
     {
-        Container::$app = null;
-        $this->container           = Container::app();
+        Container::$app  = null;
+        $this->container = Container::app();
         $this->container->setBinding(ContainerInterface::class, Container::$app);
         $this->container->set('annotation', 'Rudra\Annotations');
         $this->container->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => 'twig']);
     }
 
-    public function testGet(): void
+    /**
+     * @param string $requestUri
+     * @param string $requestMethod
+     * @param string $pattern
+     * @param string $controller
+     */
+    protected function setRouteEnvironment(string $requestUri, string $requestMethod, string $pattern, string $controller = 'MainController'): void
     {
-        $_SERVER['REQUEST_URI']    = 'test/page';
-        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI']    = $requestUri;
+        $_SERVER['REQUEST_METHOD'] = $requestMethod;
         $this->setContainer();
 
-        $this->container()->get('router')->get([
-                'name'       => 'main_page',
-                'pattern'    => '/test/page',
-                'controller' => 'stub\\MainController::namespace',
-                'method'     => 'actionGet'
+        $method = strtolower($requestMethod);
+        $action = 'action' . ucfirst($method);
+
+        $this->container()->get('router')->$method([
+                'pattern'    => $pattern,
+                'controller' => $controller,
+                'method'     => $action
             ]
         );
 
-        $this->assertEquals('GET', $this->container()->get('actionGet'));
+        $this->assertEquals($requestMethod, $this->container()->get($action));
+    }
+
+    public function testGet(): void
+    {
+        $this->setRouteEnvironment('test/page', 'GET', '/test/page', 'stub\\MainController::namespace');
     }
 
     public function testPost(): void
     {
-        $_SERVER['REQUEST_URI']    = 'test/page?some=123';
-        $_SERVER['REQUEST_METHOD'] = 'POST';
-        $this->setContainer();
-
-        $this->container()->get('router')->post([
-                'name'       => 'main_page',
-                'pattern'    => '/test/page',
-                'controller' => 'MainController',
-                'method'     => 'actionPost'
-            ]
-        );
-
-        $this->assertEquals('POST', $this->container()->get('actionPost'));
+        $this->setRouteEnvironment('test/page?some=123', 'POST', '/test/page');
     }
 
     public function testPut(): void
     {
-        $_SERVER['REQUEST_URI']    = 'test/page';
-        $_SERVER['REQUEST_METHOD'] = 'PUT';
-        $this->setContainer();
-
-        $this->container()->get('router')->put([
-                'name'       => 'main_page',
-                'pattern'    => '/test/page',
-                'controller' => 'MainController',
-                'method'     => 'actionPut'
-            ]
-        );
-
-        $this->assertEquals('PUT', $this->container()->get('actionPut'));
+        $this->setRouteEnvironment('test/page', 'PUT', '/test/page');
     }
 
     public function testPatch(): void
     {
-        $_SERVER['REQUEST_URI']    = 'test/page';
-        $_SERVER['REQUEST_METHOD'] = 'PATCH';
-        $this->setContainer();
-
-        $this->container()->get('router')->patch([
-                'name'       => 'main_page',
-                'pattern'    => '/test/page',
-                'controller' => 'MainController',
-                'method'     => 'actionPatch'
-            ]
-        );
-
-        $this->assertEquals('PATCH', $this->container()->get('actionPatch'));
+        $this->setRouteEnvironment('test/page', 'PATCH', '/test/page');
     }
 
     public function testDelete(): void
     {
-        $_SERVER['REQUEST_URI']    = 'test/page';
-        $_SERVER['REQUEST_METHOD'] = 'DELETE';
-        $this->setContainer();
-
-        $this->container()->get('router')->delete([
-                'name'       => 'main_page',
-                'pattern'    => '/test/page',
-                'controller' => 'MainController',
-                'method'     => 'actionDelete'
-            ]
-        );
-
-        $this->assertEquals('DELETE', $this->container()->get('actionDelete'));
+        $this->setRouteEnvironment('test/page', 'DELETE', '/test/page');
     }
 
     public function testAny(): void
@@ -137,7 +102,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->setContainer();
 
         $this->container()->get('router')->any([
-                'name'       => 'main_page',
                 'pattern'    => '/test/page',
                 'controller' => 'MainController',
                 'method'     => 'actionAny'
@@ -147,6 +111,33 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('ANY', $this->container()->get('actionAny'));
     }
 
+    /**
+     * @param string $requestMethod
+     * @param string $action
+     */
+    protected function setRouteResourceEnvironment(string $requestMethod, string $action): void
+    {
+        $_SERVER['REQUEST_URI']    = 'api/123';
+        $_SERVER['REQUEST_METHOD'] = $requestMethod;
+        $this->setContainer();
+
+        $this->container()->get('router')->resource([
+                'pattern'    => 'api/{id}',
+                'controller' => 'MainController',
+            ]
+        );
+
+        $this->assertEquals($action, $this->container()->get($action));
+    }
+
+    public function testResource(): void
+    {
+        $this->setRouteResourceEnvironment('GET', 'read');
+        $this->setRouteResourceEnvironment('POST', 'create');
+        $this->setRouteResourceEnvironment('PUT', 'update');
+        $this->setRouteResourceEnvironment('DELETE', 'delete');
+    }
+
     public function testMatchFalse()
     {
         $_SERVER['REQUEST_URI']    = 'test/false';
@@ -154,7 +145,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->setContainer();
 
         $this->container()->get('router')->get([
-                'name'       => 'main_page',
                 'pattern'    => '/test/page',
                 'controller' => 'MainController',
                 'method'     => 'actionGet'
