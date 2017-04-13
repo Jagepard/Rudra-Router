@@ -138,6 +138,33 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->setRouteResourceEnvironment('DELETE', 'delete');
     }
 
+    /**
+     * @param string $requestMethod
+     * @param string $action
+     */
+    protected function setRouteResourcePostEnvironment(string $requestMethod, string $action): void
+    {
+        $_SERVER['REQUEST_URI']    = 'api/123';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST['_method'] = $requestMethod;
+        $this->setContainer();
+
+        $this->container()->get('router')->resource([
+                'pattern'    => 'api/{id}',
+                'controller' => 'MainController',
+            ]
+        );
+
+        $this->assertEquals($action, $this->container()->get($action));
+    }
+
+    public function testResourcePost(): void
+    {
+        $this->setRouteResourcePostEnvironment('DELETE', 'delete');
+        $this->setRouteResourcePostEnvironment('PUT', 'update');
+        $this->setRouteResourcePostEnvironment('PATCH', 'update');
+    }
+
     public function testMatchFalse()
     {
         $_SERVER['REQUEST_URI']    = 'test/false';
