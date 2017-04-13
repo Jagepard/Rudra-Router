@@ -147,9 +147,9 @@ trait RouterMatchTrait
         if (isset($completeRequestArray)) {
             $requestString     = implode('\/', $completeRequestArray);
             $realRequestString = implode('/', $completeRequestArray);
-            return array($requestString, $realRequestString);
         }
-        return array($requestString, $realRequestString);
+
+        return [$requestString, $realRequestString];
     }
 
     /**
