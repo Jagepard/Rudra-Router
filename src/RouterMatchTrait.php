@@ -105,7 +105,7 @@ trait RouterMatchTrait
     protected function handlePattern(array $route, array $requestArray): array
     {
         $i                    = 0;
-        $params               = [];
+        $params               = null;
         $paramsKey            = [];
         $matchesPattern       = [];
         $completeRequestArray = [];
