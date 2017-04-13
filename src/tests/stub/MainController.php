@@ -29,6 +29,14 @@ class MainController
      */
     protected $container;
 
+    /**
+     * @Routing(url = 'test/123'| method = 'GET')
+     */
+    public function actionIndex()
+    {
+        $this->container()->set('actionIndex', 'actionIndex', 'raw');
+    }
+
     public function actionGet()
     {
         $this->container()->set('actionGet', 'GET', 'raw');
@@ -59,10 +67,6 @@ class MainController
         $this->container()->set('actionAny', 'ANY', 'raw');
     }
 
-    /**
-     * @Routing(url = '')
-     * @return string
-     */
     public function read($params = null)
     {
         $this->container()->set('read', 'read', 'raw');
