@@ -117,10 +117,18 @@ class Router implements RouterInterface
      */
     public function annotation(string $class, string $method, int $number = 0): void
     {
-        $result = $this->container()->get('annotation')->getMethodAnnotations($class, $method);
+        $controller = $this->controllerName($class);
+        $result     = $this->container()->get('annotation')->getMethodAnnotations($controller, $method);
 
         if (isset($result['Routing'])) {
-            $this->set($result['Routing'][$number]['url'], [$class, $method]);
+            $http_method = $result['Routing'][$number]['method'] ?? 'GET';
+
+            $this->set(['pattern'     => $result['Routing'][$number]['url'],
+                        'controller'  => $class,
+                        'method'      => $method,
+                        'http_method' => $http_method
+                ]
+            );
         }
     }
 
