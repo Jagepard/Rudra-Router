@@ -154,6 +154,17 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(false, $this->container()->get('router')->isToken());
     }
 
+    public function testRouterExceptionWithNamespace()
+    {
+        $this->expectException(RouterException::class);
+        $this->setRouteEnvironment('test/page', 'GET', '/test/page', 'stub\\FalseController::namespace');
+    }
+
+    public function testRouterException()
+    {
+        $this->expectException(RouterException::class);
+        $this->setRouteEnvironment('test/page', 'GET', '/test/page', 'FalseController');
+    }
     /**
      * @return mixed
      */
