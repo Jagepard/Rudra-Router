@@ -146,7 +146,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
     {
         $_SERVER['REQUEST_URI']    = 'api/123';
         $_SERVER['REQUEST_METHOD'] = 'POST';
-        $_POST['_method'] = $requestMethod;
+        $_POST['_method']          = $requestMethod;
         $this->setContainer();
 
         $this->container()->get('router')->resource([
@@ -163,6 +163,36 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->setRouteResourcePostEnvironment('DELETE', 'delete');
         $this->setRouteResourcePostEnvironment('PUT', 'update');
         $this->setRouteResourcePostEnvironment('PATCH', 'update');
+    }
+
+    /**-
+     * @param string $requestMethod
+     * @param string $action
+     */
+    protected function setRoutePostEnvironment(string $requestMethod, string $action): void
+    {
+        $_SERVER['REQUEST_URI']    = 'api/123';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST['_method']          = $requestMethod;
+        $this->setContainer();
+
+        $method = strtolower($requestMethod);
+
+        $this->container()->get('router')->$method([
+                'pattern'    => 'api/{id}',
+                'controller' => 'MainController',
+                'method'     => $action
+            ]
+        );
+
+        $this->assertEquals($action, $this->container()->get($action));
+    }
+
+    public function testPostMethods(): void
+    {
+        $this->setRoutePostEnvironment('DELETE', 'delete');
+        $this->setRoutePostEnvironment('PUT', 'update');
+        $this->setRoutePostEnvironment('PATCH', 'update');
     }
 
     public function testMatchFalse()
@@ -188,8 +218,8 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->setContainer();
 
         $this->container()->get('router')->get([
-                'pattern'    => '/test/page',
-                'method'     => function () {
+                'pattern' => '/test/page',
+                'method'  => function () {
                     $this->container()->set('closure', 'closure', 'raw');
                 }
             ]
@@ -198,23 +228,18 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('closure', $this->container()->get('closure'));
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
     public function testRouterExceptionWithNamespace()
     {
         $this->expectException(RouterException::class);
         $this->setRouteEnvironment('test/page', 'GET', '/test/page', 'stub\\FalseController::namespace');
-    }
+    } // @codeCoverageIgnore
 
-    /**
-     * @codeCoverageIgnore
-     */
     public function testRouterException()
     {
         $this->expectException(RouterException::class);
         $this->setRouteEnvironment('test/page', 'GET', '/test/page', 'FalseController');
-    }
+    } // @codeCoverageIgnore
+
     /**
      * @return mixed
      */
