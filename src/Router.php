@@ -87,7 +87,7 @@ class Router implements RouterInterface
             $this->matchHttpMethod($route);
             return false;
         }
-    }
+    } // @codeCoverageIgnore
 
     /**
      * @param array $classAndMethod
