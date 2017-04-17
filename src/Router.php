@@ -61,10 +61,11 @@ class Router implements RouterInterface
 
     /**
      * @param array $route
+     * @param null  $middleware
      *
      * @return bool
      */
-    public function set(array $route)
+    public function set(array $route, $middleware = null)
     {
         if ($this->container()->hasPost('_method') && $this->container()->getServer('REQUEST_METHOD') === 'POST') {
             $this->setRequestMethod();
@@ -73,7 +74,7 @@ class Router implements RouterInterface
         if (($this->container()->getServer('REQUEST_METHOD') === 'GET')
             || $this->container()->getServer('REQUEST_METHOD') === 'POST'
         ) {
-            $this->matchHttpMethod($route);
+            $this->matchHttpMethod($route, $middleware);
             return false;
         }
 
@@ -84,7 +85,7 @@ class Router implements RouterInterface
             $settersName = 'set' . ucfirst(strtolower($this->container()->getServer('REQUEST_METHOD')));
             parse_str(file_get_contents('php://input'), $data);
             $this->container()->$settersName($data);
-            $this->matchHttpMethod($route);
+            $this->matchHttpMethod($route, $middleware);
             return false;
         }
     } // @codeCoverageIgnore
@@ -101,11 +102,11 @@ class Router implements RouterInterface
         // Инициализуруем
         $controller->init($this->container(), $this->templateEngine());
         // Выполняем метод before до основного вызова
-        $controller->before(); // --- middleware before
+        $controller->before(); // before
         // Собственно вызываем экшн, в зависимости от наличия параметров
         isset($params) ? $controller->{$method}($params) : $controller->{$method}();
         // Выполняем метод after
-        $controller->after(); // --- middleware after
+        $controller->after(); // after
     }
 
     /**
