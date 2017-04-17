@@ -35,56 +35,67 @@ class MainController
     public function actionIndex()
     {
         $this->container()->set('actionIndex', 'actionIndex', 'raw');
+        !d(__METHOD__);
     }
 
     public function actionGet()
     {
         $this->container()->set('actionGet', 'GET', 'raw');
+        !d(__METHOD__);
     }
 
     public function actionPost()
     {
         $this->container()->set('actionPost', 'POST', 'raw');
+        !d(__METHOD__);
     }
 
     public function actionPut()
     {
         $this->container()->set('actionPut', 'PUT', 'raw');
+        !d(__METHOD__);
     }
 
     public function actionPatch()
     {
         $this->container()->set('actionPatch', 'PATCH', 'raw');
+        !d(__METHOD__);
     }
 
     public function actionDelete()
     {
         $this->container()->set('actionDelete', 'DELETE', 'raw');
+        !d(__METHOD__);
     }
 
     public function actionAny()
     {
         $this->container()->set('actionAny', 'ANY', 'raw');
+        !d(__METHOD__);
     }
 
     public function read($params = null)
     {
         $this->container()->set('read', 'read', 'raw');
+        !d(__METHOD__);
     }
 
     public function create()
     {
         $this->container()->set('create', 'create', 'raw');
+        !d(__METHOD__);
     }
 
     public function update($params)
     {
         $this->container()->set('update', 'update', 'raw');
+        !d(__METHOD__);
     }
 
     public function delete($params)
     {
         $this->container()->set('delete', 'delete', 'raw');
+        !d(__METHOD__);
     }
 
     public function init($container, ...$params)
