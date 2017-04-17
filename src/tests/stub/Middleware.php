@@ -13,6 +13,7 @@ namespace stub;
 
 use Rudra\ContainerInterface;
 
+
 /**
  * Class Middleware
  *
@@ -31,23 +32,27 @@ class Middleware
      *
      * @param ContainerInterface $container
      */
-    public function __construct(ContainerInterface $container, $route)
+    public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->route     = $route;
     }
 
     /**
-     * @return string
+     * @param       $middleware
+     * @param array ...$params
+     *
+     * @return bool
      */
-    public function __invoke($params)
+    public function __invoke($middleware, ...$params)
     {
         if ($params % 2) {
             header('Location: https://gist.github.com/Jagepard/0743e3e11ccc3e55025aa5424fb9d723');
             return false;
         }
 
-        return $next();
+        if (count($middleware)) {
+            (new $middleware[0]($this->container(), array_pop($middleware)))(2);
+        }
     }
 
     /**
