@@ -23,27 +23,29 @@ trait RouterMatchTrait
 
     /**
      * @param array $route
+     * @param       $middleware
      */
-    protected function matchHttpMethod(array $route)
+    protected function matchHttpMethod(array $route, $middleware)
     {
         if (strpos($route['http_method'], '|') !== false) {
             $httpArray = explode('|', $route['http_method']);
 
             foreach ($httpArray as $httpItem) {
                 $route['http_method'] = $httpItem;
-                $this->matchRequest($route);
+                $this->matchRequest($route, $middleware);
             }
         } else {
-            $this->matchRequest($route);
+            $this->matchRequest($route, $middleware);
         }
     }
 
     /**
      * @param array $route
+     * @param       $middleware
      *
-     * @return bool
+     * @return bool|void
      */
-    protected function matchRequest(array $route)
+    protected function matchRequest(array $route, $middleware)
     {
         if ($route['http_method'] == $this->container()->getServer('REQUEST_METHOD')) {
 
@@ -64,7 +66,7 @@ trait RouterMatchTrait
                 }
             }
 
-            return $this->setCallable($route, $realRequestString, $outRequestUrl, $params);
+            return $this->handleMiddleware($middleware, $route, $realRequestString, $outRequestUrl, $params);
         }
     }
 
@@ -173,32 +175,40 @@ trait RouterMatchTrait
     }
 
     /**
+     * @param       $middleware
      * @param array $route
      * @param       $realRequestString
      * @param       $outRequestUrl
      * @param       $params
-     *
-     * @return mixed
      */
-    protected function setCallable(array $route, $realRequestString, $outRequestUrl, $params)
+    protected function handleMiddleware($middleware, array $route, $realRequestString, $outRequestUrl, $params)
     {
         // Если $realRequestString совпадает с 'REQUEST_URI'
         if ($realRequestString == $outRequestUrl[0]) {
             // Устанавливаем token true
             $this->setToken(true);
 
-            // Если $route['method'] является экземпляром ксласса Closure
-            // возвращаем замыкание
-            if ($route['method'] instanceof \Closure) {
-                return $route['method']();
+            if (isset($middleware)) {
+                echo json_encode($route);
             }
 
-            $controller = $this->controllerName($route['controller']);
-
-            isset($params)
-                ? $this->directCall([$controller, $route['method']], $params)
-                : $this->directCall([$controller, $route['method']]);
+            $this->setCallable($route, $params);
         }
+    }
+
+    protected function setCallable(array $route, $params)
+    {
+        // Если $route['method'] является экземпляром ксласса Closure
+        // возвращаем замыкание
+        if ($route['method'] instanceof \Closure) {
+            return $route['method']();
+        }
+
+        $controller = $this->controllerName($route['controller']);
+
+        isset($params)
+            ? $this->directCall([$controller, $route['method']], $params)
+            : $this->directCall([$controller, $route['method']]);
     }
 
     /**
