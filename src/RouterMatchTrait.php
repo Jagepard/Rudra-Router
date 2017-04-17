@@ -189,7 +189,7 @@ trait RouterMatchTrait
             $this->setToken(true);
 
             if (isset($middleware)) {
-                echo json_encode($route);
+                (new $middleware[0]($this->container(), array_pop($middleware)))(2);
             }
 
             $this->setCallable($route, $params);
