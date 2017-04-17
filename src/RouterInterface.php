@@ -32,10 +32,11 @@ interface RouterInterface
 
     /**
      * @param array $route
+     * @param null  $middleware
      *
      * @return mixed
      */
-    public function set(array $route);
+    public function set(array $route, $middleware = null);
 
     /**
      * @param     $class
