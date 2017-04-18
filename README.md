@@ -10,3 +10,79 @@
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/1c8d8365-d981-4f4d-94f7-4ebedb8e59cb/big.png)](https://insight.sensiolabs.com/projects/1c8d8365-d981-4f4d-94f7-4ebedb8e59cb)
 # Rudra-Router
 
+
+#### Добавление Rudra-Router в контейнер
+```php
+use Rudra\Container as Rudra;
+use Rudra\ContainerInterface;
+
+Rudra::app()->setBinding(ContainerInterface::class, Rudra::$app);
+Rudra::$app->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => 'twig']);
+$router = Rudra::$app->get('router');
+```
+#### Устанавливаем маршрут /test/{id} для http методов DELETE|PUT
+```php
+$router->set([
+        'pattern'     => '/test/{id}',
+        'http_method' => 'DELETE|PUT',
+        'controller'  => 'stub\\MainController::namespace',
+        'method'      => 'actionIndex'
+    ]
+);
+```
+#### Устанавливаем ресурс для маршрута api/{id}, методы GET|POST|PUT|DELETE
+```php
+$router->resource([
+    'pattern'     => 'api/{id}',
+    'controller'  => 'MainController'
+]);
+```
+#### Устанавливаем маршрут 123/122 и добавляем middleware
+```php
+$router->middleware('get', [
+    'pattern'     => '123/122',
+    'controller'  => 'MainController',
+    'method'      => 'read',
+    'middleware'  => [['stub\\Middleware', ['int' => 123]], ['stub\\Middleware', ['int' => 125]]]
+]);
+```
+#### Устанавливаем маршрут 123/{id} для http метода GET
+```php
+$router->get([
+    'pattern'     => '123/{id}',
+    'controller'  => 'MainController',
+    'method'      => 'read'
+]);
+```
+#### Устанавливаем маршрут 123/{id} для http метода POST
+```php
+$router->post([
+    'pattern'     => '123/{id}',
+    'controller'  => 'MainController',
+    'method'      => 'create'
+]);
+```
+#### Устанавливаем маршрут 123/{id} для http метода PUT
+```php
+$router->put([
+    'pattern'     => '123/{id}',
+    'controller'  => 'MainController',
+    'method'      => 'update'
+]);
+```
+#### Устанавливаем маршрут 123/{id} для http метода PATCH
+```php
+$router->patch([
+    'pattern'     => '123/{id}',
+    'controller'  => 'MainController',
+    'method'      => 'update'
+]);
+```
+#### Устанавливаем маршрут 123/{id} для http метода DELETE
+```php
+$router->delete([
+    'pattern'     => '123/{id}',
+    'controller'  => 'MainController',
+    'method'      => 'delete'
+]);
+```
