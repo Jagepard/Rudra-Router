@@ -41,19 +41,18 @@ trait RouterMatchTrait
 
     /**
      * @param array $route
-     * @param       $middleware
      *
      * @return bool|void
      */
-    protected function matchRequest(array $route, $middleware)
+    protected function matchRequest(array $route)
     {
         if ($route['http_method'] == $this->container()->getServer('REQUEST_METHOD')) {
 
-            $requestUrl                              = trim($this->container()->getServer('REQUEST_URI'), '/');
-            $requestArray                            = explode('/', $requestUrl);
-            list($params, $completeRequestArray)     = $this->handlePattern($route, $requestArray);
+            $requestUrl   = trim($this->container()->getServer('REQUEST_URI'), '/');
+            $requestArray = explode('/', $requestUrl);
+            list($params, $completeRequestArray) = $this->handlePattern($route, $requestArray);
             list($requestString, $realRequestString) = $this->handleCompleteRequestArray($completeRequestArray);
-            $outRequestUrl                           = $this->getOutRequestUrl($requestUrl);
+            $outRequestUrl = $this->getOutRequestUrl($requestUrl);
 
             // Это нужно для обработки 404 ошибки
             if (isset($requestString)) {
@@ -66,7 +65,7 @@ trait RouterMatchTrait
                 }
             }
 
-            return $this->handleMiddleware($middleware, $route, $realRequestString, $outRequestUrl, $params);
+            return $this->handleRequest($route, $realRequestString, $outRequestUrl, $params);
         }
     }
 
@@ -175,27 +174,37 @@ trait RouterMatchTrait
     }
 
     /**
-     * @param       $middleware
      * @param array $route
      * @param       $realRequestString
      * @param       $outRequestUrl
      * @param       $params
      */
-    protected function handleMiddleware($middleware, array $route, $realRequestString, $outRequestUrl, $params)
+    protected function handleRequest(array $route, $realRequestString, $outRequestUrl, $params)
     {
         // Если $realRequestString совпадает с 'REQUEST_URI'
         if ($realRequestString == $outRequestUrl[0]) {
             // Устанавливаем token true
             $this->setToken(true);
-
-            if (isset($middleware)) {
-                (new $middleware[0]($this->container(), array_pop($middleware)))(2);
-            }
-
             $this->setCallable($route, $params);
         }
     }
 
+    /**
+     * @param array $middleware
+     */
+    protected function handleMiddleware(array $middleware)
+    {
+        if (isset($middleware)) {
+            (new $middleware[0][0]($this->container()))($middleware);
+        }
+    }
+
+    /**
+     * @param array $route
+     * @param       $params
+     *
+     * @return mixed
+     */
     protected function setCallable(array $route, $params)
     {
         // Если $route['method'] является экземпляром ксласса Closure
@@ -204,11 +213,8 @@ trait RouterMatchTrait
             return $route['method']();
         }
 
-        $controller = $this->controllerName($route['controller']);
-
-        isset($params)
-            ? $this->directCall([$controller, $route['method']], $params)
-            : $this->directCall([$controller, $route['method']]);
+        $route['controller'] = $this->controllerName($route['controller']);
+        isset($params) ? $this->directCall($route, $params) : $this->directCall($route);
     }
 
     /**
