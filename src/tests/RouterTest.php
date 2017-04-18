@@ -266,6 +266,22 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->setRouteEnvironment('test/page', 'GET', '/test/page', 'FalseController');
     } // @codeCoverageIgnore
 
+    public function testRouterMethodException()
+    {
+        $_SERVER['REQUEST_URI']    = 'test/page';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $this->setContainer();
+
+        $this->expectException(RouterException::class);
+
+        $this->container()->get('router')->get([
+                'pattern'    => '/test/page',
+                'controller' => 'MainController',
+                'method'     => 'actionFalse'
+            ]
+        );
+    } // @codeCoverageIgnore
+
     /**
      * @return mixed
      */
