@@ -22,80 +22,74 @@ trait RouterMethodTrait
 {
 
     /**
-     * @param array $middleware
-     * @param       $method
-     * @param array $route
+     * @param string $method
+     * @param array  $route
+     *
+     * @return mixed
      */
-    public function middleware(array $middleware, $method, array $route)
+    public function middleware(string $method, array $route)
     {
-        return $this->$method($route, $middleware);
+        return $this->$method($route);
     }
 
     /**
      * @param array $route
-     * @param null  $middleware
      */
-    public function get(array $route, $middleware = null): void
+    public function get(array $route): void
     {
         $route['http_method'] = 'GET';
-        $this->set($route, $middleware);
+        $this->set($route);
     }
 
     /**
      * @param array $route
-     * @param null  $middleware
      */
-    public function post(array $route, $middleware = null): void
+    public function post(array $route): void
     {
         $route['http_method'] = 'POST';
-        $this->set($route, $middleware);
+        $this->set($route);
     }
 
     /**
      * @param array $route
-     * @param null  $middleware
      */
-    public function put(array $route, $middleware = null): void
+    public function put(array $route): void
     {
         $route['http_method'] = 'PUT';
-        $this->set($route, $middleware);
+        $this->set($route);
     }
 
     /**
      * @param array $route
-     * @param null  $middleware
      */
-    public function patch(array $route, $middleware = null): void
+    public function patch(array $route): void
     {
         $route['http_method'] = 'PATCH';
-        $this->set($route, $middleware);
+        $this->set($route);
     }
 
     /**
      * @param array $route
-     * @param null  $middleware
      */
-    public function delete(array $route, $middleware = null): void
+    public function delete(array $route): void
     {
         $route['http_method'] = 'DELETE';
-        $this->set($route, $middleware);
+        $this->set($route);
     }
 
     /**
      * @param array $route
-     * @param null  $middleware
      */
-    public function any(array $route, $middleware = null): void
+    public function any(array $route): void
     {
         $route['http_method'] = 'GET|POST|PUT|PATCH|DELETE';
-        $this->set($route, $middleware);
+        $this->set($route);
     }
 
     /**
      * @param array $route
-     * @param null  $middleware
      */
-    public function resource(array $route, $middleware = null): void
+    public function resource(array $route): void
     {
         switch ($this->container()->getServer('REQUEST_METHOD')) {
             case 'GET':
@@ -120,7 +114,7 @@ trait RouterMethodTrait
                 break;
         }
 
-        $this->set($route, $middleware);
+        $this->set($route);
     }
 
     /**
@@ -137,9 +131,8 @@ trait RouterMethodTrait
 
     /**
      * @param array $route
-     * @param null  $middleware
      *
      * @return mixed
      */
-    public abstract function set(array $route, $middleware = null);
+    public abstract function set(array $route);
 }
