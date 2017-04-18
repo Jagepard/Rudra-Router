@@ -91,21 +91,23 @@ class Router implements RouterInterface
     } // @codeCoverageIgnore
 
     /**
-     * @param array $classAndMethod
+     * @param array $route
      * @param null  $params
      */
-    public function directCall(array $classAndMethod, $params = null): void
+    public function directCall(array $route, $params = null): void
     {
-        $controller = $this->container()->new($classAndMethod[0]);
-        $method     = $classAndMethod[1];
+        $controller = $this->container()->new($route['controller']);
+        $method     = $route['method'];
 
         // Инициализуруем
         $controller->init($this->container(), $this->templateEngine());
-        // Выполняем метод before до основного вызова
-        $controller->before(); // before
+        // Выполняем методы before до основного вызова
+        $controller->before();
+        !isset($route['middleware']) ?: $this->handleMiddleware($route['middleware']);
         // Собственно вызываем экшн, в зависимости от наличия параметров
         isset($params) ? $controller->{$method}($params) : $controller->{$method}();
-        // Выполняем метод after
+        // Выполняем методы after
+        !isset($route['after_middleware']) ?: $this->handleMiddleware($route['after_middleware']);
         $controller->after(); // after
     }
 
