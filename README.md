@@ -20,7 +20,8 @@ Rudra::app()->setBinding(ContainerInterface::class, Rudra::$app);
 Rudra::$app->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => 'twig']);
 $router = Rudra::$app->get('router');
 ```
-#### Устанавливаем маршрут /test/{id} для http методов DELETE|PUT
+#### Устанавливаем маршрут /test/{id} для http методов DELETE|PUT 
+_вызывает stub\\MainController::actionIndex_
 ```php
 $router->set([
         'pattern'     => '/test/{id}',
@@ -31,6 +32,13 @@ $router->set([
 );
 ```
 #### Устанавливаем ресурс для маршрута api/{id}, методы GET|POST|PUT|DELETE
+_вызывает stub\\MainController::read для GET_
+
+_вызывает stub\\MainController::create для POST_
+
+_вызывает stub\\MainController::update для PUT_
+
+_вызывает stub\\MainController::delete для DELETE_
 ```php
 $router->resource([
     'pattern'     => 'api/{id}',
@@ -38,6 +46,7 @@ $router->resource([
 ]);
 ```
 #### Устанавливаем маршрут 123/122 и добавляем middleware
+_вызывает stub\\MainController::read_
 ```php
 $router->middleware('get', [
     'pattern'     => '123/122',
@@ -47,6 +56,7 @@ $router->middleware('get', [
 ]);
 ```
 #### Устанавливаем маршрут 123/{id} для http метода GET
+_вызывает stub\\MainController::read_
 ```php
 $router->get([
     'pattern'     => '123/{id}',
@@ -55,6 +65,7 @@ $router->get([
 ]);
 ```
 #### Устанавливаем маршрут 123/{id} для http метода POST
+_вызывает stub\\MainController::create_
 ```php
 $router->post([
     'pattern'     => '123/{id}',
@@ -63,6 +74,7 @@ $router->post([
 ]);
 ```
 #### Устанавливаем маршрут 123/{id} для http метода PUT
+_вызывает stub\\MainController::update_
 ```php
 $router->put([
     'pattern'     => '123/{id}',
@@ -71,6 +83,7 @@ $router->put([
 ]);
 ```
 #### Устанавливаем маршрут 123/{id} для http метода PATCH
+_вызывает stub\\MainController::update_
 ```php
 $router->patch([
     'pattern'     => '123/{id}',
@@ -79,6 +92,7 @@ $router->patch([
 ]);
 ```
 #### Устанавливаем маршрут 123/{id} для http метода DELETE
+_вызывает stub\\MainController::delete_
 ```php
 $router->delete([
     'pattern'     => '123/{id}',
