@@ -221,6 +221,22 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(false, $this->container()->get('router')->isToken());
     }
 
+    public function testMiddleware()
+    {
+        $_SERVER['REQUEST_URI']    = '123/456';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $this->setContainer();
+
+        $this->container()->get('router')->middleware('get', [
+            'pattern'     => '123/{id}',
+            'controller'  => 'MainController',
+            'method'      => 'read',
+            'middleware'  => [['stub\\Middleware', ['int' => 123]], ['stub\\Middleware', ['int' => 125]]]
+        ]);
+
+        $this->assertEquals('middleware', $this->container()->get('middleware'));
+    }
+
     public function testClosure()
     {
         $_SERVER['REQUEST_URI']    = 'test/page';

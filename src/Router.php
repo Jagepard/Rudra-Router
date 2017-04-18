@@ -61,10 +61,11 @@ class Router implements RouterInterface
 
     /**
      * @param array $route
+     * @param null  $middleware
      *
      * @return bool
      */
-    public function set(array $route)
+    public function set(array $route, $middleware = null)
     {
         if ($this->container()->hasPost('_method') && $this->container()->getServer('REQUEST_METHOD') === 'POST') {
             $this->setRequestMethod();
@@ -73,7 +74,7 @@ class Router implements RouterInterface
         if (($this->container()->getServer('REQUEST_METHOD') === 'GET')
             || $this->container()->getServer('REQUEST_METHOD') === 'POST'
         ) {
-            $this->matchHttpMethod($route);
+            $this->matchHttpMethod($route, $middleware);
             return false;
         }
 
@@ -84,28 +85,30 @@ class Router implements RouterInterface
             $settersName = 'set' . ucfirst(strtolower($this->container()->getServer('REQUEST_METHOD')));
             parse_str(file_get_contents('php://input'), $data);
             $this->container()->$settersName($data);
-            $this->matchHttpMethod($route);
+            $this->matchHttpMethod($route, $middleware);
             return false;
         }
     } // @codeCoverageIgnore
 
     /**
-     * @param array $classAndMethod
+     * @param array $route
      * @param null  $params
      */
-    public function directCall(array $classAndMethod, $params = null): void
+    public function directCall(array $route, $params = null): void
     {
-        $controller = $this->container()->new($classAndMethod[0]);
-        $method     = $classAndMethod[1];
+        $controller = $this->container()->new($route['controller']);
+        $method     = $route['method'];
 
         // Инициализуруем
         $controller->init($this->container(), $this->templateEngine());
-        // Выполняем метод before до основного вызова
-        $controller->before(); // --- middleware before
+        // Выполняем методы before до основного вызова
+        $controller->before();
+        !isset($route['middleware']) ?: $this->handleMiddleware($route['middleware']);
         // Собственно вызываем экшн, в зависимости от наличия параметров
         isset($params) ? $controller->{$method}($params) : $controller->{$method}();
-        // Выполняем метод after
-        $controller->after(); // --- middleware after
+        // Выполняем методы after
+        !isset($route['after_middleware']) ?: $this->handleMiddleware($route['after_middleware']);
+        $controller->after(); // after
     }
 
     /**

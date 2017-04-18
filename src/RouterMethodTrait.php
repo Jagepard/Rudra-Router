@@ -22,6 +22,17 @@ trait RouterMethodTrait
 {
 
     /**
+     * @param string $method
+     * @param array  $route
+     *
+     * @return mixed
+     */
+    public function middleware(string $method, array $route)
+    {
+        return $this->$method($route);
+    }
+
+    /**
      * @param array $route
      */
     public function get(array $route): void
@@ -121,7 +132,7 @@ trait RouterMethodTrait
     /**
      * @param array $route
      *
-     * @return bool
+     * @return mixed
      */
     public abstract function set(array $route);
 }

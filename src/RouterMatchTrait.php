@@ -23,35 +23,36 @@ trait RouterMatchTrait
 
     /**
      * @param array $route
+     * @param       $middleware
      */
-    protected function matchHttpMethod(array $route)
+    protected function matchHttpMethod(array $route, $middleware)
     {
         if (strpos($route['http_method'], '|') !== false) {
             $httpArray = explode('|', $route['http_method']);
 
             foreach ($httpArray as $httpItem) {
                 $route['http_method'] = $httpItem;
-                $this->matchRequest($route);
+                $this->matchRequest($route, $middleware);
             }
         } else {
-            $this->matchRequest($route);
+            $this->matchRequest($route, $middleware);
         }
     }
 
     /**
      * @param array $route
      *
-     * @return bool
+     * @return bool|void
      */
     protected function matchRequest(array $route)
     {
         if ($route['http_method'] == $this->container()->getServer('REQUEST_METHOD')) {
 
-            $requestUrl                              = trim($this->container()->getServer('REQUEST_URI'), '/');
-            $requestArray                            = explode('/', $requestUrl);
-            list($params, $completeRequestArray)     = $this->handlePattern($route, $requestArray);
+            $requestUrl   = trim($this->container()->getServer('REQUEST_URI'), '/');
+            $requestArray = explode('/', $requestUrl);
+            list($params, $completeRequestArray) = $this->handlePattern($route, $requestArray);
             list($requestString, $realRequestString) = $this->handleCompleteRequestArray($completeRequestArray);
-            $outRequestUrl                           = $this->getOutRequestUrl($requestUrl);
+            $outRequestUrl = $this->getOutRequestUrl($requestUrl);
 
             // Это нужно для обработки 404 ошибки
             if (isset($requestString)) {
@@ -64,7 +65,7 @@ trait RouterMatchTrait
                 }
             }
 
-            return $this->setCallable($route, $realRequestString, $outRequestUrl, $params);
+            return $this->handleRequest($route, $realRequestString, $outRequestUrl, $params);
         }
     }
 
@@ -177,28 +178,43 @@ trait RouterMatchTrait
      * @param       $realRequestString
      * @param       $outRequestUrl
      * @param       $params
-     *
-     * @return mixed
      */
-    protected function setCallable(array $route, $realRequestString, $outRequestUrl, $params)
+    protected function handleRequest(array $route, $realRequestString, $outRequestUrl, $params)
     {
         // Если $realRequestString совпадает с 'REQUEST_URI'
         if ($realRequestString == $outRequestUrl[0]) {
             // Устанавливаем token true
             $this->setToken(true);
-
-            // Если $route['method'] является экземпляром ксласса Closure
-            // возвращаем замыкание
-            if ($route['method'] instanceof \Closure) {
-                return $route['method']();
-            }
-
-            $controller = $this->controllerName($route['controller']);
-
-            isset($params)
-                ? $this->directCall([$controller, $route['method']], $params)
-                : $this->directCall([$controller, $route['method']]);
+            $this->setCallable($route, $params);
         }
+    }
+
+    /**
+     * @param array $middleware
+     */
+    protected function handleMiddleware(array $middleware)
+    {
+        if (isset($middleware)) {
+            (new $middleware[0][0]($this->container()))($middleware);
+        }
+    }
+
+    /**
+     * @param array $route
+     * @param       $params
+     *
+     * @return mixed
+     */
+    protected function setCallable(array $route, $params)
+    {
+        // Если $route['method'] является экземпляром ксласса Closure
+        // возвращаем замыкание
+        if ($route['method'] instanceof \Closure) {
+            return $route['method']();
+        }
+
+        $route['controller'] = $this->controllerName($route['controller']);
+        isset($params) ? $this->directCall($route, $params) : $this->directCall($route);
     }
 
     /**
