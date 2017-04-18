@@ -44,22 +44,19 @@ class Middleware
      */
     public function __invoke($middleware = null)
     {
-        if (!is_array($middleware[0])) {
-            $middleware[0] = $middleware;
-            unset($middleware[1]);
-        }
+        $middleware = $this->handleArray($middleware);
 
-        if (isset($middleware[0][1])) {
-            if ($middleware[0][1]['int'] % 2) {
-                echo json_encode($_SERVER);
-            }
+        // StartMiddleware
+
+        if ($middleware[0][1]['int'] % 2) {
+            echo json_encode($_SERVER);
         }
 
         $this->container()->set('middleware', 'middleware', 'raw');
 
-        if (isset($middleware[1])) {
-            (new $middleware[1][0]($this->container()))(array_pop($middleware));
-        }
+        // EndMiddleware
+
+        $this->next($middleware);
     }
 
     /**
@@ -68,5 +65,32 @@ class Middleware
     protected function container(): ContainerInterface
     {
         return $this->container;
+    }
+
+    /**
+     * @param $middleware
+     */
+    protected function next($middleware)
+    {
+        if (isset($middleware[1])) {
+            (new $middleware[1][0]($this->container()))(array_pop($middleware));
+        }
+    }
+
+    /**
+     * @param $middleware
+     *
+     * @return mixed
+     */
+    protected function handleArray($middleware)
+    {
+        if (!is_array($middleware[0])) {
+            $middleware[0] = $middleware;
+            unset($middleware[1]);
+
+            return $middleware;
+        }
+
+        return $middleware;
     }
 }
