@@ -38,20 +38,31 @@ class Middleware
     }
 
     /**
-     * @param       $middleware
-     * @param array ...$params
+     * @param null $middleware
      *
      * @return bool
      */
-    public function __invoke($middleware, ...$params)
+    public function __invoke($middleware = null)
     {
-        if ($params % 2) {
-            header('Location: https://gist.github.com/Jagepard/0743e3e11ccc3e55025aa5424fb9d723');
-            return false;
+        if (!is_array($middleware[0])) {
+            $middleware[0] =  $middleware;
+            unset($middleware[1]);
         }
 
-        if (count($middleware)) {
-            (new $middleware[0]($this->container(), array_pop($middleware)))(2);
+        var_dump($middleware);
+
+        if (isset($middleware[0][1])) {
+            if ($middleware[0][1]['int'] % 2) {
+                echo json_encode($_SERVER);
+            }
+        }
+
+        if (isset($middleware[1])) {
+            if (!is_array($middleware[0])) {
+                (new $middleware($this->container()))();
+            } else {
+                (new $middleware[1][0]($this->container()))(array_pop($middleware));
+            }
         }
     }
 
