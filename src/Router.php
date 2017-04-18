@@ -93,11 +93,18 @@ class Router implements RouterInterface
     /**
      * @param array $route
      * @param null  $params
+     *
+     * @throws RouterException
      */
     public function directCall(array $route, $params = null): void
     {
-        $controller = $this->container()->new($route['controller']);
-        $method     = $route['method'];
+        $controller = new $route['controller']($this->container());
+
+        if (method_exists($controller, $route['method'])) {
+            $method = $route['method'];
+        } else {
+            throw new RouterException('503');
+        }
 
         // Инициализуруем
         $controller->init($this->container(), $this->templateEngine());
