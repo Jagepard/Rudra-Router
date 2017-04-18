@@ -45,11 +45,9 @@ class Middleware
     public function __invoke($middleware = null)
     {
         if (!is_array($middleware[0])) {
-            $middleware[0] =  $middleware;
+            $middleware[0] = $middleware;
             unset($middleware[1]);
         }
-
-        var_dump($middleware);
 
         if (isset($middleware[0][1])) {
             if ($middleware[0][1]['int'] % 2) {
@@ -57,12 +55,10 @@ class Middleware
             }
         }
 
+        $this->container()->set('middleware', 'middleware', 'raw');
+
         if (isset($middleware[1])) {
-            if (!is_array($middleware[0])) {
-                (new $middleware($this->container()))();
-            } else {
-                (new $middleware[1][0]($this->container()))(array_pop($middleware));
-            }
+            (new $middleware[1][0]($this->container()))(array_pop($middleware));
         }
     }
 
