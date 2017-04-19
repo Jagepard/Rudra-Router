@@ -72,10 +72,7 @@ class Middleware
      */
     protected function next($middleware)
     {
-        if (isset($middleware[1])) {
-            $middleware[1][0] = $this->container()->get('router')->setClassName($middleware[1][0], 'middlewareNamespace');
-            (new $middleware[1][0]($this->container()))(array_pop($middleware));
-        }
+        $this->container()->get('router')->handleMiddleware($middleware, 1);
     }
 
     /**
