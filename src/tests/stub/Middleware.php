@@ -8,7 +8,7 @@
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
-namespace stub;
+namespace stub\Middleware;
 
 
 use Rudra\ContainerInterface;
@@ -73,6 +73,7 @@ class Middleware
     protected function next($middleware)
     {
         if (isset($middleware[1])) {
+            $middleware[1][0] = $this->container()->get('router')->setClassName($middleware[1][0], 'middlewareNamespace');
             (new $middleware[1][0]($this->container()))(array_pop($middleware));
         }
     }
