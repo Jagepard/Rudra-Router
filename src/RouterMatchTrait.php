@@ -70,35 +70,6 @@ trait RouterMatchTrait
     }
 
     /**
-     * @param $className
-     * @param $type
-     *
-     * @return string
-     * @throws RouterException
-     */
-    public function setClassName($className, $type)
-    {
-        if (strpos($className, '::namespace') !== false) {
-            $classNameArray = explode('::', $className);
-
-            if (class_exists($classNameArray[0])) {
-                $className = $classNameArray[0];
-            } else {
-                throw new RouterException('503');
-            }
-        } else {
-
-            if (class_exists($this->$type() . $className)) {
-                $className = $this->$type() . $className;
-            } else {
-                throw new RouterException('503');
-            }
-        }
-
-        return $className;
-    }
-
-    /**
      * @param array $route
      * @param array $requestArray
      *
