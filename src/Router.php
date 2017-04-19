@@ -110,11 +110,11 @@ class Router implements RouterInterface
         $controller->init($this->container(), $this->templateEngine());
         // Выполняем методы before до основного вызова
         $controller->before();
-        !isset($route['middleware']) ?: $this->handleMiddleware($route['middleware']);
+        !isset($route['middleware']) ?: $this->handleMiddleware($route['middleware'], 0);
         // Собственно вызываем экшн, в зависимости от наличия параметров
         isset($params) ? $controller->{$method}($params) : $controller->{$method}();
         // Выполняем методы after
-        !isset($route['after_middleware']) ?: $this->handleMiddleware($route['after_middleware']);
+        !isset($route['after_middleware']) ?: $this->handleMiddleware($route['after_middleware'], 0);
         $controller->after(); // after
     }
 
@@ -183,35 +183,6 @@ class Router implements RouterInterface
                     break;
             }
         }
-    }
-
-    /**
-     * @param string $className
-     * @param string $type
-     *
-     * @return string
-     * @throws RouterException
-     */
-    public function setClassName(string $className, string $type): string
-    {
-        if (strpos($className, '::namespace') !== false) {
-            $classNameArray = explode('::', $className);
-
-            if (class_exists($classNameArray[0])) {
-                $className = $classNameArray[0];
-            } else {
-                throw new RouterException('503');
-            }
-        } else {
-
-            if (class_exists($this->$type() . $className)) {
-                $className = $this->$type() . $className;
-            } else {
-                throw new RouterException('503');
-            }
-        }
-
-        return $className;
     }
 
     /**
