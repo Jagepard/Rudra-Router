@@ -127,7 +127,7 @@ class Router implements RouterInterface
      */
     public function annotation(string $class, string $method, int $number = 0): void
     {
-        $controller = $this->controllerName($class);
+        $controller = $this->setClassName($class, 'controllersNamespace');
         $result     = $this->container()->get('annotation')->getMethodAnnotations($controller, $method);
 
         if (isset($result['Routing'])) {
@@ -183,6 +183,35 @@ class Router implements RouterInterface
                     break;
             }
         }
+    }
+
+    /**
+     * @param string $className
+     * @param string $type
+     *
+     * @return string
+     * @throws RouterException
+     */
+    public function setClassName(string $className, string $type): string
+    {
+        if (strpos($className, '::namespace') !== false) {
+            $classNameArray = explode('::', $className);
+
+            if (class_exists($classNameArray[0])) {
+                $className = $classNameArray[0];
+            } else {
+                throw new RouterException('503');
+            }
+        } else {
+
+            if (class_exists($this->$type() . $className)) {
+                $className = $this->$type() . $className;
+            } else {
+                throw new RouterException('503');
+            }
+        }
+
+        return $className;
     }
 
     /**
