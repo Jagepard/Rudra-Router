@@ -23,19 +23,18 @@ trait RouterMatchTrait
 
     /**
      * @param array $route
-     * @param       $middleware
      */
-    protected function matchHttpMethod(array $route, $middleware)
+    protected function matchHttpMethod(array $route)
     {
         if (strpos($route['http_method'], '|') !== false) {
             $httpArray = explode('|', $route['http_method']);
 
             foreach ($httpArray as $httpItem) {
                 $route['http_method'] = $httpItem;
-                $this->matchRequest($route, $middleware);
+                $this->matchRequest($route);
             }
         } else {
-            $this->matchRequest($route, $middleware);
+            $this->matchRequest($route);
         }
     }
 
@@ -195,6 +194,15 @@ trait RouterMatchTrait
      * @param null  $params
      */
     public abstract function directCall(array $classAndMethod, $params = null): void;
+
+    /**
+     * @param string $className
+     * @param string $type
+     *
+     * @return string
+     * @throws RouterException
+     */
+    public abstract function setClassName(string $className, string $type): string;
 
     /**
      * @return ContainerInterface
