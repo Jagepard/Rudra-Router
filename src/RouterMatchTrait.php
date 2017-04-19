@@ -70,31 +70,32 @@ trait RouterMatchTrait
     }
 
     /**
-     * @param $controllerName
+     * @param $className
+     * @param $type
      *
      * @return string
      * @throws RouterException
      */
-    protected function controllerName($controllerName)
+    public function setClassName($className, $type)
     {
-        if (strpos($controllerName, '::namespace') !== false) {
-            $controllerArray = explode('::', $controllerName);
+        if (strpos($className, '::namespace') !== false) {
+            $classNameArray = explode('::', $className);
 
-            if (class_exists($controllerArray[0])) {
-                $controller = $controllerArray[0];
+            if (class_exists($classNameArray[0])) {
+                $className = $classNameArray[0];
             } else {
                 throw new RouterException('503');
             }
         } else {
 
-            if (class_exists($this->controllersNamespace() . $controllerName)) {
-                $controller = $this->controllersNamespace() . $controllerName;
+            if (class_exists($this->$type() . $className)) {
+                $className = $this->$type() . $className;
             } else {
                 throw new RouterException('503');
             }
         }
 
-        return $controller;
+        return $className;
     }
 
     /**
@@ -195,6 +196,7 @@ trait RouterMatchTrait
     protected function handleMiddleware(array $middleware)
     {
         if (isset($middleware)) {
+            $middleware[0][0] = $this->setClassName($middleware[0][0], 'middlewareNamespace');
             (new $middleware[0][0]($this->container()))($middleware);
         }
     }
@@ -213,7 +215,7 @@ trait RouterMatchTrait
             return $route['method']();
         }
 
-        $route['controller'] = $this->controllerName($route['controller']);
+        $route['controller'] = $this->setClassName($route['controller'], 'controllersNamespace');
         isset($params) ? $this->directCall($route, $params) : $this->directCall($route);
     }
 
