@@ -61,11 +61,10 @@ class Router implements RouterInterface
 
     /**
      * @param array $route
-     * @param null  $middleware
      *
      * @return bool
      */
-    public function set(array $route, $middleware = null)
+    public function set(array $route)
     {
         if ($this->container()->hasPost('_method') && $this->container()->getServer('REQUEST_METHOD') === 'POST') {
             $this->setRequestMethod();
@@ -74,8 +73,7 @@ class Router implements RouterInterface
         if (($this->container()->getServer('REQUEST_METHOD') === 'GET')
             || $this->container()->getServer('REQUEST_METHOD') === 'POST'
         ) {
-            $this->matchHttpMethod($route, $middleware);
-            return false;
+            $this->matchHttpMethod($route);
         }
 
         if (($this->container()->getServer('REQUEST_METHOD') === 'PUT')
@@ -85,8 +83,7 @@ class Router implements RouterInterface
             $settersName = 'set' . ucfirst(strtolower($this->container()->getServer('REQUEST_METHOD')));
             parse_str(file_get_contents('php://input'), $data);
             $this->container()->$settersName($data);
-            $this->matchHttpMethod($route, $middleware);
-            return false;
+            $this->matchHttpMethod($route);
         }
     } // @codeCoverageIgnore
 
