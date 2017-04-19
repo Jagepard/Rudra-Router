@@ -212,9 +212,17 @@ class Router implements RouterInterface
     /**
      * @return mixed
      */
-    protected function namespace()
+    protected function controllersNamespace()
     {
-        return $this->namespace;
+        return $this->namespace . 'Controllers\\';
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function middlewareNamespace()
+    {
+        return $this->namespace . 'Middleware\\';
     }
 
     /**
