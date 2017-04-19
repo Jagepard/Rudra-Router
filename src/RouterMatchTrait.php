@@ -147,7 +147,7 @@ trait RouterMatchTrait
     public function handleMiddleware(array $middleware, int $key)
     {
         if (isset($middleware[$key])) {
-            $middleware[$key][0] = $this->container()->get('router')->setClassName($middleware[$key][0], 'middlewareNamespace');
+            $middleware[$key][0] = $this->setClassName($middleware[$key][0], 'middlewareNamespace');
 
             ($key === 1)
                 ? (new $middleware[$key][0]($this->container()))(array_pop($middleware))
