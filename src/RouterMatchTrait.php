@@ -86,6 +86,7 @@ trait RouterMatchTrait
         foreach (explode('/', ltrim($route['pattern'], '/')) as $itemPattern) {
             // Ищем совпадение строки запроса с шаблоном {...}
             if (preg_match('/{[a-zA-Z0-9]+}/', $itemPattern, $matchesPattern) != 0) {
+
                 // Если есть элемент массива $i
                 if (isset($requestArray[$i])) {
                     // Убираем {} из названия будующего ключа массива параметров
@@ -116,7 +117,7 @@ trait RouterMatchTrait
         $requestString     = '';
         $realRequestString = '';
 
-        if (isset($completeRequestArray)) {
+        if (count($completeRequestArray)) {
             $requestString     = implode('\/', $completeRequestArray);
             $realRequestString = implode('/', $completeRequestArray);
         }
@@ -137,6 +138,7 @@ trait RouterMatchTrait
             // Устанавливаем token true
             $this->setToken(true);
             $this->setCallable($route, $params);
+            (DEV == 'test') ?: exit(); // @codeCoverageIgnore
         }
     }
 
