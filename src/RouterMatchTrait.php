@@ -141,13 +141,17 @@ trait RouterMatchTrait
     }
 
     /**
-     * @param array $middleware
+     * @param $middleware
+     * @param $key
      */
-    protected function handleMiddleware(array $middleware)
+    public function handleMiddleware(array $middleware, int $key)
     {
-        if (isset($middleware)) {
-            $middleware[0][0] = $this->setClassName($middleware[0][0], 'middlewareNamespace');
-            (new $middleware[0][0]($this->container()))($middleware);
+        if (isset($middleware[$key])) {
+            $middleware[$key][0] = $this->container()->get('router')->setClassName($middleware[$key][0], 'middlewareNamespace');
+
+            ($key === 1)
+                ? (new $middleware[$key][0]($this->container()))(array_pop($middleware))
+                : (new $middleware[$key][0]($this->container()))($middleware);
         }
     }
 
@@ -189,11 +193,6 @@ trait RouterMatchTrait
         isset($params) ? $this->directCall($route, $params) : $this->directCall($route);
     }
 
-    /**
-     * @param array $classAndMethod
-     * @param null  $params
-     */
-    public abstract function directCall(array $classAndMethod, $params = null): void;
 
     /**
      * @param string $className
@@ -202,7 +201,33 @@ trait RouterMatchTrait
      * @return string
      * @throws RouterException
      */
-    public abstract function setClassName(string $className, string $type): string;
+    protected function setClassName(string $className, string $type): string
+    {
+        if (strpos($className, '::namespace') !== false) {
+            $classNameArray = explode('::', $className);
+
+            if (class_exists($classNameArray[0])) {
+                $className = $classNameArray[0];
+            } else {
+                throw new RouterException('503');
+            }
+        } else {
+
+            if (class_exists($this->$type() . $className)) {
+                $className = $this->$type() . $className;
+            } else {
+                throw new RouterException('503');
+            }
+        }
+
+        return $className;
+    }
+
+    /**
+     * @param array $classAndMethod
+     * @param null  $params
+     */
+    public abstract function directCall(array $classAndMethod, $params = null): void;
 
     /**
      * @return ContainerInterface
