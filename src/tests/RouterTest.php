@@ -82,7 +82,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
     public function testGet(): void
     {
-        $this->setRouteEnvironment('test/page', 'GET', '/test/page', 'stub\\MainController::namespace');
+        $this->setRouteEnvironment('test/page', 'GET', '/test/page', 'stub\Controllers\MainController::namespace');
     }
 
     public function testPost(): void
@@ -231,7 +231,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
             'pattern'     => '123/{id}',
             'controller'  => 'MainController',
             'method'      => 'read',
-            'middleware'  => [['stub\\Middleware', ['int' => 123]], ['stub\\Middleware', ['int' => 125]]]
+            'middleware'  => [['Middleware', ['int' => 123]], ['Middleware', ['int' => 125]]]
         ]);
 
         $this->assertEquals('middleware', $this->container()->get('middleware'));
@@ -257,7 +257,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testRouterExceptionWithNamespace()
     {
         $this->expectException(RouterException::class);
-        $this->setRouteEnvironment('test/page', 'GET', '/test/page', 'stub\\FalseController::namespace');
+        $this->setRouteEnvironment('test/page', 'GET', '/test/page', 'stub\Controllers\FalseController::namespace');
     } // @codeCoverageIgnore
 
     public function testRouterException()
