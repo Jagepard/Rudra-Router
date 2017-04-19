@@ -126,26 +126,6 @@ trait RouterMatchTrait
     }
 
     /**
-     * @param $requestUrl
-     *
-     * @return mixed
-     */
-    protected function getOutRequestUrl($requestUrl)
-    {
-        $outRequestUrl = [];
-
-        if (strpos($requestUrl, '?') !== false) {
-            preg_match('~[/[:word:]-]+(?=\?)~', $requestUrl, $outRequestUrl);
-
-            return $outRequestUrl;
-        }
-
-        $outRequestUrl[0] = $requestUrl;
-
-        return $outRequestUrl;
-    }
-
-    /**
      * @param array $route
      * @param       $realRequestString
      * @param       $outRequestUrl
@@ -170,6 +150,26 @@ trait RouterMatchTrait
             $middleware[0][0] = $this->setClassName($middleware[0][0], 'middlewareNamespace');
             (new $middleware[0][0]($this->container()))($middleware);
         }
+    }
+
+    /**
+     * @param $requestUrl
+     *
+     * @return mixed
+     */
+    protected function getOutRequestUrl($requestUrl)
+    {
+        $outRequestUrl = [];
+
+        if (strpos($requestUrl, '?') !== false) {
+            preg_match('~[/[:word:]-]+(?=\?)~', $requestUrl, $outRequestUrl);
+
+            return $outRequestUrl;
+        }
+
+        $outRequestUrl[0] = $requestUrl;
+
+        return $outRequestUrl;
     }
 
     /**
