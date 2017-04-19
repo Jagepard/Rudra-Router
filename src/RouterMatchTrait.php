@@ -87,8 +87,8 @@ trait RouterMatchTrait
             }
         } else {
 
-            if (class_exists($this->namespace() . $controllerName)) {
-                $controller = $this->namespace() . $controllerName;
+            if (class_exists($this->controllersNamespace() . $controllerName)) {
+                $controller = $this->controllersNamespace() . $controllerName;
             } else {
                 throw new RouterException('503');
             }
