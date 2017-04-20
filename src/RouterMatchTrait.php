@@ -143,17 +143,16 @@ trait RouterMatchTrait
     }
 
     /**
-     * @param $middleware
-     * @param $key
+     * @param array $middleware
      */
-    public function handleMiddleware(array $middleware, int $key)
+    public function handleMiddleware(array $middleware)
     {
-        if (isset($middleware[$key])) {
-            $middleware[$key][0] = $this->setClassName($middleware[$key][0], 'middlewareNamespace');
+        $current = array_shift($middleware);
 
-            ($key === 1)
-                ? (new $middleware[$key][0]($this->container()))(array_pop($middleware))
-                : (new $middleware[$key][0]($this->container()))($middleware);
+        if (count($current)) {
+            $currentMiddleware = $this->setClassName($current[0], 'middlewareNamespace');
+
+            (new $currentMiddleware($this->container()))($current, $middleware);
         }
     }
 
