@@ -29,7 +29,8 @@ class MainController
     protected $container;
 
     /**
-     * @Routing(url = 'test/123'| method = 'GET')
+     * @Routing(url = 'test/123', method = 'GET', params = {int : '123'| [rty : '123']})
+     * @Middleware(name = 'Middleware', params = {int : '123'})
      */
     public function actionIndex()
     {
