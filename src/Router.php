@@ -128,17 +128,8 @@ class Router implements RouterInterface
         $result     = $this->container()->get('annotation')->getMethodAnnotations($controller, $method);
 
         if (isset($result['Routing'])) {
-
             $http_method = $result['Routing'][$number]['method'] ?? 'GET';
             $dataRoute   = $this->setRouteData($class, $method, $number, $result, $http_method);
-
-            if (isset($result['Middleware'])) {
-                $dataRoute = array_merge($dataRoute, ['middleware' => $this->handleAnnotationMiddleware($result['Middleware'])]);
-            }
-
-            if (isset($result['AfterMiddleware'])) {
-                $dataRoute = array_merge($dataRoute, ['after_middleware' => $this->handleAnnotationMiddleware($result['AfterMiddleware'])]);
-            }
 
             $this->set($dataRoute);
         }
@@ -206,25 +197,6 @@ class Router implements RouterInterface
         }
     }
 
-
-    /**
-     * @param string $class
-     * @param string $method
-     * @param int    $number
-     * @param        $result
-     * @param        $http_method
-     *
-     * @return array
-     */
-    protected function setRouteData(string $class, string $method, int $number, $result, $http_method)
-    {
-        return ['pattern'     => $result['Routing'][$number]['url'],
-                'controller'  => $class,
-                'method'      => $method,
-                'http_method' => $http_method
-        ];
-    }
-
     /**
      * @return bool
      */
@@ -271,5 +243,33 @@ class Router implements RouterInterface
     protected function templateEngine()
     {
         return $this->templateEngine;
+    }
+
+    /**
+     * @param string $class
+     * @param string $method
+     * @param int    $number
+     * @param        $result
+     * @param        $http_method
+     *
+     * @return array
+     */
+    protected function setRouteData(string $class, string $method, int $number, $result, $http_method)
+    {
+        $dataRoute = ['pattern'     => $result['Routing'][$number]['url'],
+                      'controller'  => $class,
+                      'method'      => $method,
+                      'http_method' => $http_method
+        ];
+
+        if (isset($result['Middleware'])) {
+            $dataRoute = array_merge($dataRoute, ['middleware' => $this->handleAnnotationMiddleware($result['Middleware'])]);
+        }
+
+        if (isset($result['AfterMiddleware'])) {
+            $dataRoute = array_merge($dataRoute, ['after_middleware' => $this->handleAnnotationMiddleware($result['AfterMiddleware'])]);
+        }
+
+        return $dataRoute;
     }
 }
