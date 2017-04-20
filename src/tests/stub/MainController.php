@@ -29,8 +29,17 @@ class MainController
     protected $container;
 
     /**
-     * @Routing(url = 'test/123', method = 'GET', params = {int : '123'| [rty : '123']})
+     * @Routing(url = 'test/123', method = 'GET')
+     *
      * @Middleware(name = 'Middleware', params = {int : '123'})
+     * @Middleware(name = 'Middleware', params = {int : '123'| qwe : '321'})
+     * @Middleware(name = 'Middleware', params = {int : '123'| asd : '456'})
+     * @Middleware(name = 'Middleware', params = {int : '123'})
+     * @Middleware(name = 'Middleware', params = {int : '123'| qwe : '321'})
+     * @Middleware(name = 'Middleware', params = {int : '123'| asd : '456'})
+     *
+     * @AfterMiddleware(name = 'Middleware', params = {int : '123'| qwe : '321'})
+     * @AfterMiddleware(name = 'Middleware', params = {int : '123'| asd : '456'})
      */
     public function actionIndex()
     {
