@@ -71,21 +71,4 @@ class Middleware
     {
         $this->container()->get('router')->handleMiddleware($middleware);
     }
-
-    /**
-     * @param $middleware
-     *
-     * @return mixed
-     */
-    protected function handleArray($middleware)
-    {
-        if (!is_array($middleware[0])) {
-            $middleware[0] = $middleware;
-            unset($middleware[1]);
-
-            return $middleware;
-        }
-
-        return $middleware;
-    }
 }
