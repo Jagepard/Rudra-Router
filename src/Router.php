@@ -130,11 +130,7 @@ class Router implements RouterInterface
         if (isset($result['Routing'])) {
 
             $http_method = $result['Routing'][$number]['method'] ?? 'GET';
-            $dataRoute   = ['pattern'     => $result['Routing'][$number]['url'],
-                            'controller'  => $class,
-                            'method'      => $method,
-                            'http_method' => $http_method
-            ];
+            $dataRoute   = $this->setRouteData($class, $method, $number, $result, $http_method);
 
             if (isset($result['Middleware'])) {
                 $dataRoute = array_merge($dataRoute, ['middleware' => $this->handleAnnotationMiddleware($result['Middleware'])]);
@@ -208,6 +204,25 @@ class Router implements RouterInterface
                     break;
             }
         }
+    }
+
+
+    /**
+     * @param string $class
+     * @param string $method
+     * @param int    $number
+     * @param        $result
+     * @param        $http_method
+     *
+     * @return array
+     */
+    protected function setRouteData(string $class, string $method, int $number, $result, $http_method)
+    {
+        return ['pattern'     => $result['Routing'][$number]['url'],
+                'controller'  => $class,
+                'method'      => $method,
+                'http_method' => $http_method
+        ];
     }
 
     /**
