@@ -38,17 +38,14 @@ class Middleware
     }
 
     /**
-     * @param null $middleware
-     *
-     * @return bool
+     * @param $current
+     * @param $middleware
      */
-    public function __invoke($middleware = null)
+    public function __invoke($current, $middleware)
     {
-        $middleware = $this->handleArray($middleware);
-
         // StartMiddleware
 
-        if ($middleware[0][1]['int'] % 2) {
+        if ($current[1]['int'] % 2) {
             echo json_encode($_SERVER);
         }
 
@@ -72,7 +69,7 @@ class Middleware
      */
     protected function next($middleware)
     {
-        $this->container()->get('router')->handleMiddleware($middleware, 1);
+        $this->container()->get('router')->handleMiddleware($middleware);
     }
 
     /**
