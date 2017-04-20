@@ -116,6 +116,50 @@ class Router implements RouterInterface
         $controller->after(); // after
     }
 
+
+    /**
+     * @param string|null $param
+     *
+     * @return mixed
+     */
+    protected function setRequestMethod(string $param = null)
+    {
+        if ($param === 'REST') {
+            switch ($this->container()->getPost('_method')) {
+                case 'PUT':
+                    $this->container()->setServer('REQUEST_METHOD', 'PUT');
+                    $route['http_method'] = 'PUT';
+                    $route['method']      = 'update';
+
+                    return $route;
+                case 'PATCH':
+                    $this->container()->setServer('REQUEST_METHOD', 'PATCH');
+                    $route['http_method'] = 'PATCH';
+                    $route['method']      = 'update';
+
+                    return $route;
+                case 'DELETE':
+                    $this->container()->setServer('REQUEST_METHOD', 'DELETE');
+                    $route['http_method'] = 'DELETE';
+                    $route['method']      = 'delete';
+
+                    return $route;
+            }
+        } else {
+            switch ($this->container()->getPost('_method')) {
+                case 'PUT':
+                    $this->container()->setServer('REQUEST_METHOD', 'PUT');
+                    break;
+                case 'PATCH':
+                    $this->container()->setServer('REQUEST_METHOD', 'PATCH');
+                    break;
+                case 'DELETE':
+                    $this->container()->setServer('REQUEST_METHOD', 'DELETE');
+                    break;
+            }
+        }
+    }
+
     /**
      * @return bool
      */
