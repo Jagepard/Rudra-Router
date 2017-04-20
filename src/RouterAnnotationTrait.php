@@ -88,4 +88,25 @@ trait RouterAnnotationTrait
 
         return $middleware;
     }
+
+    /**
+     * @return ContainerInterface
+     */
+    protected abstract function container(): ContainerInterface;
+
+    /**
+     * @param array $route
+     *
+     * @return bool
+     */
+    public abstract function set(array $route);
+
+    /**
+     * @param string $className
+     * @param string $type
+     *
+     * @return string
+     * @throws RouterException
+     */
+    protected abstract function setClassName(string $className, string $type): string;
 }
