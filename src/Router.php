@@ -128,15 +128,43 @@ class Router implements RouterInterface
         $result     = $this->container()->get('annotation')->getMethodAnnotations($controller, $method);
 
         if (isset($result['Routing'])) {
-            $http_method = $result['Routing'][$number]['method'] ?? 'GET';
 
-            $this->set(['pattern'     => $result['Routing'][$number]['url'],
-                        'controller'  => $class,
-                        'method'      => $method,
-                        'http_method' => $http_method
-                ]
-            );
+            $http_method = $result['Routing'][$number]['method'] ?? 'GET';
+            $dataRoute   = ['pattern'     => $result['Routing'][$number]['url'],
+                            'controller'  => $class,
+                            'method'      => $method,
+                            'http_method' => $http_method
+            ];
+
+            if (isset($result['Middleware'])) {
+                $dataRoute = array_merge($dataRoute, ['middleware' => $this->handleAnnotationMiddleware($result['Middleware'])]);
+            }
+
+            if (isset($result['AfterMiddleware'])) {
+                $dataRoute = array_merge($dataRoute, ['after_middleware' => $this->handleAnnotationMiddleware($result['AfterMiddleware'])]);
+            }
+
+            $this->set($dataRoute);
         }
+    }
+
+    /**
+     * @param array $annotation
+     *
+     * @return array
+     */
+    protected function handleAnnotationMiddleware(array $annotation): array
+    {
+        $i          = 0;
+        $middleware = [];
+
+        foreach ($annotation as $item) {
+            $middleware[$i][] = $item['name'];
+            $middleware[$i][] = !isset($item['params']) ?: $item['params'];
+            $i++;
+        }
+
+        return $middleware;
     }
 
     /**
