@@ -17,8 +17,9 @@ declare(strict_types = 1);
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 use Rudra\Container;
 use Rudra\ContainerInterface;
-use Rudra\Router;
+use \stub\Controllers\MainController;
 use Rudra\RouterException;
+use Rudra\Router;
 
 /**
  * Class RouterTest
@@ -233,6 +234,16 @@ class RouterTest extends PHPUnit_Framework_TestCase
             'method'      => 'read',
             'middleware'  => [['Middleware', ['int' => 123]], ['Middleware', ['int' => 125]]]
         ]);
+
+        $this->assertEquals('middleware', $this->container()->get('middleware'));
+    }
+
+    public function testMiddlewareTrait()
+    {
+        $this->setContainer();
+        $controller = new MainController();
+        $controller->init(Container::app());
+        $controller->middleware([['Middleware', ['int' => 123]], ['Middleware', ['int' => 125]]]);
 
         $this->assertEquals('middleware', $this->container()->get('middleware'));
     }
