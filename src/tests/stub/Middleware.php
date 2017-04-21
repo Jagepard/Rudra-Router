@@ -11,7 +11,7 @@
 namespace stub\Middleware;
 
 
-use Rudra\ContainerInterface;
+use Rudra\SetContainerTrait;
 
 
 /**
@@ -22,20 +22,7 @@ use Rudra\ContainerInterface;
 class Middleware
 {
 
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
-
-    /**
-     * Middleware constructor.
-     *
-     * @param ContainerInterface $container
-     */
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
+    use SetContainerTrait;
 
     /**
      * @param $current
@@ -54,14 +41,6 @@ class Middleware
         // EndMiddleware
 
         $this->next($middleware);
-    }
-
-    /**
-     * @return ContainerInterface
-     */
-    protected function container(): ContainerInterface
-    {
-        return $this->container;
     }
 
     /**
