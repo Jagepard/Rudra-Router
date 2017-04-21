@@ -149,7 +149,7 @@ trait RouterMatchTrait
     {
         $current = array_shift($middleware);
 
-        if (count($current)) {
+        if (is_array($current)) {
             $currentMiddleware = $this->setClassName($current[0], 'middlewareNamespace');
 
             (new $currentMiddleware($this->container()))($current, $middleware);
