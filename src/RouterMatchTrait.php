@@ -138,7 +138,7 @@ trait RouterMatchTrait
             // Устанавливаем token true
             $this->setToken(true);
             $this->setCallable($route, $params);
-            (DEV == 'test') ?: exit(); // @codeCoverageIgnore
+            (DEV === 'test') ?: exit(); // @codeCoverageIgnore
         }
     }
 
