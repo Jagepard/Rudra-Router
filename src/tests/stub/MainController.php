@@ -13,6 +13,7 @@ namespace stub\Controllers;
 
 
 use Rudra\ContainerInterface;
+use Rudra\RouterMiddlewareTrait;
 
 
 /**
@@ -22,6 +23,8 @@ use Rudra\ContainerInterface;
  */
 class MainController
 {
+
+    use RouterMiddlewareTrait;
 
     /**
      * @var ContainerInterface
