@@ -82,7 +82,10 @@ trait RouterAnnotationTrait
 
         foreach ($annotation as $item) {
             $middleware[$i][] = $item['name'];
-            $middleware[$i][] = !isset($item['params']) ?: $item['params'];
+
+            if (isset($item['params'])) {
+                $middleware[$i][] = $item['params'];
+            }
             $i++;
         }
 
