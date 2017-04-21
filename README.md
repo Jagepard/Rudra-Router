@@ -20,7 +20,18 @@ Rudra::app()->setBinding(ContainerInterface::class, Rudra::$app);
 Rudra::$app->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => 'twig']);
 $router = Rudra::$app->get('router');
 ```
-#### Устанавливаем маршрут /test/{id} для http методов DELETE|PUT 
+#### Устанавливаем маршрут /test/{id} для http методов DELETE|PUT
+_выполняет лямбда-функцию_
+```php
+$router->set([
+        'pattern' => '/test/page',
+        'http_method' => 'POST|PUT',
+        'method'  => function () {
+            $this->container()->set('closure', 'closure', 'raw');
+        }
+    ]
+);
+```
 _вызывает stub\\MainController::actionIndex_
 ```php
 $router->set([
