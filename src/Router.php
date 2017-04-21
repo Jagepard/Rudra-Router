@@ -108,11 +108,11 @@ class Router implements RouterInterface
         $controller->init($this->container(), $this->templateEngine());
         // Выполняем методы before до основного вызова
         $controller->before();
-        !isset($route['middleware']) ?: $this->handleMiddleware($route['middleware'], 0);
+        !isset($route['middleware']) ?: $this->handleMiddleware($route['middleware']);
         // Собственно вызываем экшн, в зависимости от наличия параметров
         isset($params) ? $controller->{$method}($params) : $controller->{$method}();
         // Выполняем методы after
-        !isset($route['after_middleware']) ?: $this->handleMiddleware($route['after_middleware'], 0);
+        !isset($route['after_middleware']) ?: $this->handleMiddleware($route['after_middleware']);
         $controller->after(); // after
     }
 
