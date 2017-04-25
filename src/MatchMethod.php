@@ -10,14 +10,27 @@
 
 namespace Rudra;
 
-
+/**
+ * Class MatchMethod
+ *
+ * @package Rudra
+ */
 class MatchMethod
 {
 
     use SetContainerTrait;
 
+    /**
+     * @var MatchRequest
+     */
     protected $matchRequest;
 
+    /**
+     * MatchMethod constructor.
+     *
+     * @param ContainerInterface $container
+     * @param MatchRequest       $matchRequest
+     */
     public function __construct(ContainerInterface $container, MatchRequest $matchRequest)
     {
         $this->container    = $container;
