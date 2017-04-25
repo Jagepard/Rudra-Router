@@ -20,11 +20,7 @@ class MatchRequest
 {
 
     use SetContainerTrait;
-
-    /**
-     * @var Router
-     */
-    protected $router;
+    use SetRouterTrait;
 
     /**
      * @var bool
@@ -41,14 +37,6 @@ class MatchRequest
     {
         $this->container = $container;
         $this->router    = $router;
-    }
-
-    /**
-     * @return Router
-     */
-    public function router(): Router
-    {
-        return $this->router;
     }
 
     /**
@@ -73,7 +61,7 @@ class MatchRequest
 
                 // Если совпадений нет, то возвращаем $this->isToken() == false
                 if (!isset($matches[0])) {
-                    return $this->router()->isToken();
+                    return $this->isToken();
                 }
             }
 
