@@ -24,9 +24,9 @@ class Router
     use SetContainerTrait;
 
     /**
-     * @var RequestMethod
+     * @var MatchRequestMethod
      */
-    protected $requestMethod;
+    protected $matchRequestMethod;
 
     /**
      * @var MatchHttpMethod
@@ -44,22 +44,25 @@ class Router
     protected $templateEngine;
 
     /**
-     * RouterFacade constructor.
+     * @var MatchAnnotation
+     */
+    protected $matchAnnotation;
+
+    /**
+     * Router constructor.
      *
      * @param ContainerInterface $container
-     * @param RequestMethod      $requestMethod
-     * @param MatchHttpMethod    $matchHttpMethod
      * @param string             $namespace
      * @param string             $templateEngine
      */
-    public function __construct(ContainerInterface $container,
-        string $namespace, string $templateEngine, RequestMethod $requestMethod, MatchHttpMethod $matchHttpMethod
-    ) {
-        $this->container      = $container;
-        $this->requestMethod  = $requestMethod;
-        $this->matchHttpMethod    = $matchHttpMethod;
-        $this->namespace      = $namespace;
-        $this->templateEngine = $templateEngine;
+    public function __construct(ContainerInterface $container, string $namespace, string $templateEngine)
+    {
+        $this->container          = $container;
+        $this->namespace          = $namespace;
+        $this->templateEngine     = $templateEngine;
+        $this->matchRequestMethod = new MatchRequestMethod($this->container);
+        $this->matchHttpMethod    = new MatchHttpMethod($this->container, new MatchRequest($this->container, $this));
+        $this->matchAnnotation    = new MatchAnnotation($this->container, $this);
     }
 
     /**
@@ -69,7 +72,7 @@ class Router
      */
     public function setRequestMethod(string $param = null)
     {
-        return $this->requestMethod->setRequestMethod($param);
+        return $this->matchRequestMethod->setRequestMethod($param);
     }
 
     /**
@@ -78,6 +81,14 @@ class Router
     public function matchHttpMethod(): MatchHttpMethod
     {
         return $this->matchHttpMethod;
+    }
+
+    /**
+     * @return MatchAnnotation
+     */
+    public function matchAnnotation(): MatchAnnotation
+    {
+        return $this->matchAnnotation;
     }
 
     /**
@@ -157,7 +168,7 @@ class Router
      * @return string
      * @throws RouterException
      */
-    protected function setClassName(string $className, string $type): string
+    public function setClassName(string $className, string $type): string
     {
         if (strpos($className, '::namespace') !== false) {
             $classNameArray = explode('::', $className);
@@ -177,76 +188,6 @@ class Router
         }
 
         return $className;
-    }
-
-    /**
-     * @param     $class
-     * @param     $method
-     * @param int $number
-     *
-     * @throws RouterException
-     */
-    public function annotation(string $class, string $method, int $number = 0): void
-    {
-        $controller = $this->setClassName($class, 'controllersNamespace');
-        $result     = $this->container()->get('annotation')->getMethodAnnotations($controller, $method);
-
-        if (isset($result['Routing'])) {
-            $http_method = $result['Routing'][$number]['method'] ?? 'GET';
-            $dataRoute   = $this->setRouteData($class, $method, $number, $result, $http_method);
-
-            $this->set($dataRoute);
-        }
-    }
-
-    /**
-     * @param string $class
-     * @param string $method
-     * @param int    $number
-     * @param        $result
-     * @param        $http_method
-     *
-     * @return array
-     */
-    protected function setRouteData(string $class, string $method, int $number, $result, $http_method)
-    {
-        $dataRoute = ['pattern'     => $result['Routing'][$number]['url'],
-                      'controller'  => $class,
-                      'method'      => $method,
-                      'http_method' => $http_method
-        ];
-
-        if (isset($result['Middleware'])) {
-            $dataRoute = array_merge($dataRoute, ['middleware' => $this->handleAnnotationMiddleware($result['Middleware'])]);
-        }
-
-        if (isset($result['AfterMiddleware'])) {
-            $dataRoute = array_merge($dataRoute, ['after_middleware' => $this->handleAnnotationMiddleware($result['AfterMiddleware'])]);
-        }
-
-        return $dataRoute;
-    }
-
-    /**
-     * @param array $annotation
-     *
-     * @return array
-     */
-    protected function handleAnnotationMiddleware(array $annotation): array
-    {
-        $i          = 0;
-        $middleware = [];
-
-        foreach ($annotation as $item) {
-            $middleware[$i][] = $item['name'];
-
-            if (isset($item['params'])) {
-                $middleware[$i][] = $item['params'];
-            }
-            $i++;
-        }
-
-        return $middleware;
     }
 
     /**
