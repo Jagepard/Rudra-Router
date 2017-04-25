@@ -90,9 +90,4 @@ interface RouterInterface
      * @return bool
      */
     public function isToken(): bool;
-
-    /**
-     * @param bool $token
-     */
-    public function setToken(bool $token);
 }
