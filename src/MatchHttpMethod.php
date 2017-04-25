@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types = 1);
+
 /**
  * Date: 25.04.17
  * Time: 11:15
@@ -50,7 +53,7 @@ class MatchHttpMethod
     /**
      * @param array $route
      */
-    public function matchHttpMethod(array $route)
+    public function matchHttpMethod(array $route): void
     {
         if (strpos($route['http_method'], '|') !== false) {
             $httpArray = explode('|', $route['http_method']);
