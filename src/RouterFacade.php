@@ -64,7 +64,7 @@ class RouterFacade
         if (($this->container()->getServer('REQUEST_METHOD') === 'GET')
             || $this->container()->getServer('REQUEST_METHOD') === 'POST'
         ) {
-            $this->matchHttpMethod($route);
+            $this->matchMethod()->matchHttpMethod($route);
         }
 
         if (($this->container()->getServer('REQUEST_METHOD') === 'PUT')
@@ -74,7 +74,7 @@ class RouterFacade
             $settersName = 'set' . ucfirst(strtolower($this->container()->getServer('REQUEST_METHOD')));
             parse_str(file_get_contents('php://input'), $data);
             $this->container()->$settersName($data);
-            $this->matchHttpMethod($route);
+            $this->matchMethod()->matchHttpMethod($route);
         }
     } // @codeCoverageIgnore
 }
