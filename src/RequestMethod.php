@@ -10,7 +10,11 @@
 
 namespace Rudra;
 
-
+/**
+ * Class RequestMethod
+ *
+ * @package Rudra
+ */
 class RequestMethod
 {
 
