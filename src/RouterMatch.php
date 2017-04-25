@@ -14,17 +14,17 @@ declare(strict_types = 1);
 namespace Rudra;
 
 /**
- * Class RouterMatchTrait
+ * Class RouterMatch
  *
  * @package Rudra
  */
-trait RouterMatchTrait
+class RouterMatch
 {
 
     /**
      * @param array $route
      */
-    protected function matchHttpMethod(array $route)
+    public function matchHttpMethod(array $route)
     {
         if (strpos($route['http_method'], '|') !== false) {
             $httpArray = explode('|', $route['http_method']);
@@ -224,24 +224,24 @@ trait RouterMatchTrait
         return $className;
     }
 
-    /**
-     * @param array $classAndMethod
-     * @param null  $params
-     */
-    public abstract function directCall(array $classAndMethod, $params = null): void;
-
-    /**
-     * @return ContainerInterface
-     */
-    protected abstract function container(): ContainerInterface;
-
-    /**
-     * @return bool
-     */
-    public abstract function isToken(): bool;
-
-    /**
-     * @param bool $token
-     */
-    public abstract function setToken(bool $token);
+//    /**
+//     * @param array $classAndMethod
+//     * @param null  $params
+//     */
+//    public abstract function directCall(array $classAndMethod, $params = null): void;
+//
+//    /**
+//     * @return ContainerInterface
+//     */
+//    protected abstract function container(): ContainerInterface;
+//
+//    /**
+//     * @return bool
+//     */
+//    public abstract function isToken(): bool;
+//
+//    /**
+//     * @param bool $token
+//     */
+//    public abstract function setToken(bool $token);
 }
