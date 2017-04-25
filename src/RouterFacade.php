@@ -3,11 +3,11 @@
 declare(strict_types = 1);
 
 /**
- * Date: 12.04.17
- * Time: 10:01
+ * Date: 05.09.16
+ * Time: 14:51
  *
  * @author    : Korotkov Danila <dankorot@gmail.com>
- * @copyright Copyright (c) 2016, Korotkov Danila
+ * @copyright Copyright (c) 2014, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
@@ -18,67 +18,42 @@ namespace Rudra;
  *
  * @package Rudra
  */
-class RouterFacade
+class RouterFacade implements RouterFacadeInterface
 {
 
     use SetContainerTrait;
 
     /**
-     * @var RequestMethod
+     * @var RouterFacade
      */
-    protected $requestMethod;
+    protected $routerFacade;
 
     /**
-     * @var MatchMethod
-     */
-    protected $matchMethod;
-
-    /**
-     * @var string
-     */
-    protected $namespace;
-
-    /**
-     * @var string
-     */
-    protected $templateEngine;
-
-    /**
-     * RouterFacade constructor.
+     * Router constructor.
      *
      * @param ContainerInterface $container
-     * @param RequestMethod      $requestMethod
-     * @param MatchMethod        $matchMethod
      * @param string             $namespace
      * @param string             $templateEngine
      */
-    public function __construct(
-        ContainerInterface $container, RequestMethod $requestMethod,
-        MatchMethod $matchMethod, string $namespace, string $templateEngine
-    ) {
+    public function __construct(ContainerInterface $container, string $namespace, string $templateEngine)
+    {
         $this->container      = $container;
-        $this->requestMethod  = $requestMethod;
-        $this->matchMethod    = $matchMethod;
-        $this->namespace      = $namespace;
-        $this->templateEngine = $templateEngine;
+        set_exception_handler([new RouterException(), 'handler']);
+
+        $this->routerFacade = new RouterFacade(
+            $this->container, $namespace, $templateEngine,
+            new RequestMethod($this->container),
+            new MatchHttpMethod($this->container, new MatchRequest($this->container, $this))
+        );
     }
 
-    /**
-     * @param string|null $param
-     *
-     * @return mixed
-     */
-    public function setRequestMethod(string $param = null)
-    {
-        return $this->requestMethod->setRequestMethod($param);
-    }
 
     /**
-     * @return MatchMethod
+     * @return RouterFacade
      */
-    public function matchMethod(): MatchMethod
+    public function routerFacade(): RouterFacade
     {
-        return $this->matchMethod;
+        return $this->routerFacade;
     }
 
     /**
@@ -88,25 +63,7 @@ class RouterFacade
      */
     public function set(array $route)
     {
-        if ($this->container()->hasPost('_method') && $this->container()->getServer('REQUEST_METHOD') === 'POST') {
-            $this->setRequestMethod();
-        }
-
-        if (($this->container()->getServer('REQUEST_METHOD') === 'GET')
-            || $this->container()->getServer('REQUEST_METHOD') === 'POST'
-        ) {
-            $this->matchMethod()->matchHttpMethod($route);
-        }
-
-        if (($this->container()->getServer('REQUEST_METHOD') === 'PUT')
-            || ($this->container()->getServer('REQUEST_METHOD') === 'PATCH')
-            || ($this->container()->getServer('REQUEST_METHOD') === 'DELETE')
-        ) {
-            $settersName = 'set' . ucfirst(strtolower($this->container()->getServer('REQUEST_METHOD')));
-            parse_str(file_get_contents('php://input'), $data);
-            $this->container()->$settersName($data);
-            $this->matchMethod()->matchHttpMethod($route);
-        }
+        $this->routerFacade()->set($route);
     } // @codeCoverageIgnore
 
     /**
@@ -115,26 +72,9 @@ class RouterFacade
      *
      * @throws RouterException
      */
-    public function directCallDecorator(array $route, $params = null): void
+    public function directCall(array $route, $params = null): void
     {
-        $controller = new $route['controller']($this->container());
-
-        if (method_exists($controller, $route['method'])) {
-            $method = $route['method'];
-        } else {
-            throw new RouterException('503');
-        }
-
-        // Инициализуруем
-        $controller->init($this->container(), $this->templateEngine());
-        // Выполняем методы before до основного вызова
-        $controller->before();
-        !isset($route['middleware']) ?: $this->handleMiddleware($route['middleware']);
-        // Собственно вызываем экшн, в зависимости от наличия параметров
-        isset($params) ? $controller->{$method}($params) : $controller->{$method}();
-        // Выполняем методы after
-        !isset($route['after_middleware']) ?: $this->handleMiddleware($route['after_middleware']);
-        $controller->after(); // after
+        $this->routerFacade()->directCall($route, $params);
     }
 
     /**
@@ -142,42 +82,103 @@ class RouterFacade
      */
     public function handleMiddleware(array $middleware)
     {
-        $current = array_shift($middleware);
-
-        if (is_array($current)) {
-            $currentMiddleware = $this->setClassName($current[0], 'middlewareNamespace');
-
-            (new $currentMiddleware($this->container()))($current, $middleware);
-        }
+        $this->routerFacade()->handleMiddleware($middleware);
     }
 
     /**
-     * @param string $className
-     * @param string $type
+     * @param string $method
+     * @param array  $route
      *
-     * @return string
-     * @throws RouterException
+     * @return mixed
      */
-    protected function setClassName(string $className, string $type): string
+    public function middleware(string $method, array $route)
     {
-        if (strpos($className, '::namespace') !== false) {
-            $classNameArray = explode('::', $className);
+        return $this->$method($route);
+    }
 
-            if (class_exists($classNameArray[0])) {
-                $className = $classNameArray[0];
-            } else {
-                throw new RouterException('503');
-            }
-        } else {
+    /**
+     * @param array $route
+     */
+    public function get(array $route): void
+    {
+        $route['http_method'] = 'GET';
+        $this->routerFacade()->set($route);
+    }
 
-            if (class_exists($this->$type() . $className)) {
-                $className = $this->$type() . $className;
-            } else {
-                throw new RouterException('503');
-            }
+    /**
+     * @param array $route
+     */
+    public function post(array $route): void
+    {
+        $route['http_method'] = 'POST';
+        $this->routerFacade()->set($route);
+    }
+
+    /**
+     * @param array $route
+     */
+    public function put(array $route): void
+    {
+        $route['http_method'] = 'PUT';
+        $this->routerFacade()->set($route);
+    }
+
+    /**
+     * @param array $route
+     */
+    public function patch(array $route): void
+    {
+        $route['http_method'] = 'PATCH';
+        $this->routerFacade()->set($route);
+    }
+
+    /**
+     * @param array $route
+     */
+    public function delete(array $route): void
+    {
+        $route['http_method'] = 'DELETE';
+        $this->routerFacade()->set($route);
+    }
+
+    /**
+     * @param array $route
+     */
+    public function any(array $route): void
+    {
+        $route['http_method'] = 'GET|POST|PUT|PATCH|DELETE';
+        $this->routerFacade()->set($route);
+    }
+
+    /**
+     * @param array $route
+     */
+    public function resource(array $route): void
+    {
+        switch ($this->container()->getServer('REQUEST_METHOD')) {
+            case 'GET':
+                $route['http_method'] = 'GET';
+                $route['method']      = 'read';
+                break;
+            case 'POST':
+                if ($this->container()->hasPost('_method')) {
+                    $route = array_merge($route, $this->routerFacade()->setRequestMethod('REST'));
+                } else {
+                    $route['http_method'] = 'POST';
+                    $route['method']      = 'create';
+                }
+                break;
+            case 'PUT':
+                $route['http_method'] = 'PUT';
+                $route['method']      = 'update';
+                break;
+            case 'DELETE':
+                $route['http_method'] = 'DELETE';
+                $route['method']      = 'delete';
+                break;
         }
 
-        return $className;
+        $this->routerFacade()->set($route);
     }
 
     /**
@@ -187,67 +188,9 @@ class RouterFacade
      *
      * @throws RouterException
      */
-    public function annotationDecorator(string $class, string $method, int $number = 0): void
+    public function annotation(string $class, string $method, int $number = 0): void
     {
-        $controller = $this->setClassName($class, 'controllersNamespace');
-        $result     = $this->container()->get('annotation')->getMethodAnnotations($controller, $method);
-
-        if (isset($result['Routing'])) {
-            $http_method = $result['Routing'][$number]['method'] ?? 'GET';
-            $dataRoute   = $this->setRouteData($class, $method, $number, $result, $http_method);
-
-            $this->set($dataRoute);
-        }
-    }
-
-    /**
-     * @param string $class
-     * @param string $method
-     * @param int    $number
-     * @param        $result
-     * @param        $http_method
-     *
-     * @return array
-     */
-    protected function setRouteData(string $class, string $method, int $number, $result, $http_method)
-    {
-        $dataRoute = ['pattern'     => $result['Routing'][$number]['url'],
-                      'controller'  => $class,
-                      'method'      => $method,
-                      'http_method' => $http_method
-        ];
-
-        if (isset($result['Middleware'])) {
-            $dataRoute = array_merge($dataRoute, ['middleware' => $this->handleAnnotationMiddleware($result['Middleware'])]);
-        }
-
-        if (isset($result['AfterMiddleware'])) {
-            $dataRoute = array_merge($dataRoute, ['after_middleware' => $this->handleAnnotationMiddleware($result['AfterMiddleware'])]);
-        }
-
-        return $dataRoute;
-    }
-
-    /**
-     * @param array $annotation
-     *
-     * @return array
-     */
-    protected function handleAnnotationMiddleware(array $annotation): array
-    {
-        $i          = 0;
-        $middleware = [];
-
-        foreach ($annotation as $item) {
-            $middleware[$i][] = $item['name'];
-
-            if (isset($item['params'])) {
-                $middleware[$i][] = $item['params'];
-            }
-            $i++;
-        }
-
-        return $middleware;
+        $this->routerFacade()->annotation($class, $method, $number);
     }
 
     /**
@@ -256,39 +199,16 @@ class RouterFacade
      *
      * @return mixed
      */
-    public function setCallableDecorator(array $route, $params)
+    public function setCallable(array $route, $params)
     {
-        // Если $route['method'] является экземпляром ксласса Closure
-        // возвращаем замыкание
-        if ($route['method'] instanceof \Closure) {
-            return $route['method']();
-        }
-
-        $route['controller'] = $this->setClassName($route['controller'], 'controllersNamespace');
-        isset($params) ? $this->directCallDecorator($route, $params) : $this->directCallDecorator($route);
+        $this->routerFacade()->setCallable($route, $params);
     }
 
     /**
-     * @return mixed
+     * @return bool
      */
-    protected function controllersNamespace()
+    public function isToken(): bool
     {
-        return $this->namespace . 'Controllers\\';
-    }
-
-    /**
-     * @return mixed
-     */
-    protected function middlewareNamespace()
-    {
-        return $this->namespace . 'Middleware\\';
-    }
-
-    /**
-     * @return mixed
-     */
-    protected function templateEngine()
-    {
-        return $this->templateEngine;
+        return $this->routerFacade()->matchHttpMethod()->matchRequest()->isToken();
     }
 }

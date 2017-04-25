@@ -11,11 +11,11 @@
 namespace Rudra;
 
 /**
- * Class MatchMethod
+ * Class MatchHttpMethod
  *
  * @package Rudra
  */
-class MatchMethod
+class MatchHttpMethod
 {
 
     use SetContainerTrait;

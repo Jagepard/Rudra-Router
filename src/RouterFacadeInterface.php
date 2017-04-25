@@ -18,7 +18,7 @@ namespace Rudra;
  *
  * @package Rudra
  */
-interface RouterInterface
+interface RouterFacadeInterface
 {
 
     /**
