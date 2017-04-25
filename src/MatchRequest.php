@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types = 1);
+
 /**
  * Date: 25.04.17
  * Time: 12:37
@@ -9,7 +12,6 @@
  */
 
 namespace Rudra;
-
 
 /**
  * Class MatchRequest
@@ -113,7 +115,7 @@ class MatchRequest
      *
      * @return array
      */
-    protected function handleCompleteRequestArray($completeRequestArray)
+    protected function handleCompleteRequestArray($completeRequestArray): array
     {
         $requestString     = '';
         $realRequestString = '';
