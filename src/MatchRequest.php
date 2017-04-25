@@ -18,6 +18,11 @@ class MatchRequest
 
     protected $router;
 
+    /**
+     * @var bool
+     */
+    protected $token = false;
+
     public function __construct(ContainerInterface $container, Router $router)
     {
         $this->container = $container;
@@ -150,9 +155,25 @@ class MatchRequest
         // Если $realRequestString совпадает с 'REQUEST_URI'
         if ($realRequestString == $outRequestUrl[0]) {
             // Устанавливаем token true
-            $this->router()->setToken(true);
+            $this->setToken(true);
             $this->router()->setCallable($route, $params);
             (DEV === 'test') ?: exit(); // @codeCoverageIgnore
         }
+    }
+
+    /**
+     * @param bool $token
+     */
+    public function setToken(bool $token)
+    {
+        $this->token = $token;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isToken(): bool
+    {
+        return $this->token;
     }
 }
