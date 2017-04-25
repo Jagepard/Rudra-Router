@@ -29,9 +29,9 @@ class MatchMethod
      *
      * @return MatchRequest
      */
-    public function matchRequest($route)
+    public function matchRequest($route = null)
     {
-        return $this->matchRequest->matchRequest($route);;
+        return isset($route) ? $this->matchRequest->matchRequest($route) : $this->matchRequest;
     }
 
     /**
