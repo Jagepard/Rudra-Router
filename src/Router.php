@@ -37,20 +37,20 @@ class Router //implements RouterInterface
         $this->templateEngine = $templateEngine;
         set_exception_handler([new RouterException(), 'handler']);
 
-        $this->routerMethod = new RouterMethod($this->container, new RequestMethod($this->container), new MatchMethod($this->container));
+        $this->routerFacade = new RouterFacade($this->container, new RequestMethod($this->container), new MatchMethod($this->container));
     }
 
     /**
-     * @var RouterMethod
+     * @var RouterFacade
      */
-    protected $routerMethod;
+    protected $routerFacade;
 
     /**
-     * @return RouterMethod
+     * @return RouterFacade
      */
-    public function routerMethod(): RouterMethod
+    public function routerFacade(): RouterFacade
     {
-        return $this->routerMethod;
+        return $this->routerFacade;
     }
 
     /**
@@ -60,7 +60,7 @@ class Router //implements RouterInterface
      */
     public function set(array $route)
     {
-        $this->routerMethod()->set($route);
+        $this->routerFacade()->set($route);
     } // @codeCoverageIgnore
 
     /**
@@ -108,7 +108,7 @@ class Router //implements RouterInterface
     public function get(array $route): void
     {
         $route['http_method'] = 'GET';
-        $this->routerMethod()->set($route);
+        $this->routerFacade()->set($route);
     }
 
     /**
@@ -117,7 +117,7 @@ class Router //implements RouterInterface
     public function post(array $route): void
     {
         $route['http_method'] = 'POST';
-        $this->routerMethod()->set($route);
+        $this->routerFacade()->set($route);
     }
 
     /**
@@ -126,7 +126,7 @@ class Router //implements RouterInterface
     public function put(array $route): void
     {
         $route['http_method'] = 'PUT';
-        $this->routerMethod()->set($route);
+        $this->routerFacade()->set($route);
     }
 
     /**
@@ -135,7 +135,7 @@ class Router //implements RouterInterface
     public function patch(array $route): void
     {
         $route['http_method'] = 'PATCH';
-        $this->routerMethod()->set($route);
+        $this->routerFacade()->set($route);
     }
 
     /**
@@ -144,7 +144,7 @@ class Router //implements RouterInterface
     public function delete(array $route): void
     {
         $route['http_method'] = 'DELETE';
-        $this->routerMethod()->set($route);
+        $this->routerFacade()->set($route);
     }
 
     /**
@@ -153,7 +153,7 @@ class Router //implements RouterInterface
     public function any(array $route): void
     {
         $route['http_method'] = 'GET|POST|PUT|PATCH|DELETE';
-        $this->routerMethod()->set($route);
+        $this->routerFacade()->set($route);
     }
 
     /**
@@ -184,7 +184,7 @@ class Router //implements RouterInterface
                 break;
         }
 
-        $this->routerMethod()->set($route);
+        $this->routerFacade()->set($route);
     }
 
     /**
