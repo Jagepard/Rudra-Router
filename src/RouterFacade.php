@@ -14,11 +14,11 @@ declare(strict_types = 1);
 namespace Rudra;
 
 /**
- * Class RouterMethod
+ * Class RouterFacade
  *
  * @package Rudra
  */
-class RouterMethod
+class RouterFacade
 {
 
     use SetContainerTrait;
@@ -35,11 +35,19 @@ class RouterMethod
     }
 
     /**
-     * @return mixed
+     * @return RequestMethod
      */
-    public function requestMethod()
+    public function requestMethod(): RequestMethod
     {
         return $this->requestMethod;
+    }
+
+    /**
+     * @return MatchMethod
+     */
+    public function matchMethod(): MatchMethod
+    {
+        return $this->matchMethod;
     }
 
     /**
