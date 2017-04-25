@@ -26,9 +26,9 @@
     "require"           : {
         "php"               : ">=7.1",
         "kint-php/kint"     : "^1.0",
-        "rudra/annotations" : "self.version",
-        "rudra/container"   : "self.version",
-        "rudra/exception"   : "self.version"
+        "rudra/annotations" : "dev-master",
+        "rudra/container"   : "dev-master",
+        "rudra/exception"   : "dev-master"
     },
     "require-dev"       : {
         "satooshi/php-coveralls" : "dev-master"
