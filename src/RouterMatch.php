@@ -38,35 +38,7 @@ class RouterMatch
         }
     }
 
-    /**
-     * @param array $route
-     *
-     * @return bool|void
-     */
-    protected function matchRequest(array $route)
-    {
-        if ($route['http_method'] == $this->container()->getServer('REQUEST_METHOD')) {
 
-            $requestUrl   = trim($this->container()->getServer('REQUEST_URI'), '/');
-            $requestArray = explode('/', $requestUrl);
-            list($params, $completeRequestArray) = $this->handlePattern($route, $requestArray);
-            list($requestString, $realRequestString) = $this->handleCompleteRequestArray($completeRequestArray);
-            $outRequestUrl = $this->getOutRequestUrl($requestUrl);
-
-            // Это нужно для обработки 404 ошибки
-            if (isset($requestString)) {
-                // Проверяем строку запроса на соответсвие маршруту
-                preg_match("/$requestString/", $requestUrl, $matches);
-
-                // Если совпадений нет, то возвращаем $this->isToken() == false
-                if (!isset($matches[0])) {
-                    return $this->isToken();
-                }
-            }
-
-            return $this->handleRequest($route, $realRequestString, $outRequestUrl, $params);
-        }
-    }
 
     /**
      * @param array $route
