@@ -163,6 +163,8 @@ class MatchRequest
      * @param       $realRequestString
      * @param       $outRequestUrl
      * @param       $params
+     *
+     * @return bool
      */
     protected function handleRequest(array $route, $realRequestString, $outRequestUrl, $params)
     {
@@ -171,7 +173,10 @@ class MatchRequest
             // Устанавливаем token true
             $this->setToken(true);
             $this->router()->setCallable($route, $params);
-            (DEV === 'test') ?: exit(); // @codeCoverageIgnore
+
+            if (DEV !== 'test') {
+                return false; // @codeCoverageIgnore
+            }
         }
     }
 
