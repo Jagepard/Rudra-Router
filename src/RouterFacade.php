@@ -26,7 +26,7 @@ class RouterFacade implements RouterFacadeInterface
     /**
      * @var RouterFacade
      */
-    protected $routerFacade;
+    protected $router;
 
     /**
      * Router constructor.
@@ -37,23 +37,18 @@ class RouterFacade implements RouterFacadeInterface
      */
     public function __construct(ContainerInterface $container, string $namespace, string $templateEngine)
     {
-        $this->container      = $container;
+        $this->container = $container;
+        $this->router    = new Router($this->container, $namespace, $templateEngine);
         set_exception_handler([new RouterException(), 'handler']);
-
-        $this->routerFacade = new RouterFacade(
-            $this->container, $namespace, $templateEngine,
-            new RequestMethod($this->container),
-            new MatchHttpMethod($this->container, new MatchRequest($this->container, $this))
-        );
     }
 
 
     /**
-     * @return RouterFacade
+     * @return Router
      */
-    public function routerFacade(): RouterFacade
+    public function router(): Router
     {
-        return $this->routerFacade;
+        return $this->router;
     }
 
     /**
@@ -63,7 +58,7 @@ class RouterFacade implements RouterFacadeInterface
      */
     public function set(array $route)
     {
-        $this->routerFacade()->set($route);
+        $this->router()->set($route);
     } // @codeCoverageIgnore
 
     /**
@@ -74,7 +69,7 @@ class RouterFacade implements RouterFacadeInterface
      */
     public function directCall(array $route, $params = null): void
     {
-        $this->routerFacade()->directCall($route, $params);
+        $this->router()->directCall($route, $params);
     }
 
     /**
@@ -82,7 +77,7 @@ class RouterFacade implements RouterFacadeInterface
      */
     public function handleMiddleware(array $middleware)
     {
-        $this->routerFacade()->handleMiddleware($middleware);
+        $this->router()->handleMiddleware($middleware);
     }
 
     /**
@@ -102,7 +97,7 @@ class RouterFacade implements RouterFacadeInterface
     public function get(array $route): void
     {
         $route['http_method'] = 'GET';
-        $this->routerFacade()->set($route);
+        $this->router()->set($route);
     }
 
     /**
@@ -111,7 +106,7 @@ class RouterFacade implements RouterFacadeInterface
     public function post(array $route): void
     {
         $route['http_method'] = 'POST';
-        $this->routerFacade()->set($route);
+        $this->router()->set($route);
     }
 
     /**
@@ -120,7 +115,7 @@ class RouterFacade implements RouterFacadeInterface
     public function put(array $route): void
     {
         $route['http_method'] = 'PUT';
-        $this->routerFacade()->set($route);
+        $this->router()->set($route);
     }
 
     /**
@@ -129,7 +124,7 @@ class RouterFacade implements RouterFacadeInterface
     public function patch(array $route): void
     {
         $route['http_method'] = 'PATCH';
-        $this->routerFacade()->set($route);
+        $this->router()->set($route);
     }
 
     /**
@@ -138,7 +133,7 @@ class RouterFacade implements RouterFacadeInterface
     public function delete(array $route): void
     {
         $route['http_method'] = 'DELETE';
-        $this->routerFacade()->set($route);
+        $this->router()->set($route);
     }
 
     /**
@@ -147,7 +142,7 @@ class RouterFacade implements RouterFacadeInterface
     public function any(array $route): void
     {
         $route['http_method'] = 'GET|POST|PUT|PATCH|DELETE';
-        $this->routerFacade()->set($route);
+        $this->router()->set($route);
     }
 
     /**
@@ -162,7 +157,7 @@ class RouterFacade implements RouterFacadeInterface
                 break;
             case 'POST':
                 if ($this->container()->hasPost('_method')) {
-                    $route = array_merge($route, $this->routerFacade()->setRequestMethod('REST'));
+                    $route = array_merge($route, $this->router()->setRequestMethod('REST'));
                 } else {
                     $route['http_method'] = 'POST';
                     $route['method']      = 'create';
@@ -178,7 +173,7 @@ class RouterFacade implements RouterFacadeInterface
                 break;
         }
 
-        $this->routerFacade()->set($route);
+        $this->router()->set($route);
     }
 
     /**
@@ -190,7 +185,7 @@ class RouterFacade implements RouterFacadeInterface
      */
     public function annotation(string $class, string $method, int $number = 0): void
     {
-        $this->routerFacade()->annotation($class, $method, $number);
+        $this->router()->matchAnnotation()->annotation($class, $method, $number);
     }
 
     /**
@@ -201,7 +196,7 @@ class RouterFacade implements RouterFacadeInterface
      */
     public function setCallable(array $route, $params)
     {
-        $this->routerFacade()->setCallable($route, $params);
+        $this->router()->setCallable($route, $params);
     }
 
     /**
@@ -209,6 +204,6 @@ class RouterFacade implements RouterFacadeInterface
      */
     public function isToken(): bool
     {
-        return $this->routerFacade()->matchHttpMethod()->matchRequest()->isToken();
+        return $this->router()->matchHttpMethod()->matchRequest()->isToken();
     }
 }
