@@ -16,6 +16,23 @@ class MatchMethod
 
     use SetContainerTrait;
 
+    protected $matchRequest;
+
+    public function __construct(ContainerInterface $container, MatchRequest $matchRequest)
+    {
+        $this->container    = $container;
+        $this->matchRequest = $matchRequest;
+    }
+
+    /**
+     * @param $route
+     *
+     * @return MatchRequest
+     */
+    public function matchRequest($route)
+    {
+        return $this->matchRequest->matchRequest($route);;
+    }
 
     /**
      * @param array $route
@@ -33,5 +50,4 @@ class MatchMethod
             $this->matchRequest($route);
         }
     }
-
 }
