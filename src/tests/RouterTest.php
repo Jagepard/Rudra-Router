@@ -46,6 +46,35 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->container->set('router', 'Rudra\RouterFacade', ['namespace' => 'stub\\', 'templateEngine' => 'twig']);
     }
 
+    public function testSet()
+    {
+        $_SERVER['REQUEST_URI']    = 'test/456';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $this->setContainer();
+
+        $this->container()->get('router')->set([
+                'pattern'     => 'test/456',
+                'controller'  => 'MainController',
+                'method'      => 'actionIndex',
+                'http_method' => 'GET'
+            ]
+        );
+
+        $this->assertEquals('actionIndex', $this->container()->get('actionIndex'));
+    }
+
+    public function testDirectCall()
+    {
+        $this->setContainer();
+        $this->container()->get('router')->directCall([
+            'controller'  => 'stub\Controllers\MainController',
+            'method'      => 'actionIndex'
+            ]
+        );
+
+        $this->assertEquals('actionIndex', $this->container()->get('actionIndex'));
+    }
+
     public function testAnnotation()
     {
         $_SERVER['REQUEST_URI']    = 'test/123';
@@ -229,11 +258,12 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->setContainer();
 
         $this->container()->get('router')->middleware('get', [
-            'pattern'     => '123/{id}',
-            'controller'  => 'MainController',
-            'method'      => 'read',
-            'middleware'  => [['Middleware', ['int' => 123]], ['Middleware', ['int' => 125]]]
-        ]);
+            'pattern'    => '123/{id}',
+            'controller' => 'MainController',
+            'method'     => 'read',
+            'middleware' => [['Middleware', ['int' => 123]], ['Middleware', ['int' => 125]]]
+        ]
+        );
 
         $this->assertEquals('middleware', $this->container()->get('middleware'));
     }
