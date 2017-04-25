@@ -11,11 +11,19 @@
 namespace Rudra;
 
 
+/**
+ * Class MatchRequest
+ *
+ * @package Rudra
+ */
 class MatchRequest
 {
 
     use SetContainerTrait;
 
+    /**
+     * @var Router
+     */
     protected $router;
 
     /**
@@ -23,6 +31,12 @@ class MatchRequest
      */
     protected $token = false;
 
+    /**
+     * MatchRequest constructor.
+     *
+     * @param ContainerInterface $container
+     * @param Router             $router
+     */
     public function __construct(ContainerInterface $container, Router $router)
     {
         $this->container = $container;
