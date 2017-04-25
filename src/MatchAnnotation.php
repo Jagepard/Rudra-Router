@@ -61,7 +61,7 @@ class MatchAnnotation
      *
      * @return array
      */
-    protected function setRouteData(string $class, string $method, int $number, $result, $http_method)
+    protected function setRouteData(string $class, string $method, int $number, $result, $http_method): array
     {
         $dataRoute = ['pattern'     => $result['Routing'][$number]['url'],
                       'controller'  => $class,
