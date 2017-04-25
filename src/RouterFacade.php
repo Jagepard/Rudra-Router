@@ -189,17 +189,6 @@ class RouterFacade implements RouterFacadeInterface
     }
 
     /**
-     * @param array $route
-     * @param       $params
-     *
-     * @return mixed
-     */
-    public function setCallable(array $route, $params)
-    {
-        $this->router()->setCallable($route, $params);
-    }
-
-    /**
      * @return bool
      */
     public function isToken(): bool
