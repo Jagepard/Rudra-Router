@@ -8,7 +8,7 @@
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
-namespace Rudra;
+namespace Rudra\Router;
 
 
 trait SetRouterTrait

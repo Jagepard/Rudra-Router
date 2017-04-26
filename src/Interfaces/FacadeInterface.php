@@ -11,14 +11,18 @@ declare(strict_types = 1);
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
-namespace Rudra;
+namespace Rudra\Router\Interfaces;
+
+
+use Rudra\Container\ContainerInterface;
+
 
 /**
- * Interface RouterInterface
+ * Interface FacadeInterface
  *
- * @package Rudra
+ * @package Rudra\Router\Interfaces
  */
-interface RouterFacadeInterface
+interface FacadeInterface
 {
 
     /**

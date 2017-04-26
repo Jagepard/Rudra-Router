@@ -11,10 +11,20 @@ declare(strict_types = 1);
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
-namespace Rudra;
+namespace Rudra\Router;
 
 
-class MatchAnnotation
+use Rudra\Container\ContainerInterface;
+use Rudra\Container\SetContainerTrait;
+use Rudra\Router\Interfaces\MatchAnnotationInterface;
+
+
+/**
+ * Class MatchAnnotation
+ *
+ * @package Rudra
+ */
+class MatchAnnotation implements MatchAnnotationInterface
 {
 
     use SetContainerTrait;

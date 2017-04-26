@@ -35,7 +35,7 @@
     },
     "autoload"          : {
         "psr-4" : {
-            "Rudra\\" : "src/"
+            "Rudra\\Router\\" : "src/"
         }
     },
     "minimum-stability" : "dev",

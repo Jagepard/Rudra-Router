@@ -15,11 +15,11 @@ declare(strict_types = 1);
 
 
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
-use Rudra\Container;
-use Rudra\ContainerInterface;
+use Rudra\Container\Container;
+use Rudra\Container\ContainerInterface;
 use \stub\Controllers\MainController;
-use Rudra\RouterException;
-use Rudra\Router;
+use Rudra\Exception\RouterException;
+
 
 /**
  * Class RouterTest
@@ -42,8 +42,8 @@ class RouterTest extends PHPUnit_Framework_TestCase
         Container::$app  = null;
         $this->container = Container::app();
         $this->container->setBinding(ContainerInterface::class, Container::$app);
-        $this->container->set('annotation', 'Rudra\Annotations');
-        $this->container->set('router', 'Rudra\RouterFacade', ['namespace' => 'stub\\', 'templateEngine' => 'twig']);
+        $this->container->set('annotation', 'Rudra\Annotations\Annotations');
+        $this->container->set('router', 'Rudra\Router\RouterFacade', ['namespace' => 'stub\\', 'templateEngine' => 'twig']);
     }
 
     public function testSet()

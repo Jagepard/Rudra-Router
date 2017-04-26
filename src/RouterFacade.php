@@ -11,20 +11,25 @@ declare(strict_types = 1);
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
-namespace Rudra;
+namespace Rudra\Router;
+
+use Rudra\Container\ContainerInterface;
+use Rudra\Exception\RouterException;
+use Rudra\Router\Interfaces\FacadeInterface;
+use Rudra\Container\SetContainerTrait;
 
 /**
  * Class RouterFacade
  *
  * @package Rudra
  */
-class RouterFacade implements RouterFacadeInterface
+class RouterFacade implements FacadeInterface
 {
 
     use SetContainerTrait;
 
     /**
-     * @var RouterFacade
+     * @var Facade
      */
     protected $router;
 

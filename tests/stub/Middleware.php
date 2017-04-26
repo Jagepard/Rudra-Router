@@ -11,7 +11,7 @@
 namespace stub\Middleware;
 
 
-use Rudra\SetContainerTrait;
+use Rudra\Container\SetContainerTrait;
 
 
 /**
