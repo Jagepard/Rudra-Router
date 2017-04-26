@@ -97,16 +97,16 @@ class MatchAnnotation implements MatchAnnotationInterface
      */
     protected function handleAnnotationMiddleware(array $annotation): array
     {
-        $i          = 0;
+        $increment  = 0;
         $middleware = [];
 
         foreach ($annotation as $item) {
-            $middleware[$i][] = $item['name'];
+            $middleware[$increment][] = $item['name'];
 
             if (isset($item['params'])) {
-                $middleware[$i][] = $item['params'];
+                $middleware[$increment][] = $item['params'];
             }
-            $i++;
+            $increment++;
         }
 
         return $middleware;
