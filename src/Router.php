@@ -17,6 +17,7 @@ namespace Rudra\Router;
 use Rudra\Container\ContainerInterface;
 use Rudra\Container\SetContainerTrait;
 use Rudra\Exception\RouterException;
+use Rudra\Router\Interfaces\MatchAnnotationInterface;
 
 
 /**
@@ -92,9 +93,9 @@ class Router
     }
 
     /**
-     * @return MatchAnnotation
+     * @return MatchAnnotationInterface
      */
-    public function matchAnnotation(): MatchAnnotation
+    public function matchAnnotation(): MatchAnnotationInterface
     {
         return $this->matchAnnotation;
     }
