@@ -45,4 +45,10 @@ interface MatchHttpMethodInterface
      * @param array $route
      */
     public function matchHttpMethod(array $route): void;
+
+
+    /**
+     * @return ContainerInterface
+     */
+    public function container(): ContainerInterface;
 }
