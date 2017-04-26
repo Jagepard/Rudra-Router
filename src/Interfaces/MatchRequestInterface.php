@@ -11,9 +11,12 @@ declare(strict_types = 1);
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
-namespace Rudra\Interfaces;
-use Rudra\ContainerInterface;
-use Rudra\Router;
+namespace Rudra\Router\Interfaces;
+
+
+use Rudra\Container\ContainerInterface;
+use Rudra\Router\Router;
+
 
 /**
  * Interface MatchRequestInterface
@@ -38,9 +41,13 @@ interface MatchRequestInterface
      */
     public function matchRequest(array $route);
 
-
     /**
      * @return bool
      */
     public function isToken(): bool;
+
+    /**
+     * @return ContainerInterface
+     */
+    public function container(): ContainerInterface;
 }
