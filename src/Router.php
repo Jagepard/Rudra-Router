@@ -76,11 +76,13 @@ class Router
     }
 
     /**
-     * @return MatchHttpMethod
+     * @param array|null $route
+     *
+     * @return MatchHttpMethod|void
      */
-    public function matchHttpMethod(): MatchHttpMethod
+    public function matchHttpMethod(array $route = null)
     {
-        return $this->matchHttpMethod;
+        return isset($route) ? $this->matchHttpMethod->matchHttpMethod($route) : $this->matchHttpMethod;
     }
 
     /**
@@ -105,7 +107,7 @@ class Router
         if (($this->container()->getServer('REQUEST_METHOD') === 'GET')
             || $this->container()->getServer('REQUEST_METHOD') === 'POST'
         ) {
-            $this->matchHttpMethod()->matchHttpMethod($route);
+            $this->matchHttpMethod($route);
         }
 
         if (($this->container()->getServer('REQUEST_METHOD') === 'PUT')
@@ -115,7 +117,7 @@ class Router
             $settersName = 'set' . ucfirst(strtolower($this->container()->getServer('REQUEST_METHOD')));
             parse_str(file_get_contents('php://input'), $data);
             $this->container()->$settersName($data);
-            $this->matchHttpMethod()->matchHttpMethod($route);
+            $this->matchHttpMethod($route);
         }
     } // @codeCoverageIgnore
 
