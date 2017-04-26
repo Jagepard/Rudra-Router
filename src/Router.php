@@ -18,6 +18,7 @@ use Rudra\Container\ContainerInterface;
 use Rudra\Container\SetContainerTrait;
 use Rudra\Exception\RouterException;
 use Rudra\Router\Interfaces\MatchAnnotationInterface;
+use Rudra\Router\Interfaces\RouterInterface;
 
 
 /**
@@ -25,7 +26,7 @@ use Rudra\Router\Interfaces\MatchAnnotationInterface;
  *
  * @package Rudra
  */
-class Router
+class Router implements RouterInterface
 {
 
     use SetContainerTrait;
