@@ -15,11 +15,11 @@ use Rudra\Container\ContainerInterface;
 
 
 /**
- * Interface MatchRequestMethod
+ * Interface MatchRequestMethodInterfaces
  *
  * @package Rudra\Router\Interfaces
  */
-interface MatchRequestMethod
+interface MatchRequestMethodInterfaces
 {
 
     /**
