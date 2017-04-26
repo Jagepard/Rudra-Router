@@ -40,4 +40,9 @@ interface MatchAnnotationInterface
      * @param int    $number
      */
     public function annotation(string $class, string $method, int $number = 0): void;
+
+    /**
+     * @return ContainerInterface
+     */
+    public function container(): ContainerInterface;
 }
