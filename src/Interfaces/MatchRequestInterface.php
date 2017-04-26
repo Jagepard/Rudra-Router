@@ -50,4 +50,9 @@ interface MatchRequestInterface
      * @return ContainerInterface
      */
     public function container(): ContainerInterface;
+
+    /**
+     * @return Router
+     */
+    public function router(): Router;
 }
