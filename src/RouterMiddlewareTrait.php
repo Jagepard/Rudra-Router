@@ -11,6 +11,10 @@
 
 namespace Rudra\Router;
 
+
+use Rudra\Container\ContainerInterface;
+
+
 /**
  * Class RouterMiddlewareTrait
  *
@@ -26,4 +30,6 @@ trait RouterMiddlewareTrait
     {
         $this->container()->get('router')->handleMiddleware($middleware);
     }
+
+    public abstract function container(): ContainerInterface;
 }
