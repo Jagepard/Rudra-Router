@@ -12,6 +12,7 @@ namespace Rudra\Router;
 
 
 use Rudra\Container\SetContainerTrait;
+use Rudra\Router\Interfaces\MatchRequestMethodInterfaces;
 
 
 /**
@@ -19,7 +20,7 @@ use Rudra\Container\SetContainerTrait;
  *
  * @package Rudra
  */
-class MatchRequestMethod
+class MatchRequestMethod implements MatchRequestMethodInterfaces
 {
 
     use SetContainerTrait;
