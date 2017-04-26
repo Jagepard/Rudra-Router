@@ -17,7 +17,7 @@ use Rudra\Container as Rudra;
 use Rudra\ContainerInterface;
 
 Rudra::app()->setBinding(ContainerInterface::class, Rudra::$app);
-Rudra::$app->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => 'twig']);
+Rudra::$app->set('router', 'Rudra\RouterFacade', ['namespace' => 'stub\\', 'templateEngine' => 'twig']);
 $router = Rudra::$app->get('router');
 ```
 #### Устанавливаем маршрут /test/{id} для http методов DELETE|PUT
