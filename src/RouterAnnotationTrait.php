@@ -11,7 +11,9 @@ declare(strict_types = 1);
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
-namespace Rudra;
+namespace Rudra\Router;
+
+use Rudra\Container\ContainerInterface;
 
 /**
  * Class RouterAnnotationTrait
@@ -25,8 +27,6 @@ trait RouterAnnotationTrait
      * @param     $class
      * @param     $method
      * @param int $number
-     *
-     * @throws RouterException
      */
     public function annotation(string $class, string $method, int $number = 0): void
     {

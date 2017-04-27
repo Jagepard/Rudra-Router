@@ -11,10 +11,8 @@
 
 namespace stub\Controllers;
 
-
-use Rudra\ContainerInterface;
-use Rudra\RouterMiddlewareTrait;
-
+use Rudra\Container\ContainerInterface;
+use Rudra\Router\RouterMiddlewareTrait;
 
 /**
  * Class MainController

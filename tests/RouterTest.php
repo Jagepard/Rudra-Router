@@ -13,13 +13,11 @@ declare(strict_types = 1);
  *  phpunit src/tests/ContainerTest --coverage-html src/tests/coverage-html
  */
 
-
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
-use Rudra\Container;
-use Rudra\ContainerInterface;
 use \stub\Controllers\MainController;
-use Rudra\RouterException;
-use Rudra\Router;
+use Rudra\Container\ContainerInterface;
+use Rudra\Container\Container;
+use Rudra\Exception\RouterException;
 
 /**
  * Class RouterTest
@@ -42,8 +40,8 @@ class RouterTest extends PHPUnit_Framework_TestCase
         Container::$app  = null;
         $this->container = Container::app();
         $this->container->setBinding(ContainerInterface::class, Container::$app);
-        $this->container->set('annotation', 'Rudra\Annotations');
-        $this->container->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => 'twig']);
+        $this->container->set('annotation', 'Rudra\Annotations\Annotations');
+        $this->container->set('router', 'Rudra\Router\Router', ['namespace' => 'stub\\', 'templateEngine' => 'twig']);
     }
 
     public function testAnnotation()
