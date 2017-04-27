@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /**
  * Date: 21.04.17
  * Time: 19:24
@@ -9,7 +11,9 @@
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
-namespace Rudra;
+namespace Rudra\Router;
+
+use Rudra\Container\ContainerInterface;
 
 /**
  * Class RouterMiddlewareTrait
@@ -26,4 +30,8 @@ trait RouterMiddlewareTrait
     {
         $this->container()->get('router')->handleMiddleware($middleware);
     }
+    /**
+     * @return ContainerInterface
+     */
+    protected abstract function container(): ContainerInterface;
 }
