@@ -28,8 +28,9 @@ trait RouterAnnotationTrait
      *
      * @throws RouterException
      */
-    public function annotation(string $class, string $method, int $number = 0): void
+    public function annotation(string $class, string $method = null, int $number = 0): void
     {
+        $method     = $method ?? 'actionIndex';
         $controller = $this->setClassName($class, 'controllersNamespace');
         $result     = $this->container()->get('annotation')->getMethodAnnotations($controller, $method);
 
