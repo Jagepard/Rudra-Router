@@ -207,4 +207,12 @@ class Router implements RouterInterface
     {
         return $this->templateEngine;
     }
+
+    /**
+     * @param string $namespace
+     */
+    public function setNamespace(string $namespace)
+    {
+        $this->namespace = $namespace;
+    }
 }
