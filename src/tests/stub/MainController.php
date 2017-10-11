@@ -11,10 +11,10 @@
 
 namespace stub\Controllers;
 
-
 use Rudra\ContainerInterface;
 use Rudra\RouterMiddlewareTrait;
-
+use Rudra\RouteTrait;
+use stub\Route\Route;
 
 /**
  * Class MainController
@@ -25,11 +25,22 @@ class MainController
 {
 
     use RouterMiddlewareTrait;
+    use RouteTrait;
 
     /**
      * @var ContainerInterface
      */
     protected $container;
+
+    public function run()
+    {
+        return $this->route(Route::class, 'web');
+    }
+
+    public function exceptionRoute()
+    {
+        $this->handleException();
+    } // @codeCoverageIgnore
 
     /**
      * @Routing(url = 'test/123', method = 'GET')
