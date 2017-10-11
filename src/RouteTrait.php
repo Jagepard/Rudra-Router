@@ -32,7 +32,7 @@ trait RouteTrait
         if (!$this->container()->get('router')->isToken()) {
             throw new RouterException('404');
         }
-    }
+    } // @codeCoverageIgnore
 
     /**
      * @return ContainerInterface
