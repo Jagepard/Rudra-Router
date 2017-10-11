@@ -14,28 +14,28 @@ trait RouteTrait
 {
 
     /**
-     * @param string $namespace
-     * @param string $bundleName
+     * @param string $route
+     * @param string $bundle
      *
-     * @return bool
+     * @return mixed
      */
-    protected function route(string $namespace, string $bundleName): bool
+    protected function route(string $route, string $bundle)
     {
-        $this->container()->setBinding(Router::class, $this->container()->get('router'));
-        $route = $this->container()->new($namespace, ['namespace' => $this->container()->config('namespaces', $bundleName)]);;
-
-        return $route;
+        return $this->container()->new($route)->run($this->container()->get('router'), $this->container()->config('namespaces', $bundle));
     }
 
     /**
-     * @param Router $router
-     *
      * @throws RouterException
      */
-    protected function handleException(Router $router)
+    protected function handleException()
     {
-        if (!$router->isToken()) {
+        if (!$this->container()->get('router')->isToken()) {
             throw new RouterException('404');
         }
     }
+
+    /**
+     * @return ContainerInterface
+     */
+    public abstract function container(): ContainerInterface;
 }
