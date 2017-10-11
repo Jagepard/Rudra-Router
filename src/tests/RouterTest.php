@@ -19,7 +19,6 @@ use Rudra\Container;
 use Rudra\ContainerInterface;
 use \stub\Controllers\MainController;
 use Rudra\RouterException;
-use Rudra\Router;
 
 /**
  * Class RouterTest
@@ -45,6 +44,38 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->container->set('annotation', 'Rudra\Annotations');
         $this->container->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => 'twig']);
     }
+
+    public function testSetNamespace()
+    {
+        $this->setContainer();
+        $this->container()->get('router')->setNamespace(ContainerInterface::class);
+        $class    = new ReflectionClass($this->container()->get('router'));
+        $property = $class->getProperty('namespace');
+        $property->setAccessible(true);
+
+        $this->assertEquals(ContainerInterface::class, $property->getValue($this->container()->get('router')));
+    }
+
+    public function testRouteTrait()
+    {
+        $this->setContainer();
+        $this->container()->setConfig(['namespaces' => ['web' => 123456]]);
+        $class = new MainController();
+        $class->init($this->container());
+
+        $this->assertFalse($class->run());
+    }
+
+    public function testExceptionRouteTrait()
+    {
+        $this->setContainer();
+        $this->container()->setConfig(['namespaces' => ['web' => 123456]]);
+        $class = new MainController();
+        $class->init($this->container());
+
+        $this->expectException(RouterException::class);
+        $class->exceptionRoute();
+    } // @codeCoverageIgnore
 
     public function testAnnotation()
     {
@@ -72,11 +103,10 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $action = 'action' . ucfirst($method);
 
         $this->container()->get('router')->$method([
-                'pattern'    => $pattern,
-                'controller' => $controller,
-                'method'     => $action
-            ]
-        );
+            'pattern'    => $pattern,
+            'controller' => $controller,
+            'method'     => $action
+        ]);
 
         $this->assertEquals($requestMethod, $this->container()->get($action));
     }
@@ -113,11 +143,10 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->setContainer();
 
         $this->container()->get('router')->any([
-                'pattern'    => '/test/page',
-                'controller' => 'MainController',
-                'method'     => 'actionAny'
-            ]
-        );
+            'pattern'    => '/test/page',
+            'controller' => 'MainController',
+            'method'     => 'actionAny'
+        ]);
 
         $this->assertEquals('ANY', $this->container()->get('actionAny'));
     }
@@ -133,10 +162,9 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->setContainer();
 
         $this->container()->get('router')->resource([
-                'pattern'    => 'api/{id}',
-                'controller' => 'MainController',
-            ]
-        );
+            'pattern'    => 'api/{id}',
+            'controller' => 'MainController',
+        ]);
 
         $this->assertEquals($action, $this->container()->get($action));
     }
@@ -161,10 +189,9 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->setContainer();
 
         $this->container()->get('router')->resource([
-                'pattern'    => 'api/{id}',
-                'controller' => 'MainController',
-            ]
-        );
+            'pattern'    => 'api/{id}',
+            'controller' => 'MainController',
+        ]);
 
         $this->assertEquals($action, $this->container()->get($action));
     }
@@ -190,11 +217,10 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $method = strtolower($requestMethod);
 
         $this->container()->get('router')->$method([
-                'pattern'    => 'api/{id}',
-                'controller' => 'MainController',
-                'method'     => $action
-            ]
-        );
+            'pattern'    => 'api/{id}',
+            'controller' => 'MainController',
+            'method'     => $action
+        ]);
 
         $this->assertEquals($action, $this->container()->get($action));
     }
@@ -213,11 +239,10 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->setContainer();
 
         $this->container()->get('router')->get([
-                'pattern'    => '/test/page',
-                'controller' => 'MainController',
-                'method'     => 'actionGet'
-            ]
-        );
+            'pattern'    => '/test/page',
+            'controller' => 'MainController',
+            'method'     => 'actionGet'
+        ]);
 
         $this->assertEquals(false, $this->container()->get('router')->isToken());
     }
@@ -229,10 +254,10 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->setContainer();
 
         $this->container()->get('router')->middleware('get', [
-            'pattern'     => '123/{id}',
-            'controller'  => 'MainController',
-            'method'      => 'read',
-            'middleware'  => [['Middleware', ['int' => 123]], ['Middleware', ['int' => 125]]]
+            'pattern'    => '123/{id}',
+            'controller' => 'MainController',
+            'method'     => 'read',
+            'middleware' => [['Middleware', ['int' => 123]], ['Middleware', ['int' => 125]]]
         ]);
 
         $this->assertEquals('middleware', $this->container()->get('middleware'));
@@ -255,12 +280,11 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->setContainer();
 
         $this->container()->get('router')->get([
-                'pattern' => '/test/page',
-                'method'  => function () {
-                    $this->container()->set('closure', 'closure', 'raw');
-                }
-            ]
-        );
+            'pattern' => '/test/page',
+            'method'  => function () {
+                $this->container()->set('closure', 'closure', 'raw');
+            }
+        ]);
 
         $this->assertEquals('closure', $this->container()->get('closure'));
     }
@@ -286,11 +310,10 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->expectException(RouterException::class);
 
         $this->container()->get('router')->get([
-                'pattern'    => '/test/page',
-                'controller' => 'MainController',
-                'method'     => 'actionFalse'
-            ]
-        );
+            'pattern'    => '/test/page',
+            'controller' => 'MainController',
+            'method'     => 'actionFalse'
+        ]);
     } // @codeCoverageIgnore
 
     /**
