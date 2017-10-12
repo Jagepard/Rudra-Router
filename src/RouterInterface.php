@@ -28,7 +28,7 @@ interface RouterInterface
      * @param string             $namespace
      * @param array              $templateEngine
      */
-    public function __construct(ContainerInterface $container, string $namespace, array $templateEngine)
+    public function __construct(ContainerInterface $container, string $namespace, array $templateEngine);
 
     /**
      * @param array $route
