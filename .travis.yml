@@ -4,6 +4,9 @@ language: php
 php:
     - 7.1
 
+before_script:
+    - php composer.phar install
+
 script:
     - mkdir -p build/logs
     - phpunit --coverage-clover build/logs/clover.xml
