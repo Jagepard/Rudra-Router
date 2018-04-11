@@ -1,6 +1,6 @@
 {
     "name"              : "rudra/router",
-    "description"       : "The Rudra framework",
+    "description"       : "Rudra framework",
     "type"              : "library",
     "keywords"          : [
         "rudra",
@@ -30,9 +30,6 @@
         "rudra/container"   : "self.version",
         "rudra/exception"   : "self.version"
     },
-    "require-dev"       : {
-        "satooshi/php-coveralls" : "dev-master"
-    },
     "autoload"          : {
         "psr-4" : {
             "Rudra\\" : "src/"
@@ -40,6 +37,7 @@
     },
     "minimum-stability" : "dev",
     "config"            : {
-        "optimize-autoloader" : true
+        "optimize-autoloader" : true,
+        "prefer-stable"       : true
     }
 }
