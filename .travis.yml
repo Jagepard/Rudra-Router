@@ -5,6 +5,7 @@ php:
     - 7.1
 
 before_script:
+    - composer self-update --rollback
     - composer install
 
 script:
