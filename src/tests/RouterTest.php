@@ -55,16 +55,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(ContainerInterface::class, $property->getValue($this->container()->get('router')));
     }
 
-    public function testAnnotation()
-    {
-        $_SERVER['REQUEST_URI']    = 'test/123';
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-        $this->setContainer();
-
-        $this->container()->get('router')->annotation('MainController', 'actionIndex');
-        $this->assertEquals('actionIndex', $this->container()->get('actionIndex'));
-    }
-
     /**
      * @param string $requestUri
      * @param string $requestMethod
