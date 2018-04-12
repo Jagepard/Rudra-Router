@@ -18,6 +18,10 @@ use stub\Controllers\MainController;
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 
 
+/**
+ * Class RouteTraitTest
+ * @package Rudra\tests
+ */
 class RouteTraitTest extends PHPUnit_Framework_TestCase
 {
 
