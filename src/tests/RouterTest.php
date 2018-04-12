@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  * Date: 17.02.17
@@ -30,7 +30,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
      * @var ContainerInterface
      */
     protected $container;
-
     /**
      * @var array
      */
@@ -55,27 +54,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(ContainerInterface::class, $property->getValue($this->container()->get('router')));
     }
-
-    public function testRouteTrait()
-    {
-        $this->setContainer();
-        $this->container()->setConfig(['namespaces' => ['web' => 123456]]);
-        $class = new MainController();
-        $class->init($this->container());
-
-        $this->assertFalse($class->run());
-    }
-
-    public function testExceptionRouteTrait()
-    {
-        $this->setContainer();
-        $this->container()->setConfig(['namespaces' => ['web' => 123456]]);
-        $class = new MainController();
-        $class->init($this->container());
-
-        $this->expectException(RouterException::class);
-        $class->exceptionRoute();
-    } // @codeCoverageIgnore
 
     public function testAnnotation()
     {
