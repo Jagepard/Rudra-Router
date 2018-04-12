@@ -18,6 +18,10 @@ use stub\Controllers\MainController;
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 
 
+/**
+ * Class RouteTraitTest
+ * @package Rudra\tests
+ */
 class RouteTraitTest extends PHPUnit_Framework_TestCase
 {
 
@@ -34,7 +38,6 @@ class RouteTraitTest extends PHPUnit_Framework_TestCase
     {
         $this->container = Container::app();
         $this->container->setBinding(ContainerInterface::class, Container::$app);
-        $this->container->set('annotation', 'Rudra\Annotations');
         $this->container->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => ['engine' => 'twig']]);
         $this->container->setConfig(['namespaces' => ['web' => 123456]]);
 
