@@ -32,11 +32,7 @@ class Middleware
     {
         // StartMiddleware
 
-        if ($current[1]['int'] % 2) {
-            echo json_encode($_SERVER);
-        }
-
-        $this->container()->set('middleware', 'middleware', 'raw');
+       $this->container()->set('middleware', 'middleware', 'raw');
 
         // EndMiddleware
 
