@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  * Date: 05.09.16
@@ -29,17 +29,14 @@ class Router implements RouterInterface
      * @var bool
      */
     protected $token = false;
-
     /**
      * @var ContainerInterface
      */
     protected $container;
-
     /**
      * @var string
      */
     protected $namespace;
-
     /**
      * @var string
      */
@@ -62,8 +59,7 @@ class Router implements RouterInterface
 
     /**
      * @param array $route
-     *
-     * @return bool
+     * @return mixed|void
      */
     public function set(array $route)
     {
@@ -98,11 +94,11 @@ class Router implements RouterInterface
     {
         $controller = new $route['controller']($this->container());
 
-        if (method_exists($controller, $route['method'])) {
-            $method = $route['method'];
-        } else {
+        if (!method_exists($controller, $route['method'])) {
             throw new RouterException('503');
         }
+
+        $method = $route['method'];
 
         // Инициализуруем
         $controller->init($this->container(), $this->templateEngine());
