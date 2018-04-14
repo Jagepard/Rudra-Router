@@ -1,9 +1,9 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
- * Date: 20.04.17
+ * Date: 20.04.17 Updated 14.04.18
  * Time: 18:42
  *
  * @author    : Korotkov Danila <dankorot@gmail.com>
@@ -22,23 +22,20 @@ trait RouterAnnotationTrait
 {
 
     /**
-     * @param     $class
-     * @param     $method
-     * @param int $number
-     *
+     * @param string $controller
+     * @param string $action
+     * @param int    $number
      * @throws RouterException
      */
-    public function annotation(string $class, string $method = null, int $number = 0): void
+    public function annotation(string $controller, string $action = 'actionIndex', int $number = 0): void
     {
-        $method     = $method ?? 'actionIndex';
-        $controller = $this->setClassName($class, 'controllersNamespace');
-        $result     = $this->container()->get('annotation')->getMethodAnnotations($controller, $method);
+        $annotation = $this->container()->get('annotation')
+            ->getMethodAnnotations($this->setClassName($controller, 'controllersNamespace'), $action);
 
-        if (isset($result['Routing'])) {
-            $http_method = $result['Routing'][$number]['method'] ?? 'GET';
-            $dataRoute   = $this->setRouteData($class, $method, $number, $result, $http_method);
-
-            $this->set($dataRoute);
+        if (isset($annotation['Routing'])) {
+            $this->set($this->setRouteData($controller, $action, $number, $annotation,
+                $annotation['Routing'][$number]['method'] ?? 'GET')
+            );
         }
     }
 
@@ -47,16 +44,16 @@ trait RouterAnnotationTrait
      * @param string $method
      * @param int    $number
      * @param        $result
-     * @param        $http_method
+     * @param        $httpMethod
      *
      * @return array
      */
-    protected function setRouteData(string $class, string $method, int $number, $result, $http_method)
+    protected function setRouteData(string $class, string $method, int $number, $result, $httpMethod)
     {
         $dataRoute = ['pattern'     => $result['Routing'][$number]['url'],
                       'controller'  => $class,
                       'method'      => $method,
-                      'http_method' => $http_method
+                      'http_method' => $httpMethod
         ];
 
         if (isset($result['Middleware'])) {
