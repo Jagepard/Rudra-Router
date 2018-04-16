@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  * Date: 12.04.17
@@ -23,24 +23,22 @@ trait RouterMatchTrait
 
     /**
      * @param array $route
+     * @return bool|void
      */
     protected function matchHttpMethod(array $route)
     {
-        if (strpos($route['http_method'], '|') !== false) {
-            $httpArray = explode('|', $route['http_method']);
+        if (!strpos($route['http_method'], '|') !== false) {
+            $this->matchRequest($route);
+        }
 
-            foreach ($httpArray as $httpItem) {
-                $route['http_method'] = $httpItem;
-                $this->matchRequest($route);
-            }
-        } else {
+        foreach (explode('|', $route['http_method']) as $httpItem) {
+            $route['http_method'] = $httpItem;
             $this->matchRequest($route);
         }
     }
 
     /**
      * @param array $route
-     *
      * @return bool|void
      */
     protected function matchRequest(array $route)
@@ -207,21 +205,18 @@ trait RouterMatchTrait
         if (strpos($className, '::namespace') !== false) {
             $classNameArray = explode('::', $className);
 
-            if (class_exists($classNameArray[0])) {
-                $className = $classNameArray[0];
-            } else {
+            if (!class_exists($classNameArray[0])) {
                 throw new RouterException('503');
             }
-        } else {
 
-            if (class_exists($this->$type() . $className)) {
-                $className = $this->$type() . $className;
-            } else {
-                throw new RouterException('503');
-            }
+            return $classNameArray[0];
         }
 
-        return $className;
+        if (!class_exists($this->$type() . $className)) {
+            throw new RouterException('503');
+        }
+
+        return $this->$type() . $className;
     }
 
     /**
