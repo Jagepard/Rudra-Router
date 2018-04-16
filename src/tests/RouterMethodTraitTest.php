@@ -240,6 +240,22 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         ]);
     } // @codeCoverageIgnore
 
+    public function testClosure()
+    {
+        $_SERVER['REQUEST_URI']    = 'test/page';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        Container::app()->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => ['engine' => 'twig']]);
+
+        Container::$app->get('router')->get([
+            'pattern' => '/test/page',
+            'method'  => function () {
+                Container::$app->set('closure', 'closure', 'raw');
+            }
+        ]);
+
+        $this->assertEquals('closure', Container::$app->get('closure'));
+    }
+
     /**
      * @return mixed
      */
