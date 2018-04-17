@@ -51,13 +51,14 @@ trait RouterAnnotationTrait
      */
     public function annotation(string $controller, string $action = 'actionIndex', int $number = 0): void
     {
-        $annotation = $this->container()->get('annotation')
-            ->getMethodAnnotations($this->setClassName($controller, 'controllersNamespace'), $action);
+        $className  = $this->setClassName($controller, 'controllersNamespace');
+        $annotation = $this->container()->get('annotation')->getMethodAnnotations($className, $action);
 
         if (isset($annotation['Routing'])) {
-            $this->set($this->setRouteData($controller, $action, $number, $annotation,
-                $annotation['Routing'][$number]['method'] ?? 'GET')
-            );
+            $httpMethod = $annotation['Routing'][$number]['method'] ?? 'GET';
+            $routeData  = $this->setRouteData($controller, $action, $number, $annotation, $httpMethod);
+
+            $this->set($routeData);
         }
     }
 

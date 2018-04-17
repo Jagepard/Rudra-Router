@@ -26,4 +26,9 @@ trait RouterMiddlewareTrait
     {
         $this->container()->get('router')->handleMiddleware($middleware);
     }
+
+    /**
+     * @return ContainerInterface
+     */
+    protected abstract function container(): ContainerInterface;
 }
