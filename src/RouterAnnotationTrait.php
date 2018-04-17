@@ -22,6 +22,19 @@ trait RouterAnnotationTrait
 {
 
     /**
+     * @param array $data
+     * @throws RouterException
+     */
+    public function annotationCollector(array $data)
+    {
+        foreach ($data as $chunk) {
+            foreach ($chunk as $item) {
+                $this->annotation($item[0], $item[1] ?? 'actionIndex', $item[2] ?? 0);
+            }
+        }
+    }
+
+    /**
      * @param string $controller
      * @param string $action
      * @param int    $number
