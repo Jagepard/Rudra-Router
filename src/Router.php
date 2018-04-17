@@ -98,15 +98,13 @@ class Router implements RouterInterface
             throw new RouterException('503');
         }
 
-        $method = $route['method'];
-
         // Инициализуруем
         $controller->init($this->container(), $this->templateEngine());
         // Выполняем методы before до основного вызова
         $controller->before();
         !isset($route['middleware']) ?: $this->handleMiddleware($route['middleware']);
         // Собственно вызываем экшн, в зависимости от наличия параметров
-        isset($params) ? $controller->{$method}($params) : $controller->{$method}();
+        isset($params) ? $controller->{$route['method']}($params) : $controller->{$route['method']}();
         // Выполняем методы after
         !isset($route['after_middleware']) ?: $this->handleMiddleware($route['after_middleware']);
         $controller->after(); // after
