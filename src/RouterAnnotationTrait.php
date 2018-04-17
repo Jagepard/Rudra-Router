@@ -23,12 +23,21 @@ trait RouterAnnotationTrait
 
     /**
      * @param array $data
+     * @param bool  $multilevel
      * @throws RouterException
      */
-    public function annotationCollector(array $data)
+    public function annotationCollector(array $data, bool $multilevel = false)
     {
-        foreach ($data as $chunk) {
-            foreach ($chunk as $item) {
+        if (!$multilevel) {
+            foreach ($data as $item) {
+                $this->annotation($item[0], $item[1] ?? 'actionIndex', $item[2] ?? 0);
+            }
+
+            return;
+        }
+
+        foreach ($data as $chunck) {
+            foreach ($chunck as $item) {
                 $this->annotation($item[0], $item[1] ?? 'actionIndex', $item[2] ?? 0);
             }
         }
