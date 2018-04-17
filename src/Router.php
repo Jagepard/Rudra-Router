@@ -63,21 +63,18 @@ class Router implements RouterInterface
      */
     public function set(array $route)
     {
-        if ($this->container()->hasPost('_method') && $this->container()->getServer('REQUEST_METHOD') === 'POST') {
+        $requestMethod = $this->container()->getServer('REQUEST_METHOD');
+
+        if ($this->container()->hasPost('_method') && $requestMethod === 'POST') {
             $this->setRequestMethod();
         }
 
-        if (($this->container()->getServer('REQUEST_METHOD') === 'GET')
-            || $this->container()->getServer('REQUEST_METHOD') === 'POST'
-        ) {
+        if (($requestMethod === 'GET') || $requestMethod === 'POST') {
             $this->matchHttpMethod($route);
         }
 
-        if (($this->container()->getServer('REQUEST_METHOD') === 'PUT')
-            || ($this->container()->getServer('REQUEST_METHOD') === 'PATCH')
-            || ($this->container()->getServer('REQUEST_METHOD') === 'DELETE')
-        ) {
-            $settersName = 'set' . ucfirst(strtolower($this->container()->getServer('REQUEST_METHOD')));
+        if (($requestMethod === 'PUT') || ($requestMethod === 'PATCH') || ($requestMethod === 'DELETE')) {
+            $settersName = 'set' . ucfirst(strtolower($requestMethod));
             parse_str(file_get_contents('php://input'), $data);
             $this->container()->$settersName($data);
             $this->matchHttpMethod($route);
@@ -118,39 +115,35 @@ class Router implements RouterInterface
      */
     protected function setRequestMethod(string $param = null)
     {
+        switch ($this->container()->getPost('_method')) {
+            case 'PUT':
+                $this->container()->setServer('REQUEST_METHOD', 'PUT');
+                break;
+            case 'PATCH':
+                $this->container()->setServer('REQUEST_METHOD', 'PATCH');
+                break;
+            case 'DELETE':
+                $this->container()->setServer('REQUEST_METHOD', 'DELETE');
+                break;
+        }
+
         if ($param === 'REST') {
+
+            $route = [];
+
             switch ($this->container()->getPost('_method')) {
                 case 'PUT':
-                    $this->container()->setServer('REQUEST_METHOD', 'PUT');
-                    $route['http_method'] = 'PUT';
-                    $route['method']      = 'update';
-
-                    return $route;
-                case 'PATCH':
-                    $this->container()->setServer('REQUEST_METHOD', 'PATCH');
-                    $route['http_method'] = 'PATCH';
-                    $route['method']      = 'update';
-
-                    return $route;
-                case 'DELETE':
-                    $this->container()->setServer('REQUEST_METHOD', 'DELETE');
-                    $route['http_method'] = 'DELETE';
-                    $route['method']      = 'delete';
-
-                    return $route;
-            }
-        } else {
-            switch ($this->container()->getPost('_method')) {
-                case 'PUT':
-                    $this->container()->setServer('REQUEST_METHOD', 'PUT');
+                    $route = ['http_method' => 'PUT', 'method' => 'update'];
                     break;
                 case 'PATCH':
-                    $this->container()->setServer('REQUEST_METHOD', 'PATCH');
+                    $route = ['http_method' => 'PATCH', 'method' => 'update'];
                     break;
                 case 'DELETE':
-                    $this->container()->setServer('REQUEST_METHOD', 'DELETE');
+                    $route = ['http_method' => 'DELETE', 'method' => 'delete'];
                     break;
             }
+
+            return $route;
         }
     }
 
