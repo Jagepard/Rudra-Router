@@ -29,17 +29,23 @@ trait RouterAnnotationTrait
     public function annotationCollector(array $data, bool $multilevel = false)
     {
         if (!$multilevel) {
-            foreach ($data as $item) {
-                $this->annotation($item[0], $item[1] ?? 'actionIndex', $item[2] ?? 0);
-            }
-
+            $this->handleAnnotation($data);
             return;
         }
 
-        foreach ($data as $chunck) {
-            foreach ($chunck as $item) {
-                $this->annotation($item[0], $item[1] ?? 'actionIndex', $item[2] ?? 0);
-            }
+        foreach ($data as $subData) {
+            $this->handleAnnotation($subData);
+        }
+    }
+
+    /**
+     * @param array $data
+     * @throws RouterException
+     */
+    protected function handleAnnotation(array $data): void
+    {
+        foreach ($data as $item) {
+            $this->annotation($item[0], $item[1] ?? 'actionIndex', $item[2] ?? 0);
         }
     }
 
@@ -73,10 +79,8 @@ trait RouterAnnotationTrait
      */
     protected function setRouteData(string $class, string $method, int $number, $result, $httpMethod)
     {
-        $dataRoute = ['pattern'     => $result['Routing'][$number]['url'],
-                      'controller'  => $class,
-                      'method'      => $method,
-                      'http_method' => $httpMethod
+        $dataRoute = ['pattern'    => $result['Routing'][$number]['url'],
+                      'controller' => $class, 'method' => $method, 'http_method' => $httpMethod
         ];
 
         if (isset($result['Middleware'])) {
@@ -89,7 +93,6 @@ trait RouterAnnotationTrait
 
         return $dataRoute;
     }
-
 
     /**
      * @param array $annotation
