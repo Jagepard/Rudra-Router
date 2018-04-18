@@ -25,7 +25,7 @@ trait RouterMatchTrait
      * @param array $route
      * @return bool|void
      */
-    protected function matchHttpMethod(array $route)
+    protected function matchHttpMethod(array $route): void
     {
         if (!strpos($route['http_method'], '|') !== false) {
             $this->matchRequest($route);
