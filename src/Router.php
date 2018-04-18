@@ -38,7 +38,7 @@ class Router implements RouterInterface
      */
     protected $namespace;
     /**
-     * @var string
+     * @var array
      */
     protected $templateEngine;
 
@@ -61,7 +61,7 @@ class Router implements RouterInterface
      * @param array $route
      * @return mixed|void
      */
-    public function set(array $route)
+    public function set(array $route): void
     {
         $requestMethod = $this->container()->getServer('REQUEST_METHOD');
 
@@ -158,7 +158,7 @@ class Router implements RouterInterface
     /**
      * @param bool $token
      */
-    public function setToken(bool $token)
+    public function setToken(bool $token): void
     {
         $this->token = $token;
     }
@@ -174,7 +174,7 @@ class Router implements RouterInterface
     /**
      * @return mixed
      */
-    protected function controllersNamespace()
+    protected function controllersNamespace(): string
     {
         return $this->namespace . 'Controllers\\';
     }
@@ -182,7 +182,7 @@ class Router implements RouterInterface
     /**
      * @return mixed
      */
-    protected function middlewareNamespace()
+    protected function middlewareNamespace(): string
     {
         return $this->namespace . 'Middleware\\';
     }
@@ -190,7 +190,7 @@ class Router implements RouterInterface
     /**
      * @return mixed
      */
-    protected function templateEngine()
+    protected function templateEngine(): array
     {
         return $this->templateEngine;
     }
@@ -198,7 +198,7 @@ class Router implements RouterInterface
     /**
      * @param string $namespace
      */
-    public function setNamespace(string $namespace)
+    public function setNamespace(string $namespace): void
     {
         $this->namespace = $namespace;
     }
