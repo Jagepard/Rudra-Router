@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  * Date: 12.04.17
@@ -99,10 +99,10 @@ trait RouterMethodTrait
             case 'POST':
                 if ($this->container()->hasPost('_method')) {
                     $route = array_merge($route, $this->setRequestMethod('REST'));
-                } else {
-                    $route['http_method'] = 'POST';
-                    $route['method']      = 'create';
+                    break;
                 }
+                $route['http_method'] = 'POST';
+                $route['method']      = 'create';
                 break;
             case 'PUT':
                 $route['http_method'] = 'PUT';
