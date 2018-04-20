@@ -85,14 +85,4 @@ interface RouterInterface
      * @param array $route
      */
     public function resource(array $route): void;
-
-    /**
-     * @return bool
-     */
-    public function isToken(): bool;
-
-    /**
-     * @param bool $token
-     */
-    public function setToken(bool $token);
 }

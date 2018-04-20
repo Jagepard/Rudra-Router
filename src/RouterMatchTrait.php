@@ -23,7 +23,6 @@ trait RouterMatchTrait
 
     /**
      * @param array $route
-     * @return bool|void
      */
     protected function matchHttpMethod(array $route): void
     {
@@ -39,30 +38,16 @@ trait RouterMatchTrait
 
     /**
      * @param array $route
-     * @return bool|void
      */
-    protected function matchRequest(array $route)
+    protected function matchRequest(array $route): void
     {
         if ($route['http_method'] == $this->container()->getServer('REQUEST_METHOD')) {
 
-            $requestUrl   = trim($this->container()->getServer('REQUEST_URI'), '/');
-            $requestArray = explode('/', $requestUrl);
-            list($params, $completeRequestArray) = $this->handlePattern($route, $requestArray);
-            list($requestString, $realRequestString) = $this->handleCompleteRequestArray($completeRequestArray);
-            $outRequestUrl = $this->getOutRequestUrl($requestUrl);
+            $requestString = trim($this->container()->getServer('REQUEST_URI'), '/');
+            $parsedRequest = parse_url($requestString)['path'];
 
-            // Это нужно для обработки 404 ошибки
-            if (isset($requestString)) {
-                // Проверяем строку запроса на соответсвие маршруту
-                preg_match("/$requestString/", $requestUrl, $matches);
-
-                // Если совпадений нет, то возвращаем $this->isToken() == false
-                if (!isset($matches[0])) {
-                    return $this->isToken();
-                }
-            }
-
-            return $this->handleRequest($route, $realRequestString, $outRequestUrl, $params);
+            list($completeRequestArray, $params) = $this->handlePattern($route, explode('/', $requestString));
+            (implode('/', $completeRequestArray) !== $parsedRequest) ?: $this->setCallable($route, $params);
         }
     }
 
@@ -84,7 +69,6 @@ trait RouterMatchTrait
         foreach (explode('/', ltrim($route['pattern'], '/')) as $itemPattern) {
             // Ищем совпадение строки запроса с шаблоном {...}
             if (preg_match('/{[a-zA-Z0-9]+}/', $itemPattern, $matchesPattern) != 0) {
-
                 // Если есть элемент массива $i
                 if (isset($requestArray[$i])) {
                     // Убираем {} из названия будующего ключа массива параметров
@@ -102,42 +86,7 @@ trait RouterMatchTrait
             $i++;
         }
 
-        return [$params, $completeRequestArray];
-    }
-
-    /**
-     * @param $completeRequestArray
-     *
-     * @return array
-     */
-    protected function handleCompleteRequestArray($completeRequestArray)
-    {
-        $requestString     = '';
-        $realRequestString = '';
-
-        if (count($completeRequestArray)) {
-            $requestString     = implode('\/', $completeRequestArray);
-            $realRequestString = implode('/', $completeRequestArray);
-        }
-
-        return [$requestString, $realRequestString];
-    }
-
-    /**
-     * @param array $route
-     * @param       $realRequestString
-     * @param       $outRequestUrl
-     * @param       $params
-     */
-    protected function handleRequest(array $route, $realRequestString, $outRequestUrl, $params)
-    {
-        // Если $realRequestString совпадает с 'REQUEST_URI'
-        if ($realRequestString == $outRequestUrl[0]) {
-            // Устанавливаем token true
-            $this->setToken(true);
-            $this->setCallable($route, $params);
-            (DEV === 'test') ?: exit(); // @codeCoverageIgnore
-        }
+        return [$completeRequestArray, $params];
     }
 
     /**
@@ -152,26 +101,6 @@ trait RouterMatchTrait
 
             (new $currentMiddleware($this->container()))($current, $middleware);
         }
-    }
-
-    /**
-     * @param $requestUrl
-     *
-     * @return mixed
-     */
-    protected function getOutRequestUrl($requestUrl)
-    {
-        $outRequestUrl = [];
-
-        if (strpos($requestUrl, '?') !== false) {
-            preg_match('~[/[:word:]-]+(?=\?)~', $requestUrl, $outRequestUrl);
-
-            return $outRequestUrl;
-        }
-
-        $outRequestUrl[0] = $requestUrl;
-
-        return $outRequestUrl;
     }
 
     /**
@@ -229,14 +158,4 @@ trait RouterMatchTrait
      * @return ContainerInterface
      */
     protected abstract function container(): ContainerInterface;
-
-    /**
-     * @return bool
-     */
-    public abstract function isToken(): bool;
-
-    /**
-     * @param bool $token
-     */
-    public abstract function setToken(bool $token);
 }

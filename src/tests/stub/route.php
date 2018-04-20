@@ -12,6 +12,6 @@ class Route
 
         // Routes
 
-        return $router->isToken();
+        return false;
     }
 }
