@@ -241,21 +241,6 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('closure', Container::$app->get('closure'));
     }
 
-    public function testMatchFalse()
-    {
-        $_SERVER['REQUEST_URI']    = 'test/false';
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-        $this->setContainer();
-
-        $this->container()->get('router')->get([
-            'pattern'    => '/test/page',
-            'controller' => 'MainController',
-            'method'     => 'actionGet'
-        ]);
-
-        $this->assertEquals(false, $this->container()->get('router')->isToken());
-    }
-
     /**
      * @return mixed
      */
