@@ -22,11 +22,6 @@ trait RouterMatchTrait
 {
 
     /**
-     * @var bool
-     */
-    protected $token = false;
-
-    /**
      * @param array $route
      */
     protected function matchHttpMethod(array $route): void
@@ -49,11 +44,7 @@ trait RouterMatchTrait
         if ($route['http_method'] == $this->container()->getServer('REQUEST_METHOD')) {
             $parsedRequest = parse_url(trim($this->container()->getServer('REQUEST_URI'), '/'))['path'];
             list($patternsArray, $params) = $this->handlePattern($route, explode('/', $parsedRequest));
-
-            if (implode('/', $patternsArray) == $parsedRequest) {
-                $this->setToken(true);
-                $this->setCallable($route, $params);
-            }
+            (implode('/', $patternsArray) !== $parsedRequest) ?: $this->setCallable($route, $params);
         }
     }
 
@@ -154,20 +145,4 @@ trait RouterMatchTrait
      * @return ContainerInterface
      */
     protected abstract function container(): ContainerInterface;
-
-    /**
-     * @return bool
-     */
-    public function isToken(): bool
-    {
-        return $this->token;
-    }
-
-    /**
-     * @param bool $token
-     */
-    public function setToken(bool $token): void
-    {
-        $this->token = $token;
-    }
 }
