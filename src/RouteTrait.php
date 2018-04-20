@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  * @author    : Korotkov Danila <dankorot@gmail.com>
@@ -29,9 +29,7 @@ trait RouteTrait
      */
     protected function handleException()
     {
-        if (!$this->container()->get('router')->isToken()) {
-            throw new RouterException('404');
-        }
+        throw new RouterException('404');
     } // @codeCoverageIgnore
 
     /**
