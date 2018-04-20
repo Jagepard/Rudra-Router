@@ -42,11 +42,8 @@ trait RouterMatchTrait
     protected function matchRequest(array $route): void
     {
         if ($route['http_method'] == $this->container()->getServer('REQUEST_METHOD')) {
-
-            $requestString = trim($this->container()->getServer('REQUEST_URI'), '/');
-            $parsedRequest = parse_url($requestString)['path'];
-
-            list($completeRequestArray, $params) = $this->handlePattern($route, explode('/', $requestString));
+            $parsedRequest = parse_url(trim($this->container()->getServer('REQUEST_URI'), '/'))['path'];
+            list($completeRequestArray, $params) = $this->handlePattern($route, explode('/', $parsedRequest));
             (implode('/', $completeRequestArray) !== $parsedRequest) ?: $this->setCallable($route, $params);
         }
     }
