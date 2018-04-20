@@ -26,10 +26,6 @@ class Router implements RouterInterface
     use RouterAnnotationTrait;
 
     /**
-     * @var bool
-     */
-    protected $token = false;
-    /**
      * @var ContainerInterface
      */
     protected $container;
@@ -145,22 +141,6 @@ class Router implements RouterInterface
 
             return $route;
         }
-    }
-
-    /**
-     * @return bool
-     */
-    public function isToken(): bool
-    {
-        return $this->token;
-    }
-
-    /**
-     * @param bool $token
-     */
-    public function setToken(bool $token): void
-    {
-        $this->token = $token;
     }
 
     /**
