@@ -22,6 +22,11 @@ trait RouterMatchTrait
 {
 
     /**
+     * @var bool
+     */
+    protected $token = false;
+
+    /**
      * @param array $route
      */
     protected function matchHttpMethod(array $route): void
@@ -42,51 +47,42 @@ trait RouterMatchTrait
     protected function matchRequest(array $route): void
     {
         if ($route['http_method'] == $this->container()->getServer('REQUEST_METHOD')) {
+            $parsedRequest = parse_url(trim($this->container()->getServer('REQUEST_URI'), '/'))['path'];
+            list($patternsArray, $params) = $this->handlePattern($route, explode('/', $parsedRequest));
 
-            $requestString = trim($this->container()->getServer('REQUEST_URI'), '/');
-            $parsedRequest = parse_url($requestString)['path'];
-
-            list($completeRequestArray, $params) = $this->handlePattern($route, explode('/', $requestString));
-            (implode('/', $completeRequestArray) !== $parsedRequest) ?: $this->setCallable($route, $params);
+            if (implode('/', $patternsArray) == $parsedRequest) {
+                $this->setToken(true);
+                $this->setCallable($route, $params);
+            }
         }
     }
 
     /**
      * @param array $route
-     * @param array $requestArray
-     *
+     * @param array $parsedRequest
      * @return array
      */
-    protected function handlePattern(array $route, array $requestArray): array
+    protected function handlePattern(array $route, array $parsedRequest): array
     {
-        $i                    = 0;
-        $params               = null;
-        $paramsKey            = [];
-        $matchesPattern       = [];
-        $completeRequestArray = [];
+        $i             = 0;
+        $params        = null;
+        $patternsArray = [];
 
-        // Обходим элементы массива $pattern
-        foreach (explode('/', ltrim($route['pattern'], '/')) as $itemPattern) {
-            // Ищем совпадение строки запроса с шаблоном {...}
-            if (preg_match('/{[a-zA-Z0-9]+}/', $itemPattern, $matchesPattern) != 0) {
-                // Если есть элемент массива $i
-                if (isset($requestArray[$i])) {
-                    // Убираем {} из названия будующего ключа массива параметров
-                    preg_match('/[a-zA-Z0-9]+/', $matchesPattern[0], $paramsKey);
-                    // Присваиваем найденому параметру соответсвующий uri
-                    $params[$paramsKey[0]]  = $requestArray[$i];
-                    $completeRequestArray[] = $requestArray[$i];
-                }
-                // Если совпадений нет, то записываем данные не совпадающие
-                // с шаблоном в отдельный массив
+        foreach (explode('/', ltrim($route['pattern'], '/')) as $patternItem) {
+            // Ищем совпадение с шаблоном {...}
+            if (preg_match('/{[a-zA-Z0-9]+}/', $patternItem, $matchesPattern) != 0) {
+                // Убираем {} из названия будующего ключа массива параметров
+                preg_match('/[a-zA-Z0-9]+/', $matchesPattern[0], $key);
+                $params[$key[0]] = $parsedRequest[$i];
+                $patternsArray[] = $parsedRequest[$i];
             } else {
-                $completeRequestArray[] = $itemPattern;
+                $patternsArray[] = $patternItem;
             }
 
             $i++;
         }
 
-        return [$completeRequestArray, $params];
+        return [$patternsArray, $params];
     }
 
     /**
@@ -158,4 +154,20 @@ trait RouterMatchTrait
      * @return ContainerInterface
      */
     protected abstract function container(): ContainerInterface;
+
+    /**
+     * @return bool
+     */
+    public function isToken(): bool
+    {
+        return $this->token;
+    }
+
+    /**
+     * @param bool $token
+     */
+    public function setToken(bool $token): void
+    {
+        $this->token = $token;
+    }
 }
