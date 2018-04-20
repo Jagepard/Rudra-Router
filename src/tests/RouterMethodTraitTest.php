@@ -63,7 +63,7 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
 
     public function testGet(): void
     {
-        $this->setRouteEnvironment('test/page', 'GET', '/test/page', 'stub\Controllers\MainController::namespace');
+        $this->setRouteEnvironment('test/page?id=98', 'GET', '/test/page', 'stub\Controllers\MainController::namespace');
     }
 
     public function testPost(): void
@@ -180,21 +180,6 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $this->setRoutePostEnvironment('DELETE', 'delete');
         $this->setRoutePostEnvironment('PUT', 'update');
         $this->setRoutePostEnvironment('PATCH', 'update');
-    }
-
-    public function testMatchFalse()
-    {
-        $_SERVER['REQUEST_URI']    = 'test/false';
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-        $this->setContainer();
-
-        $this->container()->get('router')->get([
-            'pattern'    => '/test/page',
-            'controller' => 'MainController',
-            'method'     => 'actionGet'
-        ]);
-
-        $this->assertEquals(false, $this->container()->get('router')->isToken());
     }
 
     public function testMiddleware()
