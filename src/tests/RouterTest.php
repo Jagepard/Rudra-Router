@@ -13,11 +13,10 @@ declare(strict_types=1);
  *  phpunit src/tests/ContainerTest --coverage-html src/tests/coverage-html
  */
 
-
-use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 use Rudra\Container;
 use Rudra\ContainerInterface;
 use \stub\Controllers\MainController;
+use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 
 /**
  * Class RouterTest
@@ -36,7 +35,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->container = Container::app();
         $this->container->setBinding(ContainerInterface::class, Container::$app);
         $this->container->set('annotation', 'Rudra\Annotations');
-        $this->container->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => ['engine' => 'twig']]);
+        $this->container->set('router', 'Rudra\Router', ['namespace' => 'stub\\']);
     }
 
     public function testSetNamespace()

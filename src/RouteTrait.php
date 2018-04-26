@@ -16,12 +16,15 @@ trait RouteTrait
     /**
      * @param string $route
      * @param string $bundle
-     *
+     * @param array  $params
      * @return mixed
      */
-    protected function route(string $route, string $bundle)
+    protected function route(string $route, string $bundle, array $params = [])
     {
-        return $this->container()->new($route)->run($this->container()->get('router'), $this->container()->config('namespaces', $bundle));
+        return $this->container()->new($route)->run(
+            $this->container()->get('router'),
+            $this->container()->config('namespaces', $bundle),
+            $params);
     }
 
     /**
@@ -29,7 +32,7 @@ trait RouteTrait
      */
     protected function handleException()
     {
-        throw new RouterException('404');
+        throw new RouterException($this->container(), '404');
     } // @codeCoverageIgnore
 
     /**
