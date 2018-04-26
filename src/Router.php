@@ -33,29 +33,22 @@ class Router implements RouterInterface
      * @var string
      */
     protected $namespace;
-    /**
-     * @var array
-     */
-    protected $templateEngine;
 
     /**
      * Router constructor.
      *
      * @param ContainerInterface $container
      * @param string             $namespace
-     * @param array              $templateEngine
      */
-    public function __construct(ContainerInterface $container, string $namespace, array $templateEngine)
+    public function __construct(ContainerInterface $container, string $namespace)
     {
-        $this->container      = $container;
-        $this->namespace      = $namespace;
-        $this->templateEngine = $templateEngine;
-        set_exception_handler([new RouterException(), 'handler']);
+        $this->container = $container;
+        $this->namespace = $namespace;
+        set_exception_handler([new RouterException($container), 'handler']);
     }
 
     /**
      * @param array $route
-     * @return mixed|void
      */
     public function set(array $route): void
     {
@@ -88,11 +81,12 @@ class Router implements RouterInterface
         $controller = new $route['controller']($this->container());
 
         if (!method_exists($controller, $route['method'])) {
-            throw new RouterException('503');
+            throw new RouterException($this->container(), '503');
         }
 
         // Инициализуруем
-        $controller->init($this->container(), $this->templateEngine());
+        $controller->init($this->container());
+
         // Выполняем методы before до основного вызова
         $controller->before();
         !isset($route['middleware']) ?: $this->handleMiddleware($route['middleware']);
@@ -165,14 +159,6 @@ class Router implements RouterInterface
     protected function middlewareNamespace(): string
     {
         return $this->namespace . 'Middleware\\';
-    }
-
-    /**
-     * @return mixed
-     */
-    protected function templateEngine(): array
-    {
-        return $this->templateEngine;
     }
 
     /**
