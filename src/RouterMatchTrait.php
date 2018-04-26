@@ -122,14 +122,14 @@ trait RouterMatchTrait
             $classNameArray = explode('::', $className);
 
             if (!class_exists($classNameArray[0])) {
-                throw new RouterException('503');
+                throw new RouterException($this->container(), '503');
             }
 
             return $classNameArray[0];
         }
 
         if (!class_exists($this->$type() . $className)) {
-            throw new RouterException('503');
+            throw new RouterException($this->container(), '503');
         }
 
         return $this->$type() . $className;
