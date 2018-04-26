@@ -23,12 +23,10 @@ interface RouterInterface
 
     /**
      * RouterInterface constructor.
-     *
      * @param ContainerInterface $container
      * @param string             $namespace
-     * @param array              $templateEngine
      */
-    public function __construct(ContainerInterface $container, string $namespace, array $templateEngine);
+    public function __construct(ContainerInterface $container, string $namespace);
 
     /**
      * @param array $route
