@@ -38,7 +38,7 @@ class RouteTraitTest extends PHPUnit_Framework_TestCase
     {
         $this->container = Container::app();
         $this->container->setBinding(ContainerInterface::class, Container::$app);
-        $this->container->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => ['engine' => 'twig']]);
+        $this->container->set('router', 'Rudra\Router', ['namespace' => 'stub\\']);
         $this->container->setConfig(['namespaces' => ['web' => 123456]]);
 
         $this->controller = new MainController();
