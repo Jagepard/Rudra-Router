@@ -1,14 +1,14 @@
 <?php
 
-namespace Rudra\Tests\Stub;
+namespace Rudra\Tests\Stub\Controllers;
 
 use Rudra\Interfaces\ContainerInterface;
 use Rudra\ExternalTraits\RouterMiddlewareTrait;
 use Rudra\ExternalTraits\RouteTrait;
+use Rudra\Tests\Stub\Route;
 
 /**
  * Class MainController
- *
  * @package stub
  */
 class MainController

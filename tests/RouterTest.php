@@ -3,9 +3,6 @@
 declare(strict_types=1);
 
 /**
- * Date: 17.02.17
- * Time: 13:23
- *
  * @author    : Korotkov Danila <dankorot@gmail.com>
  * @copyright Copyright (c) 2016, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
@@ -14,8 +11,8 @@ declare(strict_types=1);
  */
 
 use Rudra\Container;
-use Rudra\ContainerInterface;
-use \stub\Controllers\MainController;
+use Rudra\Interfaces\ContainerInterface;
+use Rudra\Tests\Stub\Controllers\MainController;
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 
 /**
@@ -35,7 +32,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->container = Container::app();
         $this->container->setBinding(ContainerInterface::class, Container::$app);
         $this->container->set('annotation', 'Rudra\Annotations');
-        $this->container->set('router', 'Rudra\Router', ['namespace' => 'stub\\']);
+        $this->container->set('router', 'Rudra\Router', ['namespace' => 'Rudra\\Tests\\Stub\\']);
     }
 
     public function testSetNamespace()

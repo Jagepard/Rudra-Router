@@ -1,8 +1,6 @@
 <?php
+
 /**
- * Date: 12.04.18
- * Time: 18:14
- *
  * @author    : Korotkov Danila <dankorot@gmail.com>
  * @copyright Copyright (c) 2018, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
@@ -10,11 +8,9 @@
 
 namespace Rudra\tests;
 
-
 use Rudra\Container;
-use Rudra\ContainerInterface;
+use Rudra\Interfaces\ContainerInterface;
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
-
 
 /**
  * Class RouterAnnotationTraitTest
@@ -34,7 +30,7 @@ class RouterAnnotationTraitTest extends PHPUnit_Framework_TestCase
         $this->container = Container::app();
         $this->container->setBinding(ContainerInterface::class, Container::$app);
         $this->container->set('annotation', 'Rudra\Annotations');
-        $this->container->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => ['engine' => 'twig']]);
+        $this->container->set('router', 'Rudra\Router', ['namespace' => 'Rudra\\Tests\\Stub\\', 'templateEngine' => ['engine' => 'twig']]);
     }
 
     public function testAnnotation()

@@ -29,6 +29,9 @@
         "rudra/container"   : "self.version",
         "rudra/exception"   : "self.version"
     },
+    "require-dev": {
+        "phpunit/phpunit": "^7"
+    },
     "autoload"          : {
         "psr-4" : {
             "Rudra\\" : "src/"
