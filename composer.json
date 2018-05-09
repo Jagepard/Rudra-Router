@@ -10,7 +10,7 @@
         "rest",
         "restful"
     ],
-    "license"           : "MIT",
+    "license"           : "GPL-3.0-or-later",
     "authors"           : [
         {
             "name"     : "Danila Korotkov (Jagepard)",
@@ -25,7 +25,6 @@
     },
     "require"           : {
         "php"               : ">=7.1",
-        "kint-php/kint"     : "^1.0",
         "rudra/annotations" : "self.version",
         "rudra/container"   : "self.version",
         "rudra/exception"   : "self.version"
@@ -33,6 +32,11 @@
     "autoload"          : {
         "psr-4" : {
             "Rudra\\" : "src/"
+        }
+    },
+    "autoload-dev" : {
+        "psr-4": {
+            "Rudra\\Tests\\" : "tests/"
         }
     },
     "minimum-stability" : "dev",

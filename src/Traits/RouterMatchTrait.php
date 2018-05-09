@@ -3,26 +3,25 @@
 declare(strict_types=1);
 
 /**
- * Date: 12.04.17
- * Time: 10:34
- *
  * @author    : Korotkov Danila <dankorot@gmail.com>
  * @copyright Copyright (c) 2016, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
-namespace Rudra;
+namespace Rudra\Traits;
+
+use Rudra\Exceptions\RouterException;
 
 /**
- * Class RouterMatchTrait
- *
- * @package Rudra
+ * Trait RouterMatchTrait
+ * @package Rudra\Traits
  */
 trait RouterMatchTrait
 {
 
     /**
      * @param array $route
+     * @throws RouterException
      */
     protected function matchHttpMethod(array $route): void
     {
@@ -38,11 +37,12 @@ trait RouterMatchTrait
 
     /**
      * @param array $route
+     * @throws RouterException
      */
     protected function matchRequest(array $route): void
     {
-        if ($route['http_method'] == $this->container()->getServer('REQUEST_METHOD')) {
-            $parsedRequest = parse_url(trim($this->container()->getServer('REQUEST_URI'), '/'))['path'];
+        if ($route['http_method'] == $this->container->getServer('REQUEST_METHOD')) {
+            $parsedRequest = parse_url(trim($this->container->getServer('REQUEST_URI'), '/'))['path'];
             list($patternsArray, $params) = $this->handlePattern($route, explode('/', $parsedRequest));
             (implode('/', $patternsArray) !== $parsedRequest) ?: $this->setCallable($route, $params);
         }
@@ -78,6 +78,7 @@ trait RouterMatchTrait
 
     /**
      * @param array $middleware
+     * @throws RouterException
      */
     public function handleMiddleware(array $middleware)
     {
@@ -86,15 +87,15 @@ trait RouterMatchTrait
         if (is_array($current)) {
             $currentMiddleware = $this->setClassName($current[0], 'middlewareNamespace');
 
-            (new $currentMiddleware($this->container()))($current, $middleware);
+            (new $currentMiddleware($this->container))($current, $middleware);
         }
     }
 
     /**
      * @param array $route
      * @param       $params
-     *
      * @return mixed
+     * @throws RouterException
      */
     protected function setCallable(array $route, $params)
     {
@@ -112,7 +113,6 @@ trait RouterMatchTrait
     /**
      * @param string $className
      * @param string $type
-     *
      * @return string
      * @throws RouterException
      */
@@ -122,14 +122,14 @@ trait RouterMatchTrait
             $classNameArray = explode('::', $className);
 
             if (!class_exists($classNameArray[0])) {
-                throw new RouterException($this->container(), '503');
+                throw new RouterException($this->container, '503');
             }
 
             return $classNameArray[0];
         }
 
         if (!class_exists($this->$type() . $className)) {
-            throw new RouterException($this->container(), '503');
+            throw new RouterException($this->container, '503');
         }
 
         return $this->$type() . $className;
@@ -140,9 +140,4 @@ trait RouterMatchTrait
      * @param null  $params
      */
     public abstract function directCall(array $classAndMethod, $params = null): void;
-
-    /**
-     * @return ContainerInterface
-     */
-    protected abstract function container(): ContainerInterface;
 }

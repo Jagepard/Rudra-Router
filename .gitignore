@@ -1,6 +1,6 @@
 # Created by .ignore support plugin (hsz.mobi)
 /vendor/
 /composer.lock
-/src/tests/build/
+/tests/build/
 /src/.htaccess
 /src/index.php

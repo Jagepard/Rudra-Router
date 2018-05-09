@@ -3,15 +3,12 @@
 declare(strict_types=1);
 
 /**
- * Date: 12.04.17
- * Time: 10:01
- *
  * @author    : Korotkov Danila <dankorot@gmail.com>
  * @copyright Copyright (c) 2016, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
-namespace Rudra;
+namespace Rudra\Traits;
 
 /**
  * Class RouterMethodTrait
@@ -24,7 +21,6 @@ trait RouterMethodTrait
     /**
      * @param string $method
      * @param array  $route
-     *
      * @return mixed
      */
     public function middleware(string $method, array $route)
@@ -91,13 +87,13 @@ trait RouterMethodTrait
      */
     public function resource(array $route): void
     {
-        switch ($this->container()->getServer('REQUEST_METHOD')) {
+        switch ($this->container->getServer('REQUEST_METHOD')) {
             case 'GET':
                 $route['http_method'] = 'GET';
                 $route['method']      = 'read';
                 break;
             case 'POST':
-                if ($this->container()->hasPost('_method')) {
+                if ($this->container->hasPost('_method')) {
                     $route = array_merge($route, $this->setRequestMethod('REST'));
                     break;
                 }
@@ -118,20 +114,13 @@ trait RouterMethodTrait
     }
 
     /**
-     * @return ContainerInterface
-     */
-    protected abstract function container(): ContainerInterface;
-
-    /**
      * @param string|null $param
-     *
      * @return mixed
      */
     protected abstract function setRequestMethod(string $param = null);
 
     /**
      * @param array $route
-     *
      * @return mixed
      */
     public abstract function set(array $route);
