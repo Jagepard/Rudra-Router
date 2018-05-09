@@ -1,22 +1,18 @@
 <?php
+
 /**
- * Date: 12.04.18
- * Time: 17:17
- *
  * @author    : Korotkov Danila <dankorot@gmail.com>
  * @copyright Copyright (c) 2018, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
-namespace Rudra\tests;
-
+namespace Rudra\Tests;
 
 use Rudra\Container;
-use Rudra\RouterException;
-use Rudra\ContainerInterface;
-use stub\Controllers\MainController;
+use Rudra\Exceptions\RouterException;
+use Rudra\Interfaces\ContainerInterface;
+use Rudra\Tests\Stub\Controllers\MainController;
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
-
 
 /**
  * Class RouteTraitTest

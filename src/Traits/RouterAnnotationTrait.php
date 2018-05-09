@@ -3,19 +3,15 @@
 declare(strict_types=1);
 
 /**
- * Date: 20.04.17 Updated 14.04.18
- * Time: 18:42
- *
  * @author    : Korotkov Danila <dankorot@gmail.com>
  * @copyright Copyright (c) 2016, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
-namespace Rudra;
+namespace Rudra\Traits;
 
 /**
- * Class RouterAnnotationTrait
- *
+ * Trait RouterAnnotationTrait
  * @package Rudra
  */
 trait RouterAnnotationTrait
@@ -24,7 +20,6 @@ trait RouterAnnotationTrait
     /**
      * @param array $data
      * @param bool  $multilevel
-     * @throws RouterException
      */
     public function annotationCollector(array $data, bool $multilevel = false)
     {
@@ -40,7 +35,6 @@ trait RouterAnnotationTrait
 
     /**
      * @param array $data
-     * @throws RouterException
      */
     protected function handleAnnotation(array $data): void
     {
@@ -53,12 +47,11 @@ trait RouterAnnotationTrait
      * @param string $controller
      * @param string $action
      * @param int    $number
-     * @throws RouterException
      */
     public function annotation(string $controller, string $action = 'actionIndex', int $number = 0): void
     {
         $className  = $this->setClassName($controller, 'controllersNamespace');
-        $annotation = $this->container()->get('annotation')->getMethodAnnotations($className, $action);
+        $annotation = $this->container->get('annotation')->getMethodAnnotations($className, $action);
 
         if (isset($annotation['Routing'])) {
             $httpMethod = $annotation['Routing'][$number]['method'] ?? 'GET';
@@ -74,7 +67,6 @@ trait RouterAnnotationTrait
      * @param int    $number
      * @param        $result
      * @param        $httpMethod
-     *
      * @return array
      */
     protected function setRouteData(string $class, string $method, int $number, $result, $httpMethod)
@@ -96,7 +88,6 @@ trait RouterAnnotationTrait
 
     /**
      * @param array $annotation
-     *
      * @return array
      */
     protected function handleAnnotationMiddleware(array $annotation): array
@@ -117,23 +108,15 @@ trait RouterAnnotationTrait
     }
 
     /**
-     * @return ContainerInterface
-     */
-    protected abstract function container(): ContainerInterface;
-
-    /**
      * @param array $route
-     *
-     * @return bool
+     * @return mixed
      */
     public abstract function set(array $route);
 
     /**
      * @param string $className
      * @param string $type
-     *
      * @return string
-     * @throws RouterException
      */
     protected abstract function setClassName(string $className, string $type): string;
 }

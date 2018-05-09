@@ -1,8 +1,6 @@
 <?php
+
 /**
- * Date: 13.04.18
- * Time: 14:34
- *
  * @author    : Korotkov Danila <dankorot@gmail.com>
  * @copyright Copyright (c) 2018, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
@@ -10,10 +8,9 @@
 
 namespace Rudra\tests;
 
-
 use Rudra\Container;
-use Rudra\RouterException;
-use Rudra\ContainerInterface;
+use Rudra\Exceptions\RouterException;
+use Rudra\Interfaces\ContainerInterface;
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 
 /**
@@ -34,7 +31,11 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $this->container = Container::app();
         $this->container->setBinding(ContainerInterface::class, Container::$app);
         $this->container->set('annotation', 'Rudra\Annotations');
-        $this->container->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => ['engine' => 'twig']]);
+        $this->container->set(
+            'router',
+            'Rudra\Router',
+            ['namespace' => 'Rudra\\Tests\\Stub\\', 'templateEngine' => ['engine' => 'twig']]
+        );
     }
 
     /**
@@ -43,7 +44,8 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
      * @param string $pattern
      * @param string $controller
      */
-    protected function setRouteEnvironment(string $requestUri, string $requestMethod, string $pattern, string $controller = 'MainController'): void
+    protected function setRouteEnvironment(
+        string $requestUri, string $requestMethod, string $pattern, string $controller = 'MainController'): void
     {
         $_SERVER['REQUEST_URI']    = $requestUri;
         $_SERVER['REQUEST_METHOD'] = $requestMethod;
@@ -63,7 +65,12 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
 
     public function testGet(): void
     {
-        $this->setRouteEnvironment('test/page?id=98', 'GET', '/test/page', 'stub\Controllers\MainController::namespace');
+        $this->setRouteEnvironment(
+            'test/page?id=98',
+            'GET',
+            '/test/page',
+            'Rudra\Tests\Stub\Controllers\MainController::namespace'
+        );
     }
 
     public function testPost(): void
@@ -201,7 +208,12 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
     public function testRouterExceptionWithNamespace()
     {
         $this->expectException(RouterException::class);
-        $this->setRouteEnvironment('test/page', 'GET', '/test/page', 'stub\Controllers\FalseController::namespace');
+        $this->setRouteEnvironment(
+            'test/page',
+            'GET',
+            '/test/page',
+            'stub\Controllers\FalseController::namespace'
+        );
     } // @codeCoverageIgnore
 
     public function testRouterException()

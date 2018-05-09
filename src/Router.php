@@ -3,26 +3,29 @@
 declare(strict_types=1);
 
 /**
- * Date: 05.09.16
- * Time: 14:51
- *
  * @author    : Korotkov Danila <dankorot@gmail.com>
- * @copyright Copyright (c) 2014, Korotkov Danila
+ * @copyright Copyright (c) 2018, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
 namespace Rudra;
 
+use Rudra\Interfaces\RouterInterface;
+use Rudra\Interfaces\ContainerInterface;
+use Rudra\Traits\RouterMatchTrait;
+use Rudra\Traits\RouterMethodTrait;
+use Rudra\Traits\RouterAnnotationTrait;
+use Rudra\Exceptions\RouterException;
+
 /**
  * Class Router
- *
  * @package Rudra
  */
 class Router implements RouterInterface
 {
 
-    use RouterMethodTrait;
     use RouterMatchTrait;
+    use RouterMethodTrait;
     use RouterAnnotationTrait;
 
     /**
@@ -36,7 +39,6 @@ class Router implements RouterInterface
 
     /**
      * Router constructor.
-     *
      * @param ContainerInterface $container
      * @param string             $namespace
      */
@@ -49,12 +51,13 @@ class Router implements RouterInterface
 
     /**
      * @param array $route
+     * @throws Exceptions\RouterException
      */
     public function set(array $route): void
     {
-        $requestMethod = $this->container()->getServer('REQUEST_METHOD');
+        $requestMethod = $this->container->getServer('REQUEST_METHOD');
 
-        if ($this->container()->hasPost('_method') && $requestMethod === 'POST') {
+        if ($this->container->hasPost('_method') && $requestMethod === 'POST') {
             $this->setRequestMethod();
         }
 
@@ -65,7 +68,7 @@ class Router implements RouterInterface
         if (($requestMethod === 'PUT') || ($requestMethod === 'PATCH') || ($requestMethod === 'DELETE')) {
             $settersName = 'set' . ucfirst(strtolower($requestMethod));
             parse_str(file_get_contents('php://input'), $data);
-            $this->container()->$settersName($data);
+            $this->container->$settersName($data);
             $this->matchHttpMethod($route);
         }
     } // @codeCoverageIgnore
@@ -73,19 +76,19 @@ class Router implements RouterInterface
     /**
      * @param array $route
      * @param null  $params
-     *
+     * @throws Exceptions\RouterException
      * @throws RouterException
      */
     public function directCall(array $route, $params = null): void
     {
-        $controller = new $route['controller']($this->container());
+        $controller = new $route['controller']($this->container);
 
         if (!method_exists($controller, $route['method'])) {
-            throw new RouterException($this->container(), '503');
+            throw new RouterException($this->container, '503');
         }
 
         // Инициализуруем
-        $controller->init($this->container());
+        $controller->init($this->container);
 
         // Выполняем методы before до основного вызова
         $controller->before();
@@ -100,20 +103,19 @@ class Router implements RouterInterface
 
     /**
      * @param string|null $param
-     *
-     * @return mixed
+     * @return array
      */
     protected function setRequestMethod(string $param = null)
     {
-        switch ($this->container()->getPost('_method')) {
+        switch ($this->container->getPost('_method')) {
             case 'PUT':
-                $this->container()->setServer('REQUEST_METHOD', 'PUT');
+                $this->container->setServer('REQUEST_METHOD', 'PUT');
                 break;
             case 'PATCH':
-                $this->container()->setServer('REQUEST_METHOD', 'PATCH');
+                $this->container->setServer('REQUEST_METHOD', 'PATCH');
                 break;
             case 'DELETE':
-                $this->container()->setServer('REQUEST_METHOD', 'DELETE');
+                $this->container->setServer('REQUEST_METHOD', 'DELETE');
                 break;
         }
 
@@ -121,7 +123,7 @@ class Router implements RouterInterface
 
             $route = [];
 
-            switch ($this->container()->getPost('_method')) {
+            switch ($this->container->getPost('_method')) {
                 case 'PUT':
                     $route = ['http_method' => 'PUT', 'method' => 'update'];
                     break;
@@ -135,14 +137,6 @@ class Router implements RouterInterface
 
             return $route;
         }
-    }
-
-    /**
-     * @return ContainerInterface
-     */
-    protected function container(): ContainerInterface
-    {
-        return $this->container;
     }
 
     /**

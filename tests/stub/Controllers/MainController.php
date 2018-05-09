@@ -1,24 +1,14 @@
 <?php
 
-/**
- * Date: 10.04.17
- * Time: 14:30
- *
- * @author    : Korotkov Danila <dankorot@gmail.com>
- * @copyright Copyright (c) 2016, Korotkov Danila
- * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
- */
+namespace Rudra\Tests\Stub\Controllers;
 
-namespace stub\Controllers;
-
-use Rudra\ContainerInterface;
-use Rudra\RouterMiddlewareTrait;
-use Rudra\RouteTrait;
-use stub\Route\Route;
+use Rudra\Interfaces\ContainerInterface;
+use Rudra\ExternalTraits\RouterMiddlewareTrait;
+use Rudra\ExternalTraits\RouteTrait;
+use Rudra\Tests\Stub\Route;
 
 /**
  * Class MainController
- *
  * @package stub
  */
 class MainController

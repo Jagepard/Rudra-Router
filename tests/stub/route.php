@@ -1,6 +1,6 @@
 <?php
 
-namespace stub\Route;
+namespace Rudra\Tests\Stub;
 
 use Rudra\Router;
 
