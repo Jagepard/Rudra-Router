@@ -13,6 +13,10 @@ namespace Rudra\ExternalTraits;
 use Rudra\Exceptions\RouterException;
 use Rudra\Interfaces\ContainerInterface;
 
+/**
+ * Trait RouteTrait
+ * @package Rudra\ExternalTraits
+ */
 trait RouteTrait
 {
 

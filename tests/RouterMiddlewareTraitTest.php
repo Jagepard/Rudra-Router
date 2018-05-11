@@ -13,6 +13,10 @@ use Rudra\Interfaces\ContainerInterface;
 use Rudra\Tests\Stub\Controllers\MainController;
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 
+/**
+ * Class RouterMiddlewareTraitTest
+ * @package Rudra\tests
+ */
 class RouterMiddlewareTraitTest extends PHPUnit_Framework_TestCase
 {
 
