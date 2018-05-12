@@ -139,5 +139,5 @@ trait RouterMatchTrait
      * @param array $classAndMethod
      * @param null  $params
      */
-    public abstract function directCall(array $classAndMethod, $params = null): void;
+    abstract public function directCall(array $classAndMethod, $params = null): void;
 }

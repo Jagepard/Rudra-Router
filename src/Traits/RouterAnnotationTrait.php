@@ -111,12 +111,12 @@ trait RouterAnnotationTrait
      * @param array $route
      * @return mixed
      */
-    public abstract function set(array $route);
+    abstract public function set(array $route);
 
     /**
      * @param string $className
      * @param string $type
      * @return string
      */
-    protected abstract function setClassName(string $className, string $type): string;
+    abstract protected function setClassName(string $className, string $type): string;
 }
