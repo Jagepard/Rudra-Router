@@ -45,5 +45,5 @@ trait RouteTrait
     /**
      * @return ContainerInterface
      */
-    public abstract function container(): ContainerInterface;
+    abstract public function container(): ContainerInterface;
 }

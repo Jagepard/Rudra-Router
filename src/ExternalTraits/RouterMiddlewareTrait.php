@@ -30,5 +30,5 @@ trait RouterMiddlewareTrait
     /**
      * @return ContainerInterface
      */
-    protected abstract function container(): ContainerInterface;
+    abstract protected function container(): ContainerInterface;
 }
