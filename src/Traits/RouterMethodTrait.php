@@ -17,15 +17,23 @@ namespace Rudra\Traits;
 trait RouterMethodTrait
 {
 
-    /**
-     * @param string $method
-     * @param array  $route
-     * @return mixed
-     */
-    public function middleware(string $method, array $route)
-    {
-        return $this->$method($route);
-    }
+//    /**
+//     * @param string $method
+//     * @param string $pattern
+//     * @param        $target
+//     * @return mixed
+//     */
+//    public function middleware(string $method, string $pattern, $target)
+//    {
+//        $route =[
+//            'pattern'     => $pattern,
+//            'controller'  => 'MainController',
+//            'method'      => 'read',
+//            'middleware'  => [['stub\\Middleware', ['int' => 123]], ['stub\\Middleware', ['int' => 125]]]
+//        ];
+//
+//        return $this->set($route);
+//    }
 
     /**
      * @param string $pattern
@@ -63,50 +71,55 @@ trait RouterMethodTrait
     }
 
     /**
-     * @param array $route
+     * @param string $pattern
+     * @param        $target
      */
-    public function put(array $route): void
+    public function put(string $pattern, $target): void
     {
-        $route['http_method'] = 'PUT';
-        $this->set($route);
+        $this->setRoute($pattern, $target, 'PUT');
     }
 
     /**
-     * @param array $route
+     * @param string $pattern
+     * @param        $target
      */
-    public function patch(array $route): void
+    public function patch(string $pattern, $target): void
     {
-        $route['http_method'] = 'PATCH';
-        $this->set($route);
+        $this->setRoute($pattern, $target, 'PATCH');
     }
 
     /**
-     * @param array $route
+     * @param string $pattern
+     * @param        $target
      */
-    public function delete(array $route): void
+    public function delete(string $pattern, $target): void
     {
-        $route['http_method'] = 'DELETE';
-        $this->set($route);
+        $this->setRoute($pattern, $target, 'DELETE');
     }
 
     /**
-     * @param array $route
+     * @param string $pattern
+     * @param        $target
      */
-    public function any(array $route): void
+    public function any(string $pattern, $target): void
     {
-        $route['http_method'] = 'GET|POST|PUT|PATCH|DELETE';
-        $this->set($route);
+        $this->setRoute($pattern, $target, 'GET|POST|PUT|PATCH|DELETE');
     }
 
     /**
-     * @param array $route
+     * @param string $pattern
+     * @param string $controller
+     * @param array  $actions
      */
-    public function resource(array $route): void
+    public function resource(string $pattern, string $controller, array $actions = ['read', 'create', 'update', 'delete']): void
     {
+        $route['pattern']    = $pattern;
+        $route['controller'] = $controller;
+
         switch ($this->container->getServer('REQUEST_METHOD')) {
             case 'GET':
                 $route['http_method'] = 'GET';
-                $route['method']      = 'read';
+                $route['method']      = $actions[0];
                 break;
             case 'POST':
                 if ($this->container->hasPost('_method')) {
@@ -114,15 +127,15 @@ trait RouterMethodTrait
                     break;
                 }
                 $route['http_method'] = 'POST';
-                $route['method']      = 'create';
+                $route['method']      = $actions[1];
                 break;
             case 'PUT':
                 $route['http_method'] = 'PUT';
-                $route['method']      = 'update';
+                $route['method']      = $actions[2];
                 break;
             case 'DELETE':
                 $route['http_method'] = 'DELETE';
-                $route['method']      = 'delete';
+                $route['method']      = $actions[3];
                 break;
         }
 

@@ -44,37 +44,45 @@ interface RouterInterface
     public function directCall(array $classAndMethod, $params = null): void;
 
     /**
-     * @param array $route
+     * @param string $pattern
+     * @param        $target
      */
-    public function get(array $route): void;
+    public function get(string $pattern, $target): void;
 
     /**
-     * @param array $route
+     * @param string $pattern
+     * @param        $target
      */
-    public function post(array $route): void;
+    public function post(string $pattern, $target): void;
 
     /**
-     * @param array $route
+     * @param string $pattern
+     * @param        $target
      */
-    public function put(array $route): void;
+    public function put(string $pattern, $target): void;
 
     /**
-     * @param array $route
+     * @param string $pattern
+     * @param        $target
      */
-    public function patch(array $route): void;
+    public function patch(string $pattern, $target): void;
 
     /**
-     * @param array $route
+     * @param string $pattern
+     * @param        $target
      */
-    public function delete(array $route): void;
+    public function delete(string $pattern, $target): void;
 
     /**
-     * @param array $route
+     * @param string $pattern
+     * @param        $target
      */
-    public function any(array $route): void;
+    public function any(string $pattern, $target): void;
 
     /**
-     * @param array $route
+     * @param string $pattern
+     * @param string $controller
+     * @param array  $actions
      */
-    public function resource(array $route): void;
+    public function resource(string $pattern, string $controller, array $actions = []): void;
 }
