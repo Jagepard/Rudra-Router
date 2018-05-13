@@ -28,12 +28,30 @@ trait RouterMethodTrait
     }
 
     /**
-     * @param array $route
+     * @param string $pattern
+     * @param        $target
      */
-    public function get(array $route): void
+    public function get(string $pattern, $target): void
     {
         $route['http_method'] = 'GET';
-        $this->set($route);
+        $route['pattern']     = $pattern;
+
+        $this->set(array_merge($route, $this->setRoute($target)));
+    }
+
+    /**
+     * @param $target
+     * @return array
+     */
+    protected function setRoute($target): array
+    {
+        $route = [];
+
+        (is_callable($target))
+            ? $route['method'] = $target
+            : list($route['controller'], $route['method']) = explode('::', $target);
+
+        return $route;
     }
 
     /**
