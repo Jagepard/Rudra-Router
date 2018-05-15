@@ -17,39 +17,16 @@ namespace Rudra\Traits;
 trait RouterMethodTrait
 {
 
-//    /**
-//     * @param string $method
-//     * @param string $pattern
-//     * @param        $target
-//     * @return mixed
-//     */
-//    public function middleware(string $method, string $pattern, $target)
-//    {
-//        $route =[
-//            'pattern'     => $pattern,
-//            'controller'  => 'MainController',
-//            'method'      => 'read',
-//            'middleware'  => [['stub\\Middleware', ['int' => 123]], ['stub\\Middleware', ['int' => 125]]]
-//        ];
-//
-//        return $this->set($route);
-//    }
-
     /**
+     * @param string $method
      * @param string $pattern
      * @param        $target
-     * @param string $httpMethod
+     * @param array  $middleware
+     * @return mixed
      */
-    protected function setRoute(string $pattern, $target, string $httpMethod): void
+    public function middleware(string $method, string $pattern, $target, array $middleware)
     {
-        $route['http_method'] = $httpMethod;
-        $route['pattern']     = $pattern;
-
-        (is_callable($target))
-            ? $route['method'] = $target
-            : list($route['controller'], $route['method']) = explode('::', $target);
-
-        $this->set($route);
+        $this->setRoute($pattern, $target, strtoupper($method), $middleware);
     }
 
     /**
@@ -138,6 +115,34 @@ trait RouterMethodTrait
                 $route['method']      = $actions[3];
                 break;
         }
+
+        $this->set($route);
+    }
+
+    /**
+     * @param string $pattern
+     * @param        $target
+     * @param string $httpMethod
+     * @param array  $middleware
+     */
+    protected function setRoute(string $pattern, $target, string $httpMethod, array $middleware = []): void
+    {
+        $route['http_method'] = $httpMethod;
+        $route['pattern']     = $pattern;
+
+        if (count($middleware)) {
+            if (array_key_exists('before', $middleware)) {
+                $route['middleware'] = $middleware['before'];
+            }
+
+            if (array_key_exists('after', $middleware)) {
+                $route['after_middleware'] = $middleware['after'];
+            }
+        }
+
+        (is_callable($target))
+            ? $route['method'] = $target
+            : list($route['controller'], $route['method']) = explode('::', $target);
 
         $this->set($route);
     }
