@@ -49,28 +49,17 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
     {
         $_SERVER['REQUEST_URI']    = $requestUri;
         $_SERVER['REQUEST_METHOD'] = $requestMethod;
+        $method                    = strtolower($requestMethod);
+        $action                    = 'action' . ucfirst($method);
         $this->setContainer();
 
-        $method = strtolower($requestMethod);
-        $action = 'action' . ucfirst($method);
-
-        $this->container()->get('router')->$method([
-            'pattern'    => $pattern,
-            'controller' => $controller,
-            'method'     => $action
-        ]);
-
-        $this->assertEquals($requestMethod, $this->container()->get($action));
+        $this->container->get('router')->$method($pattern, $controller . '::' . $action);
+        $this->assertEquals($requestMethod, $this->container->get($action));
     }
 
     public function testGet(): void
     {
-        $this->setRouteEnvironment(
-            'test/page?id=98',
-            'GET',
-            '/test/page',
-            'Rudra\Tests\Stub\Controllers\MainController::namespace'
-        );
+        $this->setRouteEnvironment('test/page?id=98', 'GET', '/test/page');
     }
 
     public function testPost(): void
@@ -99,13 +88,8 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $_SERVER['REQUEST_METHOD'] = 'PATCH';
         $this->setContainer();
 
-        $this->container()->get('router')->any([
-            'pattern'    => '/test/page',
-            'controller' => 'MainController',
-            'method'     => 'actionAny'
-        ]);
-
-        $this->assertEquals('ANY', $this->container()->get('actionAny'));
+        $this->container->get('router')->any('/test/page','MainController::actionAny');
+        $this->assertEquals('ANY', $this->container->get('actionAny'));
     }
 
     /**
@@ -118,12 +102,8 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $_SERVER['REQUEST_METHOD'] = $requestMethod;
         $this->setContainer();
 
-        $this->container()->get('router')->resource([
-            'pattern'    => 'api/{id}',
-            'controller' => 'MainController',
-        ]);
-
-        $this->assertEquals($action, $this->container()->get($action));
+        $this->container->get('router')->resource('api/{id}', 'MainController');
+        $this->assertEquals($action, $this->container->get($action));
     }
 
     public function testResource(): void
@@ -145,12 +125,8 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $_POST['_method']          = $requestMethod;
         $this->setContainer();
 
-        $this->container()->get('router')->resource([
-            'pattern'    => 'api/{id}',
-            'controller' => 'MainController',
-        ]);
-
-        $this->assertEquals($action, $this->container()->get($action));
+        $this->container->get('router')->resource('api/{id}', 'MainController');
+        $this->assertEquals($action, $this->container->get($action));
     }
 
     public function testResourcePost(): void
@@ -173,13 +149,8 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
 
         $method = strtolower($requestMethod);
 
-        $this->container()->get('router')->$method([
-            'pattern'    => 'api/{id}',
-            'controller' => 'MainController',
-            'method'     => $action
-        ]);
-
-        $this->assertEquals($action, $this->container()->get($action));
+        $this->container->get('router')->$method('api/{id}', 'MainController' . '::' . $action);
+        $this->assertEquals($action, $this->container->get($action));
     }
 
     public function testPostMethods(): void
@@ -195,14 +166,11 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $this->setContainer();
 
-        $this->container()->get('router')->middleware('get', [
-            'pattern'    => '123/{id}',
-            'controller' => 'MainController',
-            'method'     => 'read',
-            'middleware' => [['Middleware', ['int' => 123]], ['Middleware', ['int' => 125]]]
-        ]);
+        $this->container->get('router')->middleware('get', '123/{id}', 'MainController::read',
+            ['before' => [['Middleware', ['int' => 111111]], ['Middleware', ['int' => 222222]]]]
+        );
 
-        $this->assertEquals('middleware', $this->container()->get('middleware'));
+        $this->assertEquals('middleware', $this->container->get('middleware'));
     }
 
     public function testRouterExceptionWithNamespace()
@@ -212,7 +180,7 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
             'test/page',
             'GET',
             '/test/page',
-            'stub\Controllers\FalseController::namespace'
+            'stub\Controllers\FalseController::fq'
         );
     } // @codeCoverageIgnore
 
@@ -230,34 +198,20 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
 
         $this->expectException(RouterException::class);
 
-        $this->container()->get('router')->get([
-            'pattern'    => '/test/page',
-            'controller' => 'MainController',
-            'method'     => 'actionFalse'
-        ]);
+        $this->container->get('router')->get('/test/page', 'MainController::actionFalse');
     } // @codeCoverageIgnore
 
     public function testClosure()
     {
         $_SERVER['REQUEST_URI']    = 'test/page';
         $_SERVER['REQUEST_METHOD'] = 'GET';
-        Container::app()->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => ['engine' => 'twig']]);
+        $this->setContainer();
 
-        Container::$app->get('router')->get([
-            'pattern' => '/test/page',
-            'method'  => function () {
-                Container::$app->set('closure', 'closure', 'raw');
+        $this->container->get('router')->get('/test/page', function () {
+                $this->container->set('closure', 'closure', 'raw');
             }
-        ]);
+        );
 
-        $this->assertEquals('closure', Container::$app->get('closure'));
-    }
-
-    /**
-     * @return mixed
-     */
-    protected function container(): ContainerInterface
-    {
-        return $this->container;
+        $this->assertEquals('closure', $this->container->get('closure'));
     }
 }

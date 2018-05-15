@@ -118,8 +118,8 @@ trait RouterMatchTrait
      */
     protected function setClassName(string $className, string $type): string
     {
-        if (strpos($className, '::namespace') !== false) {
-            $classNameArray = explode('::', $className);
+        if (strpos($className, ':fq') !== false) {
+            $classNameArray = explode(':', $className);
 
             if (!class_exists($classNameArray[0])) {
                 throw new RouterException($this->container, '503');
