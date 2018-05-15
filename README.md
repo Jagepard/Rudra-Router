@@ -20,6 +20,56 @@ Rudra::app()->setBinding(ContainerInterface::class, Rudra::$app);
 Rudra::$app->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => 'twig']);
 $router = Rudra::$app->get('router');
 ```
+#### Устанавливаем ресурс для маршрута api/{id}, методы GET|POST|PUT|DELETE
+_вызывает stub\\MainController::read для GET_
+
+_вызывает stub\\MainController::create для POST_
+
+_вызывает stub\\MainController::update для PUT_
+
+_вызывает stub\\MainController::delete для DELETE_
+```php
+$router->resource('api/{id}', 'MainController');
+```
+Изменить методы контроллера по умолчанию можно передав массив с вашими именами
+```php
+$router->resource('api/{id}', 'MainController', ['actionIndex', 'actionAdd', 'actionUpdate', 'actionDrop']);
+```
+#### Устанавливаем маршрут 123/122 и добавляем middleware
+с ключами before и after соответственно
+
+_вызывает stub\\MainController::read_
+```php
+$router->middleware('get', '123/122', 'MainController::read',
+    ['before'  => [['stub\\Middleware', ['int' => 123]], ['stub\\Middleware', ['int' => 125]]]]
+);
+```
+#### Устанавливаем маршрут 123/{id} для http метода GET
+_вызывает stub\\MainController::read_
+```php
+$router->get('123/{id}', 'MainController::read');
+```
+#### Устанавливаем маршрут 123/{id} для http метода POST
+_вызывает stub\\MainController::create_
+```php
+$router->post('123/{id}','MainController::create');
+```
+#### Устанавливаем маршрут 123/{id} для http метода PUT
+_вызывает stub\\MainController::update_
+```php
+$router->put('123/{id}', 'MainController::update');
+```
+#### Устанавливаем маршрут 123/{id} для http метода PATCH
+_вызывает stub\\MainController::update_
+```php
+$router->patch('123/{id}', 'MainController::'update');
+```
+#### Устанавливаем маршрут 123/{id} для http метода DELETE
+_вызывает stub\\MainController::delete_
+```php
+$router->delete('123/{id}', 'MainController::'delete');
+```
+##### Вариант объявления маршрута массивом ключ => значение
 #### Устанавливаем маршрут /test/{id} для http методов DELETE|PUT
 _выполняет лямбда-функцию_
 ```php
@@ -41,73 +91,4 @@ $router->set([
         'method'      => 'actionIndex'
     ]
 );
-```
-#### Устанавливаем ресурс для маршрута api/{id}, методы GET|POST|PUT|DELETE
-_вызывает stub\\MainController::read для GET_
-
-_вызывает stub\\MainController::create для POST_
-
-_вызывает stub\\MainController::update для PUT_
-
-_вызывает stub\\MainController::delete для DELETE_
-```php
-$router->resource([
-    'pattern'     => 'api/{id}',
-    'controller'  => 'MainController'
-]);
-```
-#### Устанавливаем маршрут 123/122 и добавляем middleware
-_вызывает stub\\MainController::read_
-```php
-$router->middleware('get', [
-    'pattern'     => '123/122',
-    'controller'  => 'MainController',
-    'method'      => 'read',
-    'middleware'  => [['stub\\Middleware', ['int' => 123]], ['stub\\Middleware', ['int' => 125]]]
-]);
-```
-#### Устанавливаем маршрут 123/{id} для http метода GET
-_вызывает stub\\MainController::read_
-```php
-$router->get([
-    'pattern'     => '123/{id}',
-    'controller'  => 'MainController',
-    'method'      => 'read'
-]);
-```
-#### Устанавливаем маршрут 123/{id} для http метода POST
-_вызывает stub\\MainController::create_
-```php
-$router->post([
-    'pattern'     => '123/{id}',
-    'controller'  => 'MainController',
-    'method'      => 'create'
-]);
-```
-#### Устанавливаем маршрут 123/{id} для http метода PUT
-_вызывает stub\\MainController::update_
-```php
-$router->put([
-    'pattern'     => '123/{id}',
-    'controller'  => 'MainController',
-    'method'      => 'update'
-]);
-```
-#### Устанавливаем маршрут 123/{id} для http метода PATCH
-_вызывает stub\\MainController::update_
-```php
-$router->patch([
-    'pattern'     => '123/{id}',
-    'controller'  => 'MainController',
-    'method'      => 'update'
-]);
-```
-#### Устанавливаем маршрут 123/{id} для http метода DELETE
-_вызывает stub\\MainController::delete_
-```php
-$router->delete([
-    'pattern'     => '123/{id}',
-    'controller'  => 'MainController',
-    'method'      => 'delete'
-]);
 ```
