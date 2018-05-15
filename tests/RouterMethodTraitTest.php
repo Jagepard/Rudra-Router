@@ -160,21 +160,18 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $this->setRoutePostEnvironment('PATCH', 'update');
     }
 
-//    public function testMiddleware()
-//    {
-//        $_SERVER['REQUEST_URI']    = '123/456';
-//        $_SERVER['REQUEST_METHOD'] = 'GET';
-//        $this->setContainer();
-//
-//        $this->container->get('router')->middleware('get', [
-//            'pattern'    => '123/{id}',
-//            'controller' => 'MainController',
-//            'method'     => 'read',
-//            'middleware' => [['Middleware', ['int' => 123]], ['Middleware', ['int' => 125]]]
-//        ]);
-//
-//        $this->assertEquals('middleware', $this->container->get('middleware'));
-//    }
+    public function testMiddleware()
+    {
+        $_SERVER['REQUEST_URI']    = '123/456';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $this->setContainer();
+
+        $this->container->get('router')->middleware('get', '123/{id}', 'MainController::read',
+            ['before' => [['Middleware', ['int' => 111111]], ['Middleware', ['int' => 222222]]]]
+        );
+
+        $this->assertEquals('middleware', $this->container->get('middleware'));
+    }
 
     public function testRouterExceptionWithNamespace()
     {
