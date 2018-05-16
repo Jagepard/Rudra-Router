@@ -35,19 +35,22 @@ $router->resource('api/{id}', 'MainController');
 ```php
 $router->resource('api/{id}', 'MainController', ['actionIndex', 'actionAdd', 'actionUpdate', 'actionDrop']);
 ```
-#### Устанавливаем маршрут 123/122 и добавляем middleware
-с ключами before и after соответственно
-
-_вызывает stub\\MainController::read_
-```php
-$router->middleware('get', '123/122', 'MainController::read',
-    ['before'  => [['stub\\Middleware', ['int' => 123]], ['stub\\Middleware', ['int' => 125]]]]
-);
-```
 #### Устанавливаем маршрут 123/{id} для http метода GET
+_выполняет лямбда-функцию_
+```php
+$router->get('123/{id}', function () {
+    echo 'Hello world!';
+});
+```
 _вызывает stub\\MainController::read_
 ```php
 $router->get('123/{id}', 'MainController::read');
+```
+_вызывает stub\\MainController::read и добавляет middleware с ключами before или after соответственно_
+```php
+$router->get('123/122', 'MainController::read',
+    ['before'  => [['stub\\Middleware', ['int' => 123]], ['stub\\Middleware', ['int' => 125]]]]
+);
 ```
 #### Устанавливаем маршрут 123/{id} для http метода POST
 _вызывает stub\\MainController::create_
