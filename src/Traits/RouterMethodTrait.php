@@ -18,105 +18,93 @@ trait RouterMethodTrait
 {
 
     /**
-     * @param string $method
      * @param string $pattern
      * @param        $target
      * @param array  $middleware
-     * @return mixed
      */
-    public function middleware(string $method, string $pattern, $target, array $middleware)
+    public function get(string $pattern, $target, array $middleware = []): void
     {
-        $this->setRoute($pattern, $target, strtoupper($method), $middleware);
+        $this->setRoute($pattern, $target, 'GET', $middleware);
     }
 
     /**
      * @param string $pattern
      * @param        $target
+     * @param array  $middleware
      */
-    public function get(string $pattern, $target): void
+    public function post(string $pattern, $target, array $middleware = []): void
     {
-        $this->setRoute($pattern, $target, 'GET');
+        $this->setRoute($pattern, $target, 'POST', $middleware);
     }
 
     /**
      * @param string $pattern
      * @param        $target
+     * @param array  $middleware
      */
-    public function post(string $pattern, $target): void
+    public function put(string $pattern, $target, array $middleware = []): void
     {
-        $this->setRoute($pattern, $target, 'POST');
+        $this->setRoute($pattern, $target, 'PUT', $middleware);
     }
 
     /**
      * @param string $pattern
      * @param        $target
+     * @param array  $middleware
      */
-    public function put(string $pattern, $target): void
+    public function patch(string $pattern, $target, array $middleware = []): void
     {
-        $this->setRoute($pattern, $target, 'PUT');
+        $this->setRoute($pattern, $target, 'PATCH', $middleware);
     }
 
     /**
      * @param string $pattern
      * @param        $target
+     * @param array  $middleware
      */
-    public function patch(string $pattern, $target): void
+    public function delete(string $pattern, $target, array $middleware = []): void
     {
-        $this->setRoute($pattern, $target, 'PATCH');
+        $this->setRoute($pattern, $target, 'DELETE', $middleware);
     }
 
     /**
      * @param string $pattern
      * @param        $target
+     * @param array  $middleware
      */
-    public function delete(string $pattern, $target): void
+    public function any(string $pattern, $target, array $middleware = []): void
     {
-        $this->setRoute($pattern, $target, 'DELETE');
-    }
-
-    /**
-     * @param string $pattern
-     * @param        $target
-     */
-    public function any(string $pattern, $target): void
-    {
-        $this->setRoute($pattern, $target, 'GET|POST|PUT|PATCH|DELETE');
+        $this->setRoute($pattern, $target, 'GET|POST|PUT|PATCH|DELETE', $middleware);
     }
 
     /**
      * @param string $pattern
      * @param string $controller
+     * @param array  $middleware
      * @param array  $actions
      */
-    public function resource(string $pattern, string $controller, array $actions = ['read', 'create', 'update', 'delete']): void
+    public function resource(string $pattern, string $controller, array $middleware = [], array $actions = ['read', 'create', 'update', 'delete']): void
     {
-        $route['pattern']    = $pattern;
-        $route['controller'] = $controller;
-
         switch ($this->container->getServer('REQUEST_METHOD')) {
             case 'GET':
-                $route['http_method'] = 'GET';
-                $route['method']      = $actions[0];
+                $target = (count($actions)) ? $controller . '::' . $actions[0] : $controller;
+                $this->setRoute($pattern, $target, 'GET', $middleware);
                 break;
             case 'POST':
-                if ($this->container->hasPost('_method')) {
-                    $route = array_merge($route, $this->setRequestMethod('REST'));
-                    break;
-                }
-                $route['http_method'] = 'POST';
-                $route['method']      = $actions[1];
+                $actionKey  = ['GET' => 0, 'POST' => 1, 'PUT' => 2, 'PATCH' => 2, 'DELETE' => 3];
+                $httpMethod = ($this->container->hasPost('_method')) ? $this->container->getPost('_method') : 'POST';
+                $target     = (count($actions)) ? $controller . '::' . $actions[$actionKey[$httpMethod]] : $controller;
+                $this->setRoute($pattern, $target, $httpMethod, $middleware);
                 break;
             case 'PUT':
-                $route['http_method'] = 'PUT';
-                $route['method']      = $actions[2];
+                $target = (count($actions)) ? $controller . '::' . $actions[2] : $controller;
+                $this->setRoute($pattern, $target, 'PUT', $middleware);
                 break;
             case 'DELETE':
-                $route['http_method'] = 'DELETE';
-                $route['method']      = $actions[3];
+                $target = (count($actions)) ? $controller . '::' . $actions[3] : $controller;
+                $this->setRoute($pattern, $target, 'DELETE', $middleware);
                 break;
         }
-
-        $this->set($route);
     }
 
     /**
@@ -147,11 +135,7 @@ trait RouterMethodTrait
         $this->set($route);
     }
 
-    /**
-     * @param string|null $param
-     * @return mixed
-     */
-    abstract protected function setRequestMethod(string $param = null);
+    abstract protected function setRequestMethod(): void;
 
     /**
      * @param array $route
