@@ -100,12 +100,7 @@ class Router implements RouterInterface
         $controller->after(); // after
     }
 
-
-    /**
-     * @param string|null $param
-     * @return array
-     */
-    protected function setRequestMethod(string $param = null)
+    protected function setRequestMethod(): void
     {
         switch ($this->container->getPost('_method')) {
             case 'PUT':
@@ -117,25 +112,6 @@ class Router implements RouterInterface
             case 'DELETE':
                 $this->container->setServer('REQUEST_METHOD', 'DELETE');
                 break;
-        }
-
-        if ($param === 'REST') {
-
-            $route = [];
-
-            switch ($this->container->getPost('_method')) {
-                case 'PUT':
-                    $route = ['http_method' => 'PUT', 'method' => 'update'];
-                    break;
-                case 'PATCH':
-                    $route = ['http_method' => 'PATCH', 'method' => 'update'];
-                    break;
-                case 'DELETE':
-                    $route = ['http_method' => 'DELETE', 'method' => 'delete'];
-                    break;
-            }
-
-            return $route;
         }
     }
 

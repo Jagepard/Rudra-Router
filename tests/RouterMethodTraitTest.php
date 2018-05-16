@@ -57,6 +57,16 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($requestMethod, $this->container->get($action));
     }
 
+    public function testGetWithFullQualifiedNamespace()
+    {
+        $this->setRouteEnvironment(
+            'test/page',
+            'GET',
+            '/test/page',
+            'Rudra\Tests\Stub\Controllers\MainController:fq'
+        );
+    }
+
     public function testGet(): void
     {
         $this->setRouteEnvironment('test/page?id=98', 'GET', '/test/page');
@@ -88,7 +98,7 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $_SERVER['REQUEST_METHOD'] = 'PATCH';
         $this->setContainer();
 
-        $this->container->get('router')->any('/test/page','MainController::actionAny');
+        $this->container->get('router')->any('/test/page', 'MainController::actionAny');
         $this->assertEquals('ANY', $this->container->get('actionAny'));
     }
 
@@ -166,8 +176,9 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $this->setContainer();
 
-        $this->container->get('router')->middleware('get', '123/{id}', 'MainController::read',
-            ['before' => [['Middleware', ['int' => 111111]], ['Middleware', ['int' => 222222]]]]
+        $this->container->get('router')->get('123/{id}', 'MainController::read',
+            ['before' => [['Middleware', ['int' => 111111]], ['Middleware', ['int' => 222222]]],
+             'after'  => [['Middleware', ['int' => 111111]], ['Middleware', ['int' => 222222]]]]
         );
 
         $this->assertEquals('middleware', $this->container->get('middleware'));
@@ -180,7 +191,7 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
             'test/page',
             'GET',
             '/test/page',
-            'stub\Controllers\FalseController::fq'
+            'Rudra\Tests\Stub\Controllers\FalseController:fq'
         );
     } // @codeCoverageIgnore
 
