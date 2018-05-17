@@ -11,30 +11,6 @@
 
 # Rudra-Router
 
-#### Добавление Rudra-Router в контейнер
-```php
-use Rudra\Container as Rudra;
-use Rudra\ContainerInterface;
-
-Rudra::app()->setBinding(ContainerInterface::class, Rudra::$app);
-Rudra::$app->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => 'twig']);
-$router = Rudra::$app->get('router');
-```
-#### Устанавливаем ресурс для маршрута api/{id}, методы GET|POST|PUT|DELETE
-_вызывает stub\\MainController::read для GET_
-
-_вызывает stub\\MainController::create для POST_
-
-_вызывает stub\\MainController::update для PUT_
-
-_вызывает stub\\MainController::delete для DELETE_
-```php
-$router->resource('api/{id}', 'MainController');
-```
-Изменить методы контроллера по умолчанию можно передав массив с вашими именами
-```php
-$router->resource('api/{id}', 'MainController', ['actionIndex', 'actionAdd', 'actionUpdate', 'actionDrop']);
-```
 #### Устанавливаем маршрут 123/{id} для http метода GET
 _выполняет лямбда-функцию_
 ```php
@@ -72,6 +48,22 @@ _вызывает stub\\MainController::delete_
 ```php
 $router->delete('123/{id}', 'MainController::'delete');
 ```
+```
+#### Устанавливаем ресурс для маршрута api/{id}, методы GET|POST|PUT|DELETE
+_вызывает stub\\MainController::read для GET_
+
+_вызывает stub\\MainController::create для POST_
+
+_вызывает stub\\MainController::update для PUT_
+
+_вызывает stub\\MainController::delete для DELETE_
+```php
+$router->resource('api/{id}', 'MainController');
+```
+Изменить методы контроллера по умолчанию можно передав массив с вашими именами
+```php
+$router->resource('api/{id}', 'MainController', ['actionIndex', 'actionAdd', 'actionUpdate', 'actionDrop']);
+```
 ##### Вариант объявления маршрута массивом ключ => значение
 #### Устанавливаем маршрут /test/{id} для http методов DELETE|PUT
 _выполняет лямбда-функцию_
@@ -95,3 +87,11 @@ $router->set([
     ]
 );
 ```
+#### Добавление Rudra-Router в  Rudra-Container
+```php
+use Rudra\Container as Rudra;
+use Rudra\ContainerInterface;
+
+Rudra::app()->setBinding(ContainerInterface::class, Rudra::$app);
+Rudra::$app->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => 'twig']);
+$router = Rudra::$app->get('router');
