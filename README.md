@@ -48,7 +48,6 @@ _вызывает stub\\MainController::delete_
 ```php
 $router->delete('123/{id}', 'MainController::'delete');
 ```
-```
 #### Устанавливаем ресурс для маршрута api/{id}, методы GET|POST|PUT|DELETE
 _вызывает stub\\MainController::read для GET_
 
