@@ -30,7 +30,7 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         Container::$app  = null;
         $this->container = Container::app();
         $this->container->setBinding(ContainerInterface::class, Container::$app);
-        $this->container->set('annotation', 'Rudra\Annotations');
+        $this->container->set('annotation', 'Rudra\Annotation');
         $this->container->set(
             'router',
             'Rudra\Router',
