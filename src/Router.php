@@ -88,7 +88,7 @@ class Router implements RouterInterface
         }
 
         // Инициализуруем
-        $controller->init($this->container);
+        $controller->init($this->container, []);
 
         // Выполняем методы before до основного вызова
         $controller->before();
