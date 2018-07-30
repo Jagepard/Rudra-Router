@@ -10,12 +10,12 @@ declare(strict_types=1);
 
 namespace Rudra;
 
-use Rudra\Interfaces\RouterInterface;
-use Rudra\Interfaces\ContainerInterface;
 use Rudra\Traits\RouterMatchTrait;
 use Rudra\Traits\RouterMethodTrait;
-use Rudra\Traits\RouterAnnotationTrait;
+use Rudra\Interfaces\RouterInterface;
 use Rudra\Exceptions\RouterException;
+use Rudra\Traits\RouterAnnotationTrait;
+use Rudra\Interfaces\ContainerInterface;
 
 /**
  * Class Router

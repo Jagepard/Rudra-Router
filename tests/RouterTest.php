@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * @author    : Korotkov Danila <dankorot@gmail.com>
- * @copyright Copyright (c) 2016, Korotkov Danila
+ * @copyright Copyright (c) 2018, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  *
  *  phpunit src/tests/ContainerTest --coverage-html src/tests/coverage-html
@@ -28,7 +28,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
     protected function setContainer()
     {
-        Container::$app  = null;
         $this->container = Container::app();
         $this->container->setBinding(ContainerInterface::class, Container::$app);
         $this->container->set('annotation', 'Rudra\Annotation');
@@ -38,12 +37,12 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testSetNamespace()
     {
         $this->setContainer();
-        $this->container()->get('router')->setNamespace(ContainerInterface::class);
-        $class    = new ReflectionClass($this->container()->get('router'));
+        $this->container->get('router')->setNamespace(ContainerInterface::class);
+        $class    = new ReflectionClass($this->container->get('router'));
         $property = $class->getProperty('namespace');
         $property->setAccessible(true);
 
-        $this->assertEquals(ContainerInterface::class, $property->getValue($this->container()->get('router')));
+        $this->assertEquals(ContainerInterface::class, $property->getValue($this->container->get('router')));
     }
 
     public function testMiddlewareTrait()
@@ -53,14 +52,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $controller->init(Container::app());
         $controller->middleware([['Middleware', ['int' => 123]], ['Middleware', ['int' => 125]]]);
 
-        $this->assertEquals('middleware', $this->container()->get('middleware'));
-    }
-
-    /**
-     * @return mixed
-     */
-    protected function container(): ContainerInterface
-    {
-        return $this->container;
+        $this->assertEquals('middleware', $this->container->get('middleware'));
     }
 }
