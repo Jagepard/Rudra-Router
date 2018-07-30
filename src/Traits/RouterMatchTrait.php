@@ -82,12 +82,9 @@ trait RouterMatchTrait
      */
     public function handleMiddleware(array $middleware)
     {
-        $current = array_shift($middleware);
-
-        if (is_array($current)) {
-            $currentMiddleware = $this->setClassName($current[0], 'middlewareNamespace');
-
-            (new $currentMiddleware($this->container))($current, $middleware);
+        foreach ($middleware as $current) {
+            $middlewareName = $this->setClassName($current[0], 'middlewareNamespace');
+            (new $middlewareName($this->container))();
         }
     }
 

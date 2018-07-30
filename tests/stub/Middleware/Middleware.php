@@ -13,26 +13,8 @@ class Middleware
 
     use SetContainerTrait;
 
-    /**
-     * @param $current
-     * @param $middleware
-     */
-    public function __invoke($current, $middleware)
+    public function __invoke()
     {
-        // StartMiddleware
-
        $this->container()->set('middleware', 'middleware', 'raw');
-
-        // EndMiddleware
-
-        $this->next($middleware);
-    }
-
-    /**
-     * @param $middleware
-     */
-    protected function next($middleware)
-    {
-        $this->container()->get('router')->handleMiddleware($middleware);
     }
 }
