@@ -177,8 +177,8 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $this->setContainer();
 
         $this->container->get('router')->get('123/{id}', 'MainController::read',
-            ['before' => [['Middleware', ['int' => 111111]], ['Middleware', ['int' => 222222]]],
-             'after'  => [['Middleware', ['int' => 111111]], ['Middleware', ['int' => 222222]]]]
+            ['before' => [['Middleware', ['int' => 1]], ['Middleware', ['int' => 2]]],
+             'after'  => [['Middleware', ['int' => 3]], ['Middleware', ['int' => 4]]]]
         );
 
         $this->assertEquals('middleware', $this->container->get('middleware'));
