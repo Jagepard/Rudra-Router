@@ -31,7 +31,8 @@ trait RouteTrait
         return $this->container()->new($route)->run(
             $this->container()->get('router'),
             $this->container()->config('namespaces', $bundle),
-            $params);
+            $params
+        );
     }
 
     /**

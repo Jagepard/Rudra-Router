@@ -58,19 +58,16 @@ class Router implements RouterInterface
         $requestMethod = $this->container->getServer('REQUEST_METHOD');
 
         if ($this->container->hasPost('_method') && $requestMethod === 'POST') {
-            $this->setRequestMethod();
+            $this->container->setServer('REQUEST_METHOD', $this->container->getPost('_method'));
         }
 
-        if (($requestMethod === 'GET') || $requestMethod === 'POST') {
-            $this->matchHttpMethod($route);
-        }
-
-        if (($requestMethod === 'PUT') || ($requestMethod === 'PATCH') || ($requestMethod === 'DELETE')) {
+        if (in_array($requestMethod, ['PUT', 'PATCH', 'DELETE'])) {
             $settersName = 'set' . ucfirst(strtolower($requestMethod));
             parse_str(file_get_contents('php://input'), $data);
             $this->container->$settersName($data);
-            $this->matchHttpMethod($route);
         }
+
+        $this->matchHttpMethod($route);
     } // @codeCoverageIgnore
 
     /**
@@ -98,21 +95,6 @@ class Router implements RouterInterface
         // Выполняем методы after
         !isset($route['after_middleware']) ?: $this->handleMiddleware($route['after_middleware']);
         $controller->after(); // after
-    }
-
-    protected function setRequestMethod(): void
-    {
-        switch ($this->container->getPost('_method')) {
-            case 'PUT':
-                $this->container->setServer('REQUEST_METHOD', 'PUT');
-                break;
-            case 'PATCH':
-                $this->container->setServer('REQUEST_METHOD', 'PATCH');
-                break;
-            case 'DELETE':
-                $this->container->setServer('REQUEST_METHOD', 'DELETE');
-                break;
-        }
     }
 
     /**

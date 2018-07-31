@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * @author    : Korotkov Danila <dankorot@gmail.com>
- * @copyright Copyright (c) 2016, Korotkov Danila
+ * @copyright Copyright (c) 2018, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
@@ -25,14 +25,14 @@ trait RouterMatchTrait
      */
     protected function matchHttpMethod(array $route): void
     {
-        if (!strpos($route['http_method'], '|') !== false) {
-            $this->matchRequest($route);
+        if (strpos($route['http_method'], '|') !== false) {
+            foreach (explode('|', $route['http_method']) as $httpItem) {
+                $route['http_method'] = $httpItem;
+                $this->matchRequest($route);
+            }
         }
 
-        foreach (explode('|', $route['http_method']) as $httpItem) {
-            $route['http_method'] = $httpItem;
-            $this->matchRequest($route);
-        }
+        $this->matchRequest($route);
     }
 
     /**
