@@ -29,13 +29,13 @@ class Router implements RouterInterface
     use RouterAnnotationTrait;
 
     /**
-     * @var ContainerInterface
-     */
-    protected $container;
-    /**
      * @var string
      */
     protected $namespace;
+    /**
+     * @var ContainerInterface
+     */
+    protected $container;
 
     /**
      * Router constructor.
@@ -47,6 +47,14 @@ class Router implements RouterInterface
         $this->container = $container;
         $this->namespace = $namespace;
         set_exception_handler([new RouterException($container), 'handler']);
+    }
+
+    /**
+     * @param string $namespace
+     */
+    public function setNamespace(string $namespace): void
+    {
+        $this->namespace = $namespace;
     }
 
     /**
@@ -67,13 +75,12 @@ class Router implements RouterInterface
             $this->container->$settersName($data);
         }
 
-        $this->matchHttpMethod($route);
+        $this->handleRequest($route);
     } // @codeCoverageIgnore
 
     /**
      * @param array $route
      * @param null  $params
-     * @throws Exceptions\RouterException
      * @throws RouterException
      */
     public function directCall(array $route, $params = null): void
@@ -84,40 +91,23 @@ class Router implements RouterInterface
             throw new RouterException($this->container, '503');
         }
 
-        // Инициализуруем
         $controller->init($this->container, []);
-
-        // Выполняем методы before до основного вызова
         $controller->before();
         !isset($route['middleware']) ?: $this->handleMiddleware($route['middleware']);
-        // Собственно вызываем экшн, в зависимости от наличия параметров
-        isset($params) ? $controller->{$route['method']}($params) : $controller->{$route['method']}();
-        // Выполняем методы after
+        !isset($params) ? $controller->{$route['method']}() : $controller->{$route['method']}($params);
         !isset($route['after_middleware']) ?: $this->handleMiddleware($route['after_middleware']);
-        $controller->after(); // after
+        $controller->after();
     }
 
     /**
-     * @return mixed
+     * @param array $middleware
+     * @throws RouterException
      */
-    protected function controllersNamespace(): string
+    public function handleMiddleware(array $middleware)
     {
-        return $this->namespace . 'Controllers\\';
-    }
-
-    /**
-     * @return mixed
-     */
-    protected function middlewareNamespace(): string
-    {
-        return $this->namespace . 'Middleware\\';
-    }
-
-    /**
-     * @param string $namespace
-     */
-    public function setNamespace(string $namespace): void
-    {
-        $this->namespace = $namespace;
+        foreach ($middleware as $current) {
+            $middlewareName = $this->setClassName($current[0], $this->namespace . 'Middleware\\');
+            (new $middlewareName($this->container))();
+        }
     }
 }
