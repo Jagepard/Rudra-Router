@@ -23,11 +23,11 @@ trait RouterMatchTrait
      * @param array $route
      * @throws RouterException
      */
-    protected function matchHttpMethod(array $route): void
+    protected function handleRequest(array $route): void
     {
         if (strpos($route['http_method'], '|') !== false) {
-            foreach (explode('|', $route['http_method']) as $httpItem) {
-                $route['http_method'] = $httpItem;
+            foreach (explode('|', $route['http_method']) as $httpMethod) {
+                $route['http_method'] = $httpMethod;
                 $this->matchRequest($route);
             }
         }
@@ -42,50 +42,35 @@ trait RouterMatchTrait
     protected function matchRequest(array $route): void
     {
         if ($route['http_method'] == $this->container->getServer('REQUEST_METHOD')) {
-            $parsedRequest = parse_url(trim($this->container->getServer('REQUEST_URI'), '/'))['path'];
-            list($patternsArray, $params) = $this->handlePattern($route, explode('/', $parsedRequest));
-            (implode('/', $patternsArray) !== $parsedRequest) ?: $this->setCallable($route, $params);
+            $request = parse_url(trim($this->container->getServer('REQUEST_URI'), '/'))['path'];
+            list($uri, $params) = $this->handlePattern($route, explode('/', $request));
+            (implode('/', $uri) !== $request) ?: $this->setCallable($route, $params);
         }
     }
 
     /**
      * @param array $route
-     * @param array $parsedRequest
+     * @param array $request
      * @return array
      */
-    protected function handlePattern(array $route, array $parsedRequest): array
+    protected function handlePattern(array $route, array $request): array
     {
-        $i             = 0;
-        $params        = null;
-        $patternsArray = [];
+        $uri     = [];
+        $params  = null;
+        $pattern = explode('/', ltrim($route['pattern'], '/'));
 
-        foreach (explode('/', ltrim($route['pattern'], '/')) as $patternItem) {
+        for ($i = 0; $i < count($pattern); $i++) {
             // Ищем совпадение с шаблоном {...}
-            if (preg_match('/{[a-zA-Z0-9]+}/', $patternItem, $matchesPattern) != 0) {
-                // Убираем {} из названия будующего ключа массива параметров
-                preg_match('/[a-zA-Z0-9]+/', $matchesPattern[0], $key);
-                $params[$key[0]] = $parsedRequest[$i];
-                $patternsArray[] = $parsedRequest[$i];
-            } else {
-                $patternsArray[] = $patternItem;
+            if (preg_match('/{([a-zA-Z0-9]*?)}/', $pattern[$i], $key) != 0) {
+                $uri[]           = $request[$i];
+                $params[$key[0]] = $request[$i];
+                continue;
             }
 
-            $i++;
+            $uri[] = $pattern[$i];
         }
 
-        return [$patternsArray, $params];
-    }
-
-    /**
-     * @param array $middleware
-     * @throws RouterException
-     */
-    public function handleMiddleware(array $middleware)
-    {
-        foreach ($middleware as $current) {
-            $middlewareName = $this->setClassName($current[0], 'middlewareNamespace');
-            (new $middlewareName($this->container))();
-        }
+        return [$uri, $params];
     }
 
     /**
@@ -96,45 +81,30 @@ trait RouterMatchTrait
      */
     protected function setCallable(array $route, $params)
     {
-        // Если $route['method'] является экземпляром ксласса Closure
-        // возвращаем замыкание
         if ($route['method'] instanceof \Closure) {
             return $route['method']();
         }
 
-        $route['controller'] = $this->setClassName($route['controller'], 'controllersNamespace');
-        isset($params) ? $this->directCall($route, $params) : $this->directCall($route);
+        $route['controller'] = $this->setClassName($route['controller'], $this->namespace . 'Controllers\\');
+        $this->directCall($route, $params);
     }
-
 
     /**
      * @param string $className
-     * @param string $type
+     * @param string $namespace
      * @return string
      * @throws RouterException
      */
-    protected function setClassName(string $className, string $type): string
+    protected function setClassName(string $className, string $namespace): string
     {
-        if (strpos($className, ':fq') !== false) {
-            $classNameArray = explode(':', $className);
+        $className = (strpos($className, ':fq') !== false)
+            ? explode(':', $className)[0]
+            : $namespace . $className;
 
-            if (!class_exists($classNameArray[0])) {
-                throw new RouterException($this->container, '503');
-            }
-
-            return $classNameArray[0];
-        }
-
-        if (!class_exists($this->$type() . $className)) {
+        if (!class_exists($className)) {
             throw new RouterException($this->container, '503');
         }
 
-        return $this->$type() . $className;
+        return $className;
     }
-
-    /**
-     * @param array $classAndMethod
-     * @param null  $params
-     */
-    abstract public function directCall(array $classAndMethod, $params = null): void;
 }
