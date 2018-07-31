@@ -50,7 +50,7 @@ trait RouterAnnotationTrait
      */
     public function annotation(string $controller, string $action = 'actionIndex', int $number = 0): void
     {
-        $className  = $this->setClassName($controller, 'controllersNamespace');
+        $className  = $this->setClassName($controller, $this->namespace . 'Controllers\\');
         $annotation = $this->container->get('annotation')->getMethodAnnotations($className, $action);
 
         if (isset($annotation['Routing'])) {
