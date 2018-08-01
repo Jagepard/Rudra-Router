@@ -111,7 +111,7 @@ trait RouterMatchTrait
 
     /**
      * @param array $route
-     * @param null  $params
+     * @param null|array  $params
      * @throws RouterException
      */
     abstract public function directCall(array $route, $params = null): void;
