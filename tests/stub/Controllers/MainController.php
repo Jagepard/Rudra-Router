@@ -105,8 +105,8 @@ class MainController
         $this->container = $container;
     }
 
-    public function before(){}
-    public function after(){}
+    public function before() {}
+    public function after() {}
 
     /**
      * @return mixed

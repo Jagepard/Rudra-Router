@@ -15,6 +15,6 @@ class Middleware
 
     public function __invoke()
     {
-       $this->container()->set('middleware', 'middleware', 'raw');
+        $this->container()->set('middleware', 'middleware', 'raw');
     }
 }
