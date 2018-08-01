@@ -2,10 +2,10 @@
 
 namespace Rudra\Tests\Stub\Controllers;
 
+use Rudra\Tests\Stub\Route;
+use Rudra\ExternalTraits\RouteTrait;
 use Rudra\Interfaces\ContainerInterface;
 use Rudra\ExternalTraits\RouterMiddlewareTrait;
-use Rudra\ExternalTraits\RouteTrait;
-use Rudra\Tests\Stub\Route;
 
 /**
  * Class MainController
@@ -14,8 +14,8 @@ use Rudra\Tests\Stub\Route;
 class MainController
 {
 
-    use RouterMiddlewareTrait;
     use RouteTrait;
+    use RouterMiddlewareTrait;
 
     /**
      * @var ContainerInterface
