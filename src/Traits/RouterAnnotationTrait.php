@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * @author    : Korotkov Danila <dankorot@gmail.com>
- * @copyright Copyright (c) 2016, Korotkov Danila
+ * @copyright Copyright (c) 2018, Korotkov Danila
  * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
  */
 
@@ -71,8 +71,11 @@ trait RouterAnnotationTrait
      */
     protected function setRouteData(string $class, string $method, int $number, $result, $httpMethod)
     {
-        $dataRoute = ['pattern'    => $result['Routing'][$number]['url'],
-                        'controller' => $class, 'method' => $method, 'http_method' => $httpMethod
+        $dataRoute = [
+            'controller'  => $class,
+            'method'      => $method,
+            'http_method' => $httpMethod,
+            'pattern'     => $result['Routing'][$number]['url']
         ];
 
         if (isset($result['Middleware'])) {
@@ -92,16 +95,15 @@ trait RouterAnnotationTrait
      */
     protected function handleAnnotationMiddleware(array $annotation): array
     {
-        $i          = 0;
         $middleware = [];
+        $count      = count($annotation);
 
-        foreach ($annotation as $item) {
-            $middleware[$i][] = $item['name'];
+        for ($i = 0; $i < $count; $i++) {
+            $middleware[$i][] = $annotation[$i]['name'];
 
             if (isset($item['params'])) {
-                $middleware[$i][] = $item['params'];
+                $middleware[$i][] = $annotation[$i]['params'];
             }
-            $i++;
         }
 
         return $middleware;
