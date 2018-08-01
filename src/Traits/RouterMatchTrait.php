@@ -58,8 +58,9 @@ trait RouterMatchTrait
         $uri     = [];
         $params  = null;
         $pattern = explode('/', ltrim($route['pattern'], '/'));
+        $count   = count($pattern);
 
-        for ($i = 0; $i < count($pattern); $i++) {
+        for ($i = 0; $i < $count; $i++) {
             // Ищем совпадение с шаблоном {...}
             if (preg_match('/{([a-zA-Z0-9]*?)}/', $pattern[$i], $key) != 0) {
                 $uri[]           = $request[$i];
@@ -107,4 +108,11 @@ trait RouterMatchTrait
 
         return $className;
     }
+
+    /**
+     * @param array $route
+     * @param null  $params
+     * @throws RouterException
+     */
+    abstract public function directCall(array $route, $params = null): void;
 }
