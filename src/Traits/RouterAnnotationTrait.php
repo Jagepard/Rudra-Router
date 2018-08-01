@@ -101,7 +101,7 @@ trait RouterAnnotationTrait
         for ($i = 0; $i < $count; $i++) {
             $middleware[$i][] = $annotation[$i]['name'];
 
-            if (isset($item['params'])) {
+            if (isset($annotation[$i]['params'])) {
                 $middleware[$i][] = $annotation[$i]['params'];
             }
         }
