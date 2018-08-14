@@ -64,7 +64,7 @@ trait RouterMatchTrait
             // Ищем совпадение с шаблоном {...}
             if (preg_match('/{([a-zA-Z0-9]*?)}/', $pattern[$i], $key) != 0) {
                 $uri[]           = $request[$i];
-                $params[$key[0]] = $request[$i];
+                $params[$key[1]] = $request[$i];
                 continue;
             }
 
