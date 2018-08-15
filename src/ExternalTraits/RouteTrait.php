@@ -21,18 +21,37 @@ trait RouteTrait
 {
 
     /**
-     * @param string $route
      * @param string $bundle
-     * @param array  $params
      * @return mixed
      */
-    protected function route(string $route, string $bundle, array $params = [])
+    protected function route(string $bundle)
     {
-        return $this->container()->new($route)->run(
+        return $this->container()->new('App\\' . (ucfirst($bundle) . '\\Route'))->run(
             $this->container()->get('router'),
             $this->container()->config('namespaces', $bundle),
-            $params
+            $this->getParamsPathName($bundle)
         );
+    }
+
+    /**
+     * Собирает маршруты из конфигурации
+     */
+    protected function collect()
+    {
+        foreach ($this->container()->config('namespaces') as $bundle => $item) {
+            $this->route($bundle);
+        }
+    }
+
+    /**
+     * Получает массив маршрутов
+     *
+     * @param string $path
+     * @return array
+     */
+    protected function getParams(string $path): array
+    {
+        return require_once '../app/' . $path . '/Routes/'. $this->container()->config('database', 'active') . '.php';
     }
 
     /**
