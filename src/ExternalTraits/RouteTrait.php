@@ -29,7 +29,7 @@ trait RouteTrait
         return $this->container()->new('App\\' . (ucfirst($bundle) . '\\Route'))->run(
             $this->container()->get('router'),
             $this->container()->config('namespaces', $bundle),
-            $this->getParamsPathName($bundle)
+            $this->getParams($bundle)
         );
     }
 
