@@ -22,36 +22,38 @@ trait RouteTrait
 
     /**
      * @param string $bundle
+     * @param string $route
      * @return mixed
      */
-    protected function route(string $bundle)
+    protected function route(string $bundle, string $route)
     {
         return $this->container()->new('App\\' . (ucfirst($bundle) . '\\Route'))->run(
             $this->container()->get('router'),
             $this->container()->config('namespaces', $bundle),
-            $this->getParams($bundle)
+            $this->getParams($bundle, $route)
         );
     }
 
     /**
      * Собирает маршруты из конфигурации
      */
-    protected function collect()
+    protected function collect(array $namespaces, string $driver)
     {
-        foreach ($this->container()->config('namespaces') as $bundle => $item) {
-            $this->route($bundle);
+        foreach ($namespaces as $bundle => $item) {
+            $this->route($bundle, $driver);
         }
     }
 
     /**
      * Получает массив маршрутов
      *
-     * @param string $path
+     * @param string $bundle
+     * @param string $route
      * @return array
      */
-    protected function getParams(string $path): array
+    protected function getParams(string $bundle, string $route = null): array
     {
-        return require_once '../app/' . $path . '/Routes/'. $this->container()->config('database', 'active') . '.php';
+        return require_once '../app/' . $bundle . '/Routes/'. $route . '.php';
     }
 
     /**
@@ -61,6 +63,21 @@ trait RouteTrait
     {
         throw new RouterException($this->container(), '404');
     } // @codeCoverageIgnore
+
+    /**
+     * @param array $keys
+     * @return mixed
+     */
+    protected function withOut(array $keys)
+    {
+        $namespaces = $this->container()->config('namespaces');
+
+        foreach ($keys as $key) {
+            unset($namespaces[$key]);
+        }
+
+        return $namespaces;
+    }
 
     /**
      * @return ContainerInterface
