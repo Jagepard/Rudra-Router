@@ -94,3 +94,6 @@ use Rudra\ContainerInterface;
 Rudra::app()->setBinding(ContainerInterface::class, Rudra::$app);
 Rudra::$app->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => 'twig']);
 $router = Rudra::$app->get('router');
+```
+
+![Rudra-Router](https://github.com/Jagepard/Rudra-Router/blob/master/UML.png)
