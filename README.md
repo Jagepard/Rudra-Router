@@ -9,7 +9,7 @@
 [![Total Downloads](https://poser.pugx.org/rudra/router/downloads)](https://packagist.org/packages/rudra/router)
 [![License: GPL-3.0-or-later](https://img.shields.io/badge/license-GPL--3.0--or--later-498e7f.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-# Rudra-Router
+# Rudra-Router | [API](https://github.com/Jagepard/Rudra-Router/blob/master/docs.md "Documentation API")
 
 #### Устанавливаем маршрут 123/{id} для http метода GET
 _выполняет лямбда-функцию_
