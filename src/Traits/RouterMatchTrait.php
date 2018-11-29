@@ -26,7 +26,10 @@ trait RouterMatchTrait
     protected function handleRequest(array $route): void
     {
         if (strpos($route['http_method'], '|') !== false) {
-            foreach (explode('|', $route['http_method']) as $httpMethod) {
+
+            $httpMethods = explode('|', $route['http_method']);
+
+            foreach ($httpMethods as $httpMethod) {
                 $route['http_method'] = $httpMethod;
                 $this->matchRequest($route);
             }
