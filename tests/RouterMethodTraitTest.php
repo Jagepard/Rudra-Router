@@ -34,7 +34,7 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $this->container->set(
             'router',
             'Rudra\Router',
-            ['namespace' => 'Rudra\\Tests\\Stub\\', 'templateEngine' => ['engine' => 'twig']]
+            ['Rudra\\Tests\\Stub\\', ['engine' => 'twig']]
         );
     }
 
