@@ -30,7 +30,7 @@ class RouterAnnotationTraitTest extends PHPUnit_Framework_TestCase
         $this->container = Container::app();
         $this->container->setBinding(ContainerInterface::class, Container::$app);
         $this->container->set('annotation', 'Rudra\Annotation');
-        $this->container->set('router', 'Rudra\Router', ['namespace' => 'Rudra\\Tests\\Stub\\', 'templateEngine' => ['engine' => 'twig']]);
+        $this->container->set('router', 'Rudra\Router', ['Rudra\\Tests\\Stub\\', ['engine' => 'twig']]);
     }
 
     public function testAnnotation()

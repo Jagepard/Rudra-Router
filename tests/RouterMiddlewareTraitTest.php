@@ -28,7 +28,7 @@ class RouterMiddlewareTraitTest extends PHPUnit_Framework_TestCase
         Container::$app->set(
             'router',
             'Rudra\Router',
-            ['namespace' => 'Rudra\\Tests\\Stub\\', 'templateEngine' => ['engine' => 'twig']]
+            ['Rudra\\Tests\\Stub\\', ['engine' => 'twig']]
         );
         $controller->init(Container::$app);
         $controller->middleware([['Middleware', ['int' => 123]], ['Middleware', ['int' => 125]]]);

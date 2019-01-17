@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Rudra\ExternalTraits;
 
+use Symfony\Component\Yaml\Yaml;
 use Rudra\Exceptions\RouterException;
 use Rudra\Interfaces\ContainerInterface;
 
@@ -22,16 +23,12 @@ trait RouteTrait
 
     /**
      * @param string $bundle
-     * @param string $route
-     * @return mixed
+     * @param string $driver
      */
-    protected function route(string $bundle, string $route)
+    protected function route(string $bundle, string $driver)
     {
-        return $this->container()->new('App\\' . (ucfirst($bundle) . '\\Route'))->run(
-            $this->container()->get('router'),
-            $this->container()->config('namespaces', $bundle),
-            $this->getParams($bundle, $route)
-        );
+        rudra()->get('router')->setNamespace(config('namespaces', $bundle));
+        rudra()->get('router')->annotationCollector($this->getParams($bundle, $driver));
     }
 
     /**
@@ -48,12 +45,13 @@ trait RouteTrait
      * Получает массив маршрутов
      *
      * @param string $bundle
-     * @param string $route
+     * @param string $driver
      * @return array
      */
-    protected function getParams(string $bundle, string $route = null): array
+    protected function getParams(string $bundle, string $driver): array
     {
-        return require_once '../app/' . $bundle . '/Routes/'. $route . '.php';
+        return Yaml::parse(file_get_contents('../app/' . $bundle . '/Routes/'. $driver . '.yml'));
+//        return require_once '../app/' . $bundle . '/Routes/'. $route . '.php';
     }
 
     /**
@@ -61,26 +59,6 @@ trait RouteTrait
      */
     protected function handleException()
     {
-        throw new RouterException($this->container(), '404');
+        throw new RouterException($this->container, '404');
     } // @codeCoverageIgnore
-
-    /**
-     * @param array $keys
-     * @return mixed
-     */
-    protected function withOut(array $keys)
-    {
-        $namespaces = $this->container()->config('namespaces');
-
-        foreach ($keys as $key) {
-            unset($namespaces[$key]);
-        }
-
-        return $namespaces;
-    }
-
-    /**
-     * @return ContainerInterface
-     */
-    abstract public function container(): ContainerInterface;
 }
