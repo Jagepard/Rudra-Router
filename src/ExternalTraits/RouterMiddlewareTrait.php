@@ -10,8 +10,6 @@ declare(strict_types=1);
 
 namespace Rudra\ExternalTraits;
 
-use Rudra\Interfaces\ContainerInterface;
-
 /**
  * Trait RouterMiddlewareTrait
  * @package Rudra
@@ -24,11 +22,6 @@ trait RouterMiddlewareTrait
      */
     public function middleware($middleware): void
     {
-        $this->container()->get('router')->handleMiddleware($middleware);
+        $this->container->get('router')->handleMiddleware($middleware);
     }
-
-    /**
-     * @return ContainerInterface
-     */
-    abstract protected function container(): ContainerInterface;
 }

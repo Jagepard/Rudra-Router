@@ -48,8 +48,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testMiddlewareTrait()
     {
         $this->setContainer();
-        $controller = new MainController();
-        $controller->init(Container::app());
+        $controller = new MainController(Container::app());
         $controller->middleware([['Middleware', ['int' => 123]], ['Middleware', ['int' => 125]]]);
 
         $this->assertEquals('middleware', $this->container->get('middleware'));

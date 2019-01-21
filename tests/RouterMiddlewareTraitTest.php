@@ -22,7 +22,7 @@ class RouterMiddlewareTraitTest extends PHPUnit_Framework_TestCase
 
     public function testMiddlewareTrait()
     {
-        $controller = new MainController();
+
         Container::$app = null;
         Container::app()->setBinding(ContainerInterface::class, Container::$app);
         Container::$app->set(
@@ -30,7 +30,7 @@ class RouterMiddlewareTraitTest extends PHPUnit_Framework_TestCase
             'Rudra\Router',
             ['Rudra\\Tests\\Stub\\', ['engine' => 'twig']]
         );
-        $controller->init(Container::$app);
+        $controller = new MainController(Container::$app);
         $controller->middleware([['Middleware', ['int' => 123]], ['Middleware', ['int' => 125]]]);
 
         $this->assertEquals('middleware', Container::$app->get('middleware'));
