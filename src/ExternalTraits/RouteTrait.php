@@ -23,12 +23,13 @@ trait RouteTrait
 
     /**
      * @param string $bundle
-     * @param string $driver
+     * @param string $route
+     * @return mixed
      */
     protected function route(string $bundle, string $driver)
     {
-        rudra()->get('router')->setNamespace(config('namespaces', $bundle));
-        rudra()->get('router')->annotationCollector($this->getParams($bundle, $driver));
+        $this->container->get('router')->setNamespace(config('namespaces', $bundle));
+        $this->container->get('router')->annotationCollector($this->getParams($bundle, $driver));
     }
 
     /**
@@ -45,7 +46,7 @@ trait RouteTrait
      * Получает массив маршрутов
      *
      * @param string $bundle
-     * @param string $driver
+     * @param string $route
      * @return array
      */
     protected function getParams(string $bundle, string $driver): array

@@ -91,12 +91,13 @@ class Router implements RouterInterface
             throw new RouterException($this->container, '503');
         }
 
-        $controller->init($this->container, []);
+        $controller->init();
         $controller->before();
         !isset($route['middleware']) ?: $this->handleMiddleware($route['middleware']);
         !isset($params) ? $controller->{$route['method']}() : $controller->{$route['method']}($params);
         !isset($route['after_middleware']) ?: $this->handleMiddleware($route['after_middleware']);
         $controller->after();
+        if (config('env') !== 'test') exit();
     }
 
     /**
