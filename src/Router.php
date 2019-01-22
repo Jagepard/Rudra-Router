@@ -108,7 +108,7 @@ class Router implements RouterInterface
     {
         foreach ($middleware as $current) {
             $middlewareName = $this->setClassName($current[0], $this->namespace . 'Middleware\\');
-            (new $middlewareName($this->container))();
+            (new $middlewareName())();
         }
     }
 }
