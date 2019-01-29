@@ -32,31 +32,28 @@ class RouteTraitTest extends PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->container = Container::app();
-        $this->container->setBinding(ContainerInterface::class, Container::$app);
-        $this->container->set('router', 'Rudra\Router', ['stub\\']);
-        $this->container->setConfig(['namespaces' => ['web' => 123456]]);
+        $this->container = rudra();
+        $this->container()->setBinding(ContainerInterface::class, $this->container());
+        $this->container()->set('router', 'Rudra\Router', ['stub\\']);
+        $this->container()->setConfig(['namespaces' => ['web' => 123456]]);
 
-        $this->controller = new MainController($this->container);
-        $this->controller->init();
+        $this->controller = new MainController($this->container());
+        $this->controller()->init();
     }
-
-//    public function testRoute()
-//    {
-////        $this->assertFalse($this->getController()->run());
-//    }
 
     public function testHandleException()
     {
         $this->expectException(RouterException::class);
-        $this->getController()->exceptionRoute();
+        $this->controller()->exceptionRoute();
     } // @codeCoverageIgnore
 
-    /**
-     * @return mixed
-     */
-    public function getController()
+    public function controller()
     {
         return $this->controller;
+    }
+
+    public function container(): ContainerInterface
+    {
+        return $this->container;
     }
 }
