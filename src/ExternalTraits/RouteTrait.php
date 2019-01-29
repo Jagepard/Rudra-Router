@@ -12,7 +12,6 @@ namespace Rudra\ExternalTraits;
 
 use Symfony\Component\Yaml\Yaml;
 use Rudra\Exceptions\RouterException;
-use Rudra\Interfaces\ContainerInterface;
 
 /**
  * Trait RouteTrait
@@ -23,17 +22,19 @@ trait RouteTrait
 
     /**
      * @param string $bundle
-     * @param string $route
-     * @return mixed
+     * @param string $driver
      */
     protected function route(string $bundle, string $driver)
     {
-        $this->container->get('router')->setNamespace(config('namespaces', $bundle));
-        $this->container->get('router')->annotationCollector($this->getParams($bundle, $driver));
+        rudra()->get('router')->setNamespace(config('namespaces', $bundle));
+        rudra()->get('router')->annotationCollector($this->getRoutes($bundle, $driver));
     }
 
     /**
      * Собирает маршруты из конфигурации
+     *
+     * @param array  $namespaces
+     * @param string $driver
      */
     protected function collect(array $namespaces, string $driver)
     {
@@ -46,13 +47,20 @@ trait RouteTrait
      * Получает массив маршрутов
      *
      * @param string $bundle
-     * @param string $route
+     * @param string $driver
      * @return array
      */
-    protected function getParams(string $bundle, string $driver): array
+    protected function getRoutes(string $bundle, string $driver): array
     {
-        return Yaml::parse(file_get_contents('../app/' . $bundle . '/Routes/'. $driver . '.yml'));
-//        return require_once '../app/' . $bundle . '/Routes/'. $route . '.php';
+        $path = '../app/' . $bundle . '/Routes/'. $driver;
+
+        if (file_exists($path . '.yml')) {
+            return Yaml::parse(file_get_contents($path . '.yml'));
+        }
+
+        if (file_exists($path . '.php')) {
+            return require_once $path . '.php';
+        }
     }
 
     /**
@@ -60,6 +68,6 @@ trait RouteTrait
      */
     protected function handleException()
     {
-        throw new RouterException($this->container, '404');
+        throw new RouterException(rudra(), '404');
     } // @codeCoverageIgnore
 }
