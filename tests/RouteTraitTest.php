@@ -8,7 +8,6 @@
 
 namespace Rudra\Tests;
 
-use Rudra\Container;
 use Rudra\Exceptions\RouterException;
 use Rudra\Interfaces\ContainerInterface;
 use Rudra\Tests\Stub\Controllers\MainController;
