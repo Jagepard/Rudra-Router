@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Rudra\Traits;
 
 use Rudra\Exceptions\RouterException;
+use Rudra\Interfaces\ContainerInterface;
 
 /**
  * Trait RouterMatchTrait
@@ -44,8 +45,8 @@ trait RouterMatchTrait
      */
     protected function matchRequest(array $route): void
     {
-        if ($route['http_method'] == $this->container->getServer('REQUEST_METHOD')) {
-            $request = parse_url(trim($this->container->getServer('REQUEST_URI'), '/'))['path'];
+        if ($route['http_method'] == $this->container()->getServer('REQUEST_METHOD')) {
+            $request = parse_url(trim($this->container()->getServer('REQUEST_URI'), '/'))['path'];
             list($uri, $params) = $this->handlePattern($route, explode('/', $request));
             (implode('/', $uri) !== $request) ?: $this->setCallable($route, $params);
         }
@@ -108,7 +109,7 @@ trait RouterMatchTrait
             : $namespace . $className;
 
         if (!class_exists($className)) {
-            throw new RouterException($this->container, '503');
+            throw new RouterException($this->container(), '503');
         }
 
         return $className;
@@ -120,4 +121,9 @@ trait RouterMatchTrait
      * @throws RouterException
      */
     abstract public function directCall(array $route, $params = null): void;
+
+    /**
+     * @return ContainerInterface
+     */
+    abstract public function container(): ContainerInterface;
 }
