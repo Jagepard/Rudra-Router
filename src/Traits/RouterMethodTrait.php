@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace Rudra\Traits;
 
+use Rudra\Interfaces\ContainerInterface;
+
 /**
  * Class RouterMethodTrait
  * @package Rudra
@@ -85,14 +87,14 @@ trait RouterMethodTrait
      */
     public function resource(string $pattern, string $controller, array $middleware = [], array $actions = ['read', 'create', 'update', 'delete']): void
     {
-        switch ($this->container->getServer('REQUEST_METHOD')) {
+        switch ($this->container()->getServer('REQUEST_METHOD')) {
             case 'GET':
                 $target = (count($actions)) ? $controller . '::' . $actions[0] : $controller;
                 $this->setRoute($pattern, $target, 'GET', $middleware);
                 break;
             case 'POST':
                 $actionKey  = ['GET' => 0, 'POST' => 1, 'PUT' => 2, 'PATCH' => 2, 'DELETE' => 3];
-                $httpMethod = ($this->container->hasPost('_method')) ? $this->container->getPost('_method') : 'POST';
+                $httpMethod = ($this->container()->hasPost('_method')) ? $this->container()->getPost('_method') : 'POST';
                 $target     = (count($actions)) ? $controller . '::' . $actions[$actionKey[$httpMethod]] : $controller;
                 $this->setRoute($pattern, $target, $httpMethod, $middleware);
                 break;
@@ -140,4 +142,9 @@ trait RouterMethodTrait
      * @return mixed
      */
     abstract public function set(array $route);
+
+    /**
+     * @return ContainerInterface
+     */
+    abstract public function container(): ContainerInterface;
 }

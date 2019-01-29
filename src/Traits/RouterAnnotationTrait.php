@@ -9,6 +9,7 @@ declare(strict_types=1);
  */
 
 namespace Rudra\Traits;
+use Rudra\Interfaces\ContainerInterface;
 
 /**
  * Trait RouterAnnotationTrait
@@ -51,7 +52,7 @@ trait RouterAnnotationTrait
     public function annotation(string $controller, string $action = 'actionIndex', int $number = 0): void
     {
         $className  = $this->setClassName($controller, $this->namespace . 'Controllers\\');
-        $annotation = $this->container->get('annotation')->getMethodAnnotations($className, $action);
+        $annotation = $this->container()->get('annotation')->getMethodAnnotations($className, $action);
 
         if (isset($annotation['Routing'])) {
             $httpMethod = $annotation['Routing'][$number]['method'] ?? 'GET';
@@ -121,4 +122,9 @@ trait RouterAnnotationTrait
      * @return string
      */
     abstract protected function setClassName(string $className, string $type): string;
+
+    /**
+     * @return ContainerInterface
+     */
+    abstract public function container(): ContainerInterface;
 }

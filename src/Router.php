@@ -63,16 +63,16 @@ class Router implements RouterInterface
      */
     public function set(array $route): void
     {
-        $requestMethod = $this->container->getServer('REQUEST_METHOD');
+        $requestMethod = $this->container()->getServer('REQUEST_METHOD');
 
-        if ($this->container->hasPost('_method') && $requestMethod === 'POST') {
-            $this->container->setServer('REQUEST_METHOD', $this->container->getPost('_method'));
+        if ($this->container()->hasPost('_method') && $requestMethod === 'POST') {
+            $this->container()->setServer('REQUEST_METHOD', $this->container()->getPost('_method'));
         }
 
         if (in_array($requestMethod, ['PUT', 'PATCH', 'DELETE'])) {
             $settersName = 'set' . ucfirst(strtolower($requestMethod));
             parse_str(file_get_contents('php://input'), $data);
-            $this->container->$settersName($data);
+            $this->container()->$settersName($data);
         }
 
         $this->handleRequest($route);
@@ -85,10 +85,10 @@ class Router implements RouterInterface
      */
     public function directCall(array $route, $params = null): void
     {
-        $controller = new $route['controller']($this->container);
+        $controller = new $route['controller']($this->container());
 
         if (!method_exists($controller, $route['method'])) {
-            throw new RouterException($this->container, '503');
+            throw new RouterException($this->container(), '503');
         }
 
         $controller->init();
@@ -110,5 +110,10 @@ class Router implements RouterInterface
             $middlewareName = $this->setClassName($current[0], $this->namespace . 'Middleware\\');
             (new $middlewareName())();
         }
+    }
+
+    public function container(): ContainerInterface
+    {
+        return $this->container;
     }
 }

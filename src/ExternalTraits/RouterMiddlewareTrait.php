@@ -22,6 +22,6 @@ trait RouterMiddlewareTrait
      */
     public function middleware($middleware): void
     {
-        $this->container->get('router')->handleMiddleware($middleware);
+        rudra()->get('router')->handleMiddleware($middleware);
     }
 }
