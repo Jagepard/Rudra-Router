@@ -19,18 +19,14 @@ use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 class RouterAnnotationTraitTest extends PHPUnit_Framework_TestCase
 {
 
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
-
     protected function setContainer()
     {
         Container::$app  = null;
-        $this->container = Container::app();
-        $this->container()->setBinding(ContainerInterface::class, Container::$app);
-        $this->container()->set('annotation', 'Rudra\Annotation');
-        $this->container()->set('router', 'Rudra\Router', ['Rudra\\Tests\\Stub\\', ['engine' => 'twig']]);
+
+        rudra()->setBinding(ContainerInterface::class, rudra());
+        rudra()->set('annotation', 'Rudra\Annotation');
+        rudra()->set('router', 'Rudra\Router');
+        rudra()->get('router')->setNamespace('Rudra\\Tests\\Stub\\');
     }
 
     public function testAnnotation()
@@ -39,10 +35,9 @@ class RouterAnnotationTraitTest extends PHPUnit_Framework_TestCase
         $_SERVER['REQUEST_METHOD'] = 'GET';
 
         $this->setContainer();
+        rudra()->get('router')->annotation('MainController', 'actionIndex');
 
-        $this->container()->get('router')->annotation('MainController', 'actionIndex');
-
-        $this->assertEquals('actionIndex', $this->container()->get('actionIndex'));
+        $this->assertEquals('actionIndex', rudra()->get('actionIndex'));
     }
 
     public function testAnnotationCollector()
@@ -51,9 +46,9 @@ class RouterAnnotationTraitTest extends PHPUnit_Framework_TestCase
         $_SERVER['REQUEST_METHOD'] = 'GET';
 
         $this->setContainer();
-        $this->container()->get('router')->annotationCollector([['MainController', 'actionIndex']]);
+        rudra()->get('router')->annotationCollector([['MainController', 'actionIndex']]);
 
-        $this->assertEquals('actionIndex', $this->container()->get('actionIndex'));
+        $this->assertEquals('actionIndex', rudra()->get('actionIndex'));
     }
 
     public function testAnnotationCollectorMultilevel()
@@ -62,13 +57,8 @@ class RouterAnnotationTraitTest extends PHPUnit_Framework_TestCase
         $_SERVER['REQUEST_METHOD'] = 'GET';
 
         $this->setContainer();
-        $this->container()->get('router')->annotationCollector(['dashboard' => ['blog' => ['MainController', 'actionIndex']]], true);
+        rudra()->get('router')->annotationCollector(['dashboard' => ['blog' => ['MainController', 'actionIndex']]], true);
 
-        $this->assertEquals('actionIndex', $this->container()->get('actionIndex'));
-    }
-
-    public function container(): ContainerInterface
-    {
-        return $this->container;
+        $this->assertEquals('actionIndex', rudra()->get('actionIndex'));
     }
 }
