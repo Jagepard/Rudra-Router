@@ -40,12 +40,10 @@ class Router implements RouterInterface
     /**
      * Router constructor.
      * @param ContainerInterface $container
-     * @param string             $namespace
      */
-    public function __construct(ContainerInterface $container, string $namespace)
+    public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->namespace = $namespace;
         set_exception_handler([new RouterException($container), 'handler']);
     }
 
@@ -94,7 +92,7 @@ class Router implements RouterInterface
         $controller->init();
         $controller->before();
         !isset($route['middleware']) ?: $this->handleMiddleware($route['middleware']);
-        !isset($params) ? $controller->{$route['method']}() : $controller->{$route['method']}($params);
+        !isset($params) ? $controller->{$route['method']}() : $controller->{$route['method']}(...$params);
         !isset($route['after_middleware']) ?: $this->handleMiddleware($route['after_middleware']);
         $controller->after();
         if (config('env') !== 'test') exit();
