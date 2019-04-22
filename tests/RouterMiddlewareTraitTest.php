@@ -22,17 +22,14 @@ class RouterMiddlewareTraitTest extends PHPUnit_Framework_TestCase
 
     public function testMiddlewareTrait()
     {
-
         Container::$app = null;
-        Container::app()->setBinding(ContainerInterface::class, Container::$app);
-        Container::$app->set(
-            'router',
-            'Rudra\Router',
-            ['Rudra\\Tests\\Stub\\', ['engine' => 'twig']]
-        );
-        $controller = new MainController(Container::$app);
+        rudra()->setBinding(ContainerInterface::class, rudra());
+        rudra()->set('router', 'Rudra\Router');
+        rudra()->get('router')->setNamespace('Rudra\\Tests\\Stub\\');
+
+        $controller = new MainController(rudra());
         $controller->middleware([['Middleware', ['int' => 123]], ['Middleware', ['int' => 125]]]);
 
-        $this->assertEquals('middleware', Container::$app->get('middleware'));
+        $this->assertEquals('middleware', rudra()->get('middleware'));
     }
 }

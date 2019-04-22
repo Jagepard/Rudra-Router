@@ -20,22 +20,14 @@ use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
 {
 
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
-
     protected function setContainer()
     {
         Container::$app  = null;
-        $this->container = rudra();
-        $this->container()->setBinding(ContainerInterface::class, Container::$app);
-        $this->container()->set('annotation', 'Rudra\Annotation');
-        $this->container()->set(
-            'router',
-            'Rudra\Router',
-            ['Rudra\\Tests\\Stub\\', ['engine' => 'twig']]
-        );
+
+        rudra()->setBinding(ContainerInterface::class, Container::$app);
+        rudra()->set('annotation', 'Rudra\Annotation');
+        rudra()->set('router', 'Rudra\Router');
+        rudra()->get('router')->setNamespace('Rudra\\Tests\\Stub\\');
     }
 
     /**
@@ -52,8 +44,8 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $action                    = 'action' . ucfirst($method);
         $this->setContainer();
 
-        $this->container()->get('router')->$method($pattern, $controller . '::' . $action);
-        $this->assertEquals($requestMethod, $this->container()->get($action));
+        rudra()->get('router')->$method($pattern, $controller . '::' . $action);
+        $this->assertEquals($requestMethod, rudra()->get($action));
     }
 
     public function testGetWithFullQualifiedNamespace()
@@ -97,8 +89,8 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $_SERVER['REQUEST_METHOD'] = 'PATCH';
         $this->setContainer();
 
-        $this->container()->get('router')->any('/test/page', 'MainController::actionAny');
-        $this->assertEquals('ANY', $this->container()->get('actionAny'));
+        rudra()->get('router')->any('/test/page', 'MainController::actionAny');
+        $this->assertEquals('ANY', rudra()->get('actionAny'));
     }
 
     /**
@@ -111,8 +103,8 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $_SERVER['REQUEST_METHOD'] = $requestMethod;
         $this->setContainer();
 
-        $this->container()->get('router')->resource('api/{id}', 'MainController');
-        $this->assertEquals($action, $this->container()->get($action));
+        rudra()->get('router')->resource('api/{id}', 'MainController');
+        $this->assertEquals($action, rudra()->get($action));
     }
 
     public function testResource(): void
@@ -134,8 +126,8 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $_POST['_method']          = $requestMethod;
         $this->setContainer();
 
-        $this->container()->get('router')->resource('api/{id}', 'MainController');
-        $this->assertEquals($action, $this->container()->get($action));
+        rudra()->get('router')->resource('api/{id}', 'MainController');
+        $this->assertEquals($action, rudra()->get($action));
     }
 
     public function testResourcePost(): void
@@ -158,8 +150,8 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
 
         $method = strtolower($requestMethod);
 
-        $this->container()->get('router')->$method('api/{id}', 'MainController' . '::' . $action);
-        $this->assertEquals($action, $this->container()->get($action));
+        rudra()->get('router')->$method('api/{id}', 'MainController' . '::' . $action);
+        $this->assertEquals($action, rudra()->get($action));
     }
 
     public function testPostMethods(): void
@@ -175,12 +167,12 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $this->setContainer();
 
-        $this->container()->get('router')->get('123/{id}', 'MainController::read',
+        rudra()->get('router')->get('123/{id}', 'MainController::read',
             ['before' => [['Middleware', ['int' => 1]], ['Middleware', ['int' => 2]]],
              'after'  => [['Middleware', ['int' => 3]], ['Middleware', ['int' => 4]]]]
         );
 
-        $this->assertEquals('middleware', $this->container()->get('middleware'));
+        $this->assertEquals('middleware', rudra()->get('middleware'));
     }
 
     public function testRouterExceptionWithNamespace()
@@ -208,7 +200,7 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
 
         $this->expectException(RouterException::class);
 
-        $this->container()->get('router')->get('/test/page', 'MainController::actionFalse');
+        rudra()->get('router')->get('/test/page', 'MainController::actionFalse');
     } // @codeCoverageIgnore
 
     public function testClosure()
@@ -217,16 +209,11 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $this->setContainer();
 
-        $this->container()->get('router')->get('/test/page', function () {
-            $this->container()->set('closure', 'closure', 'raw');
+        rudra()->get('router')->get('/test/page', function () {
+            rudra()->set('closure', 'closure', 'raw');
         }
         );
 
-        $this->assertEquals('closure', $this->container()->get('closure'));
-    }
-
-    public function container(): ContainerInterface
-    {
-        return $this->container;
+        $this->assertEquals('closure', rudra()->get('closure'));
     }
 }

@@ -66,10 +66,10 @@ trait RouterMatchTrait
 
         for ($i = 0; $i < $count; $i++) {
             // Ищем совпадение с шаблоном {...}
-            if (preg_match('/{([a-zA-Z0-9]*?)}/', $pattern[$i], $key) != 0) {
+            if (preg_match('/{([a-zA-Z0-9]*?)}/', $pattern[$i]) !== 0) {
                 if (array_key_exists($i, $request)) {
-                    $uri[]           = $request[$i];
-                    $params[$key[1]] = $request[$i];
+                    $uri[]    = $request[$i];
+                    $params[] = $request[$i];
                 }
                 continue;
             }
@@ -116,8 +116,8 @@ trait RouterMatchTrait
     }
 
     /**
-     * @param array $route
-     * @param null|array  $params
+     * @param array      $route
+     * @param null|array $params
      * @throws RouterException
      */
     abstract public function directCall(array $route, $params = null): void;
