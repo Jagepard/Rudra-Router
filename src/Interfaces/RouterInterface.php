@@ -20,9 +20,8 @@ interface RouterInterface
     /**
      * RouterInterface constructor.
      * @param ContainerInterface $container
-     * @param string             $namespace
      */
-    public function __construct(ContainerInterface $container, string $namespace);
+    public function __construct(ContainerInterface $container);
 
     /**
      * @param array $route
