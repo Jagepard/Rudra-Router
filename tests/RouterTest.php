@@ -20,41 +20,31 @@ use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 class RouterTest extends PHPUnit_Framework_TestCase
 {
 
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
-
     protected function setContainer()
     {
-        $this->container = rudra();
-        $this->container()->setBinding(ContainerInterface::class, $this->container());
-        $this->container()->set('annotation', 'Rudra\Annotation');
-        $this->container()->set('router', 'Rudra\Router', ['Rudra\\Tests\\Stub\\']);
+        rudra()->setBinding(ContainerInterface::class, rudra());
+        rudra()->set('annotation', 'Rudra\Annotation');
+        rudra()->set('router', 'Rudra\Router');
+        rudra()->get('router')->setNamespace('Rudra\\Tests\\Stub\\');
     }
 
     public function testSetNamespace()
     {
         $this->setContainer();
-        $this->container()->get('router')->setNamespace(ContainerInterface::class);
-        $class    = new ReflectionClass($this->container()->get('router'));
+        rudra()->get('router')->setNamespace(ContainerInterface::class);
+        $class    = new ReflectionClass(rudra()->get('router'));
         $property = $class->getProperty('namespace');
         $property->setAccessible(true);
 
-        $this->assertEquals(ContainerInterface::class, $property->getValue($this->container()->get('router')));
+        $this->assertEquals(ContainerInterface::class, $property->getValue(rudra()->get('router')));
     }
 
     public function testMiddlewareTrait()
     {
         $this->setContainer();
-        $controller = new MainController($this->container());
+        $controller = new MainController(rudra());
         $controller->middleware([['Middleware', ['int' => 123]], ['Middleware', ['int' => 125]]]);
 
-        $this->assertEquals('middleware', $this->container()->get('middleware'));
-    }
-
-    public function container(): ContainerInterface
-    {
-        return $this->container;
+        $this->assertEquals('middleware', rudra()->get('middleware'));
     }
 }
