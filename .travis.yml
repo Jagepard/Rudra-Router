@@ -5,8 +5,8 @@ php:
     - 7.1
 
 before_script:
-    - composer self-update --rollback
-    - composer install
+    - wget http://getcomposer.org/composer.phar
+    - php composer.phar install --dev --no-interaction
 
 script:
     - mkdir -p build/logs
