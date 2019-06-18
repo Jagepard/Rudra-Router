@@ -7,13 +7,8 @@ use Rudra\ExternalTraits\RouteTrait;
 use Rudra\Interfaces\ContainerInterface;
 use Rudra\ExternalTraits\RouterMiddlewareTrait;
 
-/**
- * Class MainController
- * @package stub
- */
 class MainController
 {
-
     use RouteTrait;
     use RouterMiddlewareTrait;
 

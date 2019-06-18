@@ -7,7 +7,7 @@
 [![Code Intelligence Status](https://scrutinizer-ci.com/g/Jagepard/Rudra-Router/badges/code-intelligence.svg?b=master)](https://scrutinizer-ci.com/code-intelligence)
 [![Latest Stable Version](https://poser.pugx.org/rudra/router/v/stable)](https://packagist.org/packages/rudra/router)
 [![Total Downloads](https://poser.pugx.org/rudra/router/downloads)](https://packagist.org/packages/rudra/router)
-[![License: GPL-3.0-or-later](https://img.shields.io/badge/license-GPL--3.0--or--later-498e7f.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![GitHub](https://img.shields.io/github/license/jagepard/Rudra-Router.svg)
 
 # Rudra-Router | [API](https://github.com/Jagepard/Rudra-Router/blob/master/docs.md "Documentation API")
 
@@ -95,5 +95,3 @@ Rudra::app()->setBinding(ContainerInterface::class, Rudra::$app);
 Rudra::$app->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => 'twig']);
 $router = Rudra::$app->get('router');
 ```
-
-![Rudra-Router](https://github.com/Jagepard/Rudra-Router/blob/master/UML.png)
