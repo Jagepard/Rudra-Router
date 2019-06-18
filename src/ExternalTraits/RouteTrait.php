@@ -63,6 +63,6 @@ trait RouteTrait
      */
     protected function handleException()
     {
-        throw new RouterException(rudra(), '404');
+        throw new RouterException('404');
     } // @codeCoverageIgnore
 }

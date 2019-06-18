@@ -104,7 +104,7 @@ trait RouterMatchTrait
             : $namespace . $className;
 
         if (!class_exists($className)) {
-            throw new RouterException($this->container(), '503');
+            throw new RouterException('503');
         }
 
         return $className;

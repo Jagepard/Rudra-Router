@@ -39,7 +39,7 @@ class Router implements RouterInterface
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        set_exception_handler([new RouterException($container), 'handler']);
+        set_exception_handler([new RouterException(), 'handler']);
     }
 
     /**
@@ -81,7 +81,7 @@ class Router implements RouterInterface
         $controller = new $route['controller']($this->container());
 
         if (!method_exists($controller, $route['method'])) {
-            throw new RouterException($this->container(), '503');
+            throw new RouterException('503');
         }
 
         $controller->init();
