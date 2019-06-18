@@ -24,7 +24,7 @@ class RouteTraitTest extends PHPUnit_Framework_TestCase
      */
     protected $controller;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->container = rudra();
         $this->container()->setBinding(ContainerInterface::class, $this->container());
