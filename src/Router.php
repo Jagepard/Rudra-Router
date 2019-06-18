@@ -3,29 +3,24 @@
 declare(strict_types=1);
 
 /**
- * @author    : Korotkov Danila <dankorot@gmail.com>
- * @copyright Copyright (c) 2018, Korotkov Danila
- * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
+ * @author    : Jagepard <jagepard@yandex.ru">
+ * @copyright Copyright (c) 2019, Jagepard
+ * @license   https://mit-license.org/ MIT
  */
 
 namespace Rudra;
 
 use Rudra\Traits\RouterMatchTrait;
-use Rudra\Traits\RouterMethodTrait;
+use Rudra\Traits\RouterRequestMethodTrait;
 use Rudra\Interfaces\RouterInterface;
 use Rudra\Exceptions\RouterException;
 use Rudra\Traits\RouterAnnotationTrait;
 use Rudra\Interfaces\ContainerInterface;
 
-/**
- * Class Router
- * @package Rudra
- */
 class Router implements RouterInterface
 {
-
     use RouterMatchTrait;
-    use RouterMethodTrait;
+    use RouterRequestMethodTrait;
     use RouterAnnotationTrait;
 
     /**

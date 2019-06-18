@@ -10,10 +10,10 @@
         "rest",
         "restful"
     ],
-    "license"          : "GPL-3.0-or-later",
+    "license"          : "MIT",
     "authors"          : [
         {
-            "name"    : "Danila Korotkov (Jagepard)",
+            "name"    : "Jagepard",
             "email"   : "jagepard@yandex.ru",
             "homepage": "https://jagepard.ru",
             "role"    : "Developer"
@@ -24,7 +24,7 @@
         "skype": "jagepard.ru"
     },
     "require"          : {
-        "php"             : ">=7.1",
+        "php"             : ">=7.2",
         "rudra/annotation": "self.version",
         "rudra/container" : "self.version",
         "rudra/exception" : "self.version"

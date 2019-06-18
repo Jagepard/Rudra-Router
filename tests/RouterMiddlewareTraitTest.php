@@ -1,9 +1,9 @@
 <?php
 
 /**
- * @author    : Korotkov Danila <dankorot@gmail.com>
- * @copyright Copyright (c) 2018, Korotkov Danila
- * @license   http://www.gnu.org/licenses/gpl.html GNU GPLv3.0
+ * @author    : Jagepard <jagepard@yandex.ru">
+ * @copyright Copyright (c) 2019, Jagepard
+ * @license   https://mit-license.org/ MIT
  */
 
 namespace Rudra\tests;
@@ -13,13 +13,8 @@ use Rudra\Interfaces\ContainerInterface;
 use Rudra\Tests\Stub\Controllers\MainController;
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 
-/**
- * Class RouterMiddlewareTraitTest
- * @package Rudra\tests
- */
 class RouterMiddlewareTraitTest extends PHPUnit_Framework_TestCase
 {
-
     public function testMiddlewareTrait()
     {
         Container::$app = null;
