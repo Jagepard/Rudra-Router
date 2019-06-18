@@ -48,7 +48,7 @@ trait RouterAnnotationTrait
     public function annotation(string $controller, string $action = 'actionIndex', int $number = 0): void
     {
         $className  = $this->setClassName($controller, $this->namespace . 'Controllers\\');
-        $annotation = $this->container()->get('annotation')->getMethodAnnotations($className, $action);
+        $annotation = $this->container()->get('annotation')->getAnnotations($className, $action);
 
         if (isset($annotation['Routing'])) {
             $httpMethod = $annotation['Routing'][$number]['method'] ?? 'GET';
