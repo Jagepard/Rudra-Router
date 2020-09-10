@@ -2,52 +2,34 @@
 
 /**
  * @author    : Jagepard <jagepard@yandex.ru">
- * @copyright Copyright (c) 2019, Jagepard
  * @license   https://mit-license.org/ MIT
  */
 
-namespace Rudra\Tests;
+namespace Rudra\Router\Tests;
 
+use Rudra\Container\{Application, Interfaces\ApplicationInterface};
 use Rudra\Exceptions\RouterException;
-use Rudra\Interfaces\ContainerInterface;
-use Rudra\Tests\Stub\Controllers\MainController;
+use Rudra\Router\Router;
+use Rudra\Router\Tests\Stub\Controllers\MainController;
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 
 class RouteTraitTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
-    /**
-     * @var MainController
-     */
-    protected $controller;
+    protected MainController $controller;
 
     protected function setUp(): void
     {
-        $this->container = rudra();
-        $this->container()->setBinding(ContainerInterface::class, $this->container());
-        $this->container()->set('router', 'Rudra\Router', ['stub\\']);
-        $this->container()->setConfig(['namespaces' => ['web' => 123456]]);
+        Application::run()->binding()->set([ApplicationInterface::class => Application::run()]);
+        Application::run()->objects()->set(["router", [Router::class, "stub\\"]]);
+        Application::run()->config()->set(["namespaces" => ["web" => 123456]]);
 
-        $this->controller = new MainController($this->container());
-        $this->controller()->init();
+        $this->controller = new MainController(Application::run());
+        $this->controller->init();
     }
 
     public function testHandleException()
     {
         $this->expectException(RouterException::class);
-        $this->controller()->exceptionRoute();
+        $this->controller->exceptionRoute();
     } // @codeCoverageIgnore
-
-    public function controller()
-    {
-        return $this->controller;
-    }
-
-    public function container(): ContainerInterface
-    {
-        return $this->container;
-    }
 }

@@ -4,43 +4,48 @@ declare(strict_types=1);
 
 /**
  * @author    : Jagepard <jagepard@yandex.ru">
- * @copyright Copyright (c) 2019, Jagepard
  * @license   https://mit-license.org/ MIT
  *
  *  phpunit src/tests/ContainerTest --coverage-html src/tests/coverage-html
  */
 
-use Rudra\Interfaces\ContainerInterface;
-use Rudra\Tests\Stub\Controllers\MainController;
+namespace Rudra\Router\Tests;
+
+use Rudra\Container\{Application, Interfaces\ApplicationInterface};
+use Rudra\Annotation\Annotation;
+use Rudra\Router\Router;
+use Rudra\Router\Tests\Stub\Controllers\MainController;
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 
 class RouterTest extends PHPUnit_Framework_TestCase
 {
     protected function setContainer()
     {
-        rudra()->setBinding(ContainerInterface::class, rudra());
-        rudra()->set('annotation', 'Rudra\Annotation');
-        rudra()->set('router', 'Rudra\Router');
-        rudra()->get('router')->setNamespace('Rudra\\Tests\\Stub\\');
+        Application::run()->binding()->set([ApplicationInterface::class => Application::run()]);
+        Application::run()->objects()->set(["annotation", Annotation::class]);
+        Application::run()->objects()->set(["router", Router::class]);
+        Application::run()->objects()->get("router")->setNamespace("Rudra\\Router\\Tests\\Stub\\");
     }
 
     public function testSetNamespace()
     {
         $this->setContainer();
-        rudra()->get('router')->setNamespace(ContainerInterface::class);
-        $class    = new ReflectionClass(rudra()->get('router'));
-        $property = $class->getProperty('namespace');
+        Application::run()->objects()->get("router")->setNamespace(ApplicationInterface::class);
+        $class    = new \ReflectionClass(Application::run()->objects()->get("router"));
+        $property = $class->getProperty("namespace");
         $property->setAccessible(true);
 
-        $this->assertEquals(ContainerInterface::class, $property->getValue(rudra()->get('router')));
+        $this->assertEquals(
+            ApplicationInterface::class, $property->getValue(Application::run()->objects()->get("router"))
+        );
     }
 
     public function testMiddlewareTrait()
     {
         $this->setContainer();
-        $controller = new MainController(rudra());
-        $controller->middleware([['Middleware', ['int' => 123]], ['Middleware', ['int' => 125]]]);
+        $controller = new MainController(Application::run());
+        $controller->middleware([["Middleware", ["int" => 123]], ["Middleware", ["int" => 125]]]);
 
-        $this->assertEquals('middleware', rudra()->get('middleware'));
+        $this->assertEquals("middleware", Application::run()->objects()->get("middleware"));
     }
 }
