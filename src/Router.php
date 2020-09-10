@@ -4,18 +4,14 @@ declare(strict_types=1);
 
 /**
  * @author    : Jagepard <jagepard@yandex.ru">
- * @copyright Copyright (c) 2019, Jagepard
  * @license   https://mit-license.org/ MIT
  */
 
-namespace Rudra;
+namespace Rudra\Router;
 
-use Rudra\Traits\RouterMatchTrait;
-use Rudra\Traits\RouterRequestMethodTrait;
-use Rudra\Interfaces\RouterInterface;
+use Rudra\Container\Interfaces\ApplicationInterface;
+use Rudra\Router\Traits\{RouterMatchTrait, RouterRequestMethodTrait, RouterAnnotationTrait};
 use Rudra\Exceptions\RouterException;
-use Rudra\Traits\RouterAnnotationTrait;
-use Rudra\Interfaces\ContainerInterface;
 
 class Router implements RouterInterface
 {
@@ -23,90 +19,63 @@ class Router implements RouterInterface
     use RouterRequestMethodTrait;
     use RouterAnnotationTrait;
 
-    /**
-     * @var string
-     */
-    protected $namespace;
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
+    protected ?string $namespace = null;
+    protected ApplicationInterface $application;
 
-    /**
-     * Router constructor.
-     * @param ContainerInterface $container
-     */
-    public function __construct(ContainerInterface $container)
+    public function __construct(ApplicationInterface $application)
     {
-        $this->container = $container;
-        set_exception_handler([new RouterException(), 'handler']);
+        $this->application = $application;
+        set_exception_handler([new RouterException(), "handler"]);
     }
 
-    /**
-     * @param string $namespace
-     */
     public function setNamespace(string $namespace): void
     {
         $this->namespace = $namespace;
     }
 
-    /**
-     * @param array $route
-     * @throws Exceptions\RouterException
-     */
     public function set(array $route): void
     {
-        $requestMethod = $this->container()->getServer('REQUEST_METHOD');
-
-        if ($this->container()->hasPost('_method') && $requestMethod === 'POST') {
-            $this->container()->setServer('REQUEST_METHOD', $this->container()->getPost('_method'));
+        $requestMethod = $this->application()->request()->server()->get("REQUEST_METHOD");
+        if ($this->application()->request()->post()->has("_method") && $requestMethod === "POST") {
+            $this->application()->request()->server()
+                ->set(["REQUEST_METHOD" => $this->application()->request()->post()->get("_method")]);
         }
 
-        if (in_array($requestMethod, ['PUT', 'PATCH', 'DELETE'])) {
-            $settersName = 'set' . ucfirst(strtolower($requestMethod));
-            parse_str(file_get_contents('php://input'), $data);
-            $this->container()->$settersName($data);
+        if (in_array($requestMethod, ["PUT", "PATCH", "DELETE"])) {
+            parse_str(file_get_contents("php://input"), $data);
+            $this->application()->request()->{strtolower($requestMethod)}()->set($data);
         }
 
         $this->handleRequest($route);
     } // @codeCoverageIgnore
 
-    /**
-     * @param array $route
-     * @param null  $params
-     * @throws RouterException
-     */
     public function directCall(array $route, $params = null): void
     {
-        $controller = new $route['controller']($this->container());
+        $controller = new $route["controller"]($this->application);
 
-        if (!method_exists($controller, $route['method'])) {
-            throw new RouterException('503');
+        if (!method_exists($controller, $route["method"])) {
+            throw new RouterException("503");
         }
 
         $controller->init();
         $controller->before();
-        !isset($route['middleware']) ?: $this->handleMiddleware($route['middleware']);
-        !isset($params) ? $controller->{$route['method']}() : $controller->{$route['method']}(...$params);
-        !isset($route['after_middleware']) ?: $this->handleMiddleware($route['after_middleware']);
+        !isset($route["middleware"]) ?: $this->handleMiddleware($route["middleware"]);
+        !isset($params) ? $controller->{$route["method"]}() : $controller->{$route["method"]}(...$params);
+        !isset($route["after_middleware"]) ?: $this->handleMiddleware($route["after_middleware"]);
         $controller->after();
-        if (config('env') !== 'test') exit();
+        if ($this->application()->config()->get("environment") !== "test") exit();
     }
 
-    /**
-     * @param array $middleware
-     * @throws RouterException
-     */
     public function handleMiddleware(array $middleware)
     {
         foreach ($middleware as $current) {
-            $middlewareName = $this->setClassName($current[0], $this->namespace . 'Middleware\\');
+            $middlewareName = $this->setClassName($current[0], $this->namespace . "Middleware\\");
             (new $middlewareName())();
         }
     }
 
-    public function container(): ContainerInterface
+    public function application(): ApplicationInterface
     {
-        return $this->container;
+        return $this->application;
     }
 }
