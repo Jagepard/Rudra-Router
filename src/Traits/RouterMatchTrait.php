@@ -4,29 +4,24 @@ declare(strict_types=1);
 
 /**
  * @author    : Jagepard <jagepard@yandex.ru">
- * @copyright Copyright (c) 2019, Jagepard
  * @license   https://mit-license.org/ MIT
  */
 
-namespace Rudra\Traits;
+namespace Rudra\Router\Traits;
 
+use Rudra\Container\Interfaces\ApplicationInterface;
 use Rudra\Exceptions\RouterException;
-use Rudra\Interfaces\ContainerInterface;
 
 trait RouterMatchTrait
 {
-    /**
-     * @param array $route
-     * @throws RouterException
-     */
     protected function handleRequest(array $route): void
     {
-        if (strpos($route['http_method'], '|') !== false) {
+        if (strpos($route["http_method"], '|') !== false) {
 
-            $httpMethods = explode('|', $route['http_method']);
+            $httpMethods = explode('|', $route["http_method"]);
 
             foreach ($httpMethods as $httpMethod) {
-                $route['http_method'] = $httpMethod;
+                $route["http_method"] = $httpMethod;
                 $this->matchRequest($route);
             }
         }
@@ -34,24 +29,15 @@ trait RouterMatchTrait
         $this->matchRequest($route);
     }
 
-    /**
-     * @param array $route
-     * @throws RouterException
-     */
     protected function matchRequest(array $route): void
     {
-        if ($route['http_method'] == $this->container()->getServer('REQUEST_METHOD')) {
-            $request = parse_url(trim($this->container()->getServer('REQUEST_URI'), '/'))['path'];
+        if ($route["http_method"] == $this->application()->request()->server()->get("REQUEST_METHOD")) {
+            $request = parse_url(trim($this->application()->request()->server()->get("REQUEST_URI"), '/'))["path"];
             list($uri, $params) = $this->handlePattern($route, explode('/', $request));
             (implode('/', $uri) !== $request) ?: $this->setCallable($route, $params);
         }
     }
 
-    /**
-     * @param array $route
-     * @param array $request
-     * @return array
-     */
     protected function handlePattern(array $route, array $request): array
     {
         $uri     = [];
@@ -60,7 +46,7 @@ trait RouterMatchTrait
         $count   = count($pattern);
 
         for ($i = 0; $i < $count; $i++) {
-            // Ищем совпадение с шаблоном {...}
+            // Looking for a match with a pattern {...}
             if (preg_match('/{([a-zA-Z0-9]*?)}/', $pattern[$i]) !== 0) {
                 if (array_key_exists($i, $request)) {
                     $uri[]    = $request[$i];
@@ -75,12 +61,6 @@ trait RouterMatchTrait
         return [$uri, $params];
     }
 
-    /**
-     * @param array $route
-     * @param       $params
-     * @return mixed
-     * @throws RouterException
-     */
     protected function setCallable(array $route, $params)
     {
         if ($route['method'] instanceof \Closure) {
@@ -102,7 +82,6 @@ trait RouterMatchTrait
         $className = (strpos($className, ':fq') !== false)
             ? explode(':', $className)[0]
             : $namespace . $className;
-
         if (!class_exists($className)) {
             throw new RouterException('503');
         }
@@ -110,15 +89,6 @@ trait RouterMatchTrait
         return $className;
     }
 
-    /**
-     * @param array      $route
-     * @param null|array $params
-     * @throws RouterException
-     */
     abstract public function directCall(array $route, $params = null): void;
-
-    /**
-     * @return ContainerInterface
-     */
-    abstract public function container(): ContainerInterface;
+    abstract public function application(): ApplicationInterface;
 }
