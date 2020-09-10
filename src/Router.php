@@ -63,7 +63,7 @@ class Router implements RouterInterface
         !isset($params) ? $controller->{$route["method"]}() : $controller->{$route["method"]}(...$params);
         !isset($route["after_middleware"]) ?: $this->handleMiddleware($route["after_middleware"]);
         $controller->after();
-        if ($this->application()->config()->get("environment") !== "test") exit();
+        if ($this->application()->config()->get("environment") !== "test") return;
     }
 
     public function handleMiddleware(array $middleware)
