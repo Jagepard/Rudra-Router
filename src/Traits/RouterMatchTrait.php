@@ -17,7 +17,6 @@ trait RouterMatchTrait
     protected function handleRequest(array $route): void
     {
         if (strpos($route["http_method"], '|') !== false) {
-
             $httpMethods = explode('|', $route["http_method"]);
 
             foreach ($httpMethods as $httpMethod) {
@@ -42,7 +41,7 @@ trait RouterMatchTrait
     {
         $uri     = [];
         $params  = null;
-        $pattern = explode('/', ltrim($route['pattern'], '/'));
+        $pattern = explode('/', ltrim($route["pattern"], '/'));
         $count   = count($pattern);
 
         for ($i = 0; $i < $count; $i++) {
@@ -63,11 +62,11 @@ trait RouterMatchTrait
 
     protected function setCallable(array $route, $params)
     {
-        if ($route['method'] instanceof \Closure) {
-            return $route['method']();
+        if ($route["method"] instanceof \Closure) {
+            return $route["method"]();
         }
 
-        $route['controller'] = $this->setClassName($route['controller'], $this->namespace . 'Controllers\\');
+        $route['controller'] = $this->setClassName($route["controller"], $this->namespace . "Controllers\\");
         $this->directCall($route, $params);
     }
 
@@ -79,11 +78,11 @@ trait RouterMatchTrait
      */
     protected function setClassName(string $className, string $namespace): string
     {
-        $className = (strpos($className, ':fq') !== false)
+        $className = (strpos($className, ":fq") !== false)
             ? explode(':', $className)[0]
             : $namespace . $className;
         if (!class_exists($className)) {
-            throw new RouterException('503');
+            throw new RouterException("503");
         }
 
         return $className;
