@@ -8,8 +8,7 @@
 namespace Rudra\Router\Tests;
 
 use Rudra\Container\{Interfaces\RudraInterface, Rudra as R, Facades\Rudra};
-use Rudra\Router\Router as Rtr;
-use Rudra\Router\RouterFacade as Router;
+use Rudra\Router\Router;
 use Rudra\Router\Tests\Stub\Controllers\MainController;
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 use Rudra\Router\Tests\Stub\Middleware\Middleware;
@@ -20,8 +19,8 @@ class RouterMiddlewareTraitTest extends PHPUnit_Framework_TestCase
     {
         R::$rudra = null;
         Rudra::binding()->set([RudraInterface::class => Rudra::run()]);
-        Rudra::set(["router", Rtr::class]);
-        Router::setNamespace("Rudra\\Router\\Tests\\Stub\\");
+        Rudra::set(["router", Router::class]);
+        Rudra::get("router")->setNamespace("Rudra\\Router\\Tests\\Stub\\");
 
         $controller = new MainController(Rudra::run());
         $controller->middleware([["Middleware", ["int" => 123]], ["Middleware", ["int" => 125]]]);
