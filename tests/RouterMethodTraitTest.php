@@ -7,21 +7,23 @@
 
 namespace Rudra\Router\Tests;
 
-use Rudra\Container\{Application, Interfaces\ApplicationInterface};
+use Rudra\Container\{Rudra as R, Facades\Rudra, Interfaces\RudraInterface};
 use Rudra\Annotation\Annotation;
 use Rudra\Exceptions\RouterException;
-use Rudra\Router\Router;
+use Rudra\Router\Router as Rtr;
+use Rudra\Router\RouterFacade as Router;
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
+use Rudra\Router\Tests\Stub\Middleware\Middleware;
 
 class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
 {
     protected function setContainer()
     {
-        Application::$application = null;
-        Application::run()->binding()->set([ApplicationInterface::class => Application::run()]);
-        Application::run()->objects()->set(["annotation", Annotation::class]);
-        Application::run()->objects()->set(["router", Router::class]);
-        Application::run()->objects()->get("router")->setNamespace("Rudra\\Router\\Tests\\Stub\\");
+        R::$rudra = null;
+        Rudra::binding()->set([RudraInterface::class => Rudra::run()]);
+        Rudra::set(["annotation", Annotation::class]);
+        Rudra::set(["router", Rtr::class]);
+        Router::setNamespace("Rudra\\Router\\Tests\\Stub\\");
     }
 
     protected function setRouteEnvironment(string $requestUri, string $requestMethod, string $pattern, string $controller = 'MainController'): void
@@ -32,8 +34,8 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $action                    = "action" . ucfirst($method);
         $this->setContainer();
 
-        Application::run()->objects()->get("router")->$method($pattern, $controller . "::" . $action);
-        $this->assertEquals($requestMethod, Application::run()->objects()->get($action));
+        Router::$method($pattern, $controller . "::" . $action);
+        $this->assertEquals($requestMethod, Rudra::config()->get($action));
     }
 
     public function testGetWithFullQualifiedNamespace()
@@ -77,8 +79,8 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $_SERVER["REQUEST_METHOD"] = "PATCH";
         $this->setContainer();
 
-        Application::run()->objects()->get("router")->any("/test/page", "MainController::actionAny");
-        $this->assertEquals("ANY", Application::run()->objects()->get("actionAny"));
+        Router::any("/test/page", "MainController::actionAny");
+        $this->assertEquals("ANY", Rudra::config()->get("actionAny"));
     }
 
     protected function setRouteResourceEnvironment(string $requestMethod, string $action): void
@@ -87,8 +89,8 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $_SERVER["REQUEST_METHOD"] = $requestMethod;
         $this->setContainer();
 
-        Application::run()->objects()->get("router")->resource("api/{id}", "MainController");
-        $this->assertEquals($action, Application::run()->objects()->get($action));
+        Router::resource("api/{id}", "MainController");
+        $this->assertEquals($action, Rudra::config()->get($action));
     }
 
     public function testResource(): void
@@ -106,8 +108,8 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $_POST["_method"]          = $requestMethod;
         $this->setContainer();
 
-        Application::run()->objects()->get("router")->resource("api/{id}", "MainController");
-        $this->assertEquals($action, Application::run()->objects()->get($action));
+        Router::resource("api/{id}", "MainController");
+        $this->assertEquals($action, Rudra::config()->get($action));
     }
 
     public function testResourcePost(): void
@@ -126,8 +128,8 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
 
         $method = strtolower($requestMethod);
 
-        Application::run()->objects()->get("router")->$method("api/{id}", 'MainController' . "::" . $action);
-        $this->assertEquals($action, Application::run()->objects()->get($action));
+        Router::$method("api/{id}", 'MainController' . "::" . $action);
+        $this->assertEquals($action, Rudra::config()->get($action));
     }
 
     public function testPostMethods(): void
@@ -143,12 +145,12 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $_SERVER["REQUEST_METHOD"] = "GET";
         $this->setContainer();
 
-        Application::run()->objects()->get("router")->get("123/{id}", "MainController::read",
+        Router::get("123/{id}", "MainController::read",
             ["before" => [["Middleware", ["int" => 1]], ["Middleware", ["int" => 2]]],
              "after"  => [["Middleware", ["int" => 3]], ["Middleware", ["int" => 4]]]]
         );
 
-        $this->assertEquals("middleware", Application::run()->objects()->get("middleware"));
+        $this->assertEquals(Middleware::class, Rudra::config()->get("middleware"));
     }
 
     public function testRouterExceptionWithNamespace()
@@ -176,7 +178,7 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
 
         $this->expectException(RouterException::class);
 
-        Application::run()->objects()->get("router")->get("/test/page", "MainController::actionFalse");
+        Router::get("/test/page", "MainController::actionFalse");
     } // @codeCoverageIgnore
 
     public function testClosure()
@@ -185,11 +187,11 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $_SERVER["REQUEST_METHOD"] = "GET";
         $this->setContainer();
 
-        Application::run()->objects()->get("router")->get("/test/page", function () {
-            Application::run()->objects()->set(["closure", ["closure", "raw"]]);
+        Router::get("/test/page", function () {
+            Rudra::config()->set(["closure" => "closure"]);
         }
         );
 
-        $this->assertEquals("closure", Application::run()->objects()->get("closure"));
+        $this->assertEquals("closure", Rudra::config()->get("closure"));
     }
 }
