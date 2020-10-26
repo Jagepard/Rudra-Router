@@ -9,14 +9,14 @@ declare(strict_types=1);
 
 namespace Rudra\Router\Traits;
 
-use Rudra\Container\Interfaces\ApplicationInterface;
+use Rudra\Container\Interfaces\RudraInterface;
 
 trait RouterMiddlewareTrait
 {
     public function middleware($middleware): void
     {
-        $this->application()->objects()->get("router")->handleMiddleware($middleware);
+        $this->rudra()->get("router")->handleMiddleware($middleware);
     }
 
-    abstract public function application(): ApplicationInterface;
+    abstract public function rudra(): RudraInterface;
 }

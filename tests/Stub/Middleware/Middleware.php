@@ -2,12 +2,12 @@
 
 namespace Rudra\Router\Tests\Stub\Middleware;
 
-use Rudra\Container\Application;
+use Rudra\Container\Facades\Rudra;
 
 class Middleware
 {
     public function __invoke()
     {
-        Application::run()->objects()->set(["middleware", ["middleware", "raw"]]);
+        Rudra::config()->set(["middleware" => Middleware::class]);
     }
 }

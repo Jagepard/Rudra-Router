@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace Rudra\Router;
 
-use Rudra\Container\Interfaces\ApplicationInterface;
+use Rudra\Container\Interfaces\RudraInterface;
 
 interface RouterInterface
 {
@@ -23,5 +23,5 @@ interface RouterInterface
     public function delete(string $pattern, $target): void;
     public function any(string $pattern, $target): void;
     public function resource(string $pattern, string $controller, array $actions = []): void;
-    public function application(): ApplicationInterface;
+    public function rudra(): RudraInterface;
 }

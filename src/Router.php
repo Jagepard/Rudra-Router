@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace Rudra\Router;
 
-use Rudra\Container\Interfaces\ApplicationInterface;
+use Rudra\Container\Interfaces\RudraInterface;
 use Rudra\Router\Traits\{RouterMatchTrait, RouterRequestMethodTrait, RouterAnnotationTrait};
 use Rudra\Exceptions\RouterException;
 
@@ -20,11 +20,11 @@ class Router implements RouterInterface
     use RouterAnnotationTrait;
 
     protected ?string $namespace = null;
-    protected ApplicationInterface $application;
+    protected RudraInterface $rudra;
 
-    public function __construct(ApplicationInterface $application)
+    public function __construct(RudraInterface $rudra)
     {
-        $this->application = $application;
+        $this->rudra = $rudra;
         set_exception_handler([new RouterException(), "handler"]);
     }
 
@@ -35,15 +35,15 @@ class Router implements RouterInterface
 
     public function set(array $route): void
     {
-        $requestMethod = $this->application()->request()->server()->get("REQUEST_METHOD");
-        if ($this->application()->request()->post()->has("_method") && $requestMethod === "POST") {
-            $this->application()->request()->server()
-                ->set(["REQUEST_METHOD" => $this->application()->request()->post()->get("_method")]);
+        $requestMethod = $this->rudra()->request()->server()->get("REQUEST_METHOD");
+        if ($this->rudra()->request()->post()->has("_method") && $requestMethod === "POST") {
+            $this->rudra()->request()->server()
+                ->set(["REQUEST_METHOD" => $this->rudra()->request()->post()->get("_method")]);
         }
 
         if (in_array($requestMethod, ["PUT", "PATCH", "DELETE"])) {
             parse_str(file_get_contents("php://input"), $data);
-            $this->application()->request()->{strtolower($requestMethod)}()->set($data);
+            $this->rudra()->request()->{strtolower($requestMethod)}()->set($data);
         }
 
         $this->handleRequest($route);
@@ -51,7 +51,7 @@ class Router implements RouterInterface
 
     public function directCall(array $route, $params = null): void
     {
-        $controller = new $route["controller"]($this->application);
+        $controller = new $route["controller"]($this->rudra);
 
         if (!method_exists($controller, $route["method"])) {
             throw new RouterException("503");
@@ -63,7 +63,7 @@ class Router implements RouterInterface
         !isset($params) ? $controller->{$route["method"]}() : $controller->{$route["method"]}(...$params);
         !isset($route["after_middleware"]) ?: $this->handleMiddleware($route["after_middleware"]);
         $controller->after();
-        if ($this->application()->config()->get("environment") !== "test") return;
+        if ($this->rudra()->config()->get("environment") !== "test") return;
     }
 
     public function handleMiddleware(array $middleware)
@@ -74,8 +74,8 @@ class Router implements RouterInterface
         }
     }
 
-    public function application(): ApplicationInterface
+    public function rudra(): RudraInterface
     {
-        return $this->application;
+        return $this->rudra;
     }
 }

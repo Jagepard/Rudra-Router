@@ -9,15 +9,10 @@ declare(strict_types=1);
 
 namespace Rudra\Router\Traits;
 
-use Symfony\Component\Yaml\Yaml;
 use Rudra\Exceptions\RouterException;
 
 trait RouteTrait
 {
-    /**
-     * @param string $bundle
-     * @param string $driver
-     */
     protected function route(string $bundle, string $driver)
     {
         rudra()->get('router')->setNamespace(config('namespaces', $bundle));
@@ -26,9 +21,6 @@ trait RouteTrait
 
     /**
      * Собирает маршруты из конфигурации
-     *
-     * @param array  $namespaces
-     * @param string $driver
      */
     protected function collect(array $namespaces, string $driver)
     {
@@ -39,18 +31,10 @@ trait RouteTrait
 
     /**
      * Получает массив маршрутов
-     *
-     * @param string $bundle
-     * @param string $driver
-     * @return array
      */
     protected function getRoutes(string $bundle, string $driver): array
     {
         $path = '../app/' . $bundle . '/Routes/'. $driver;
-
-        if (file_exists($path . '.yml')) {
-            return Yaml::parse(file_get_contents($path . '.yml'));
-        }
 
         if (file_exists($path . '.php')) {
             return require_once $path . '.php';

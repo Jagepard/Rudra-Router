@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Rudra\Router\Traits;
 
-use Rudra\Container\Interfaces\ApplicationInterface;
 use Rudra\Exceptions\RouterException;
 
 trait RouterMatchTrait
@@ -30,8 +29,8 @@ trait RouterMatchTrait
 
     protected function matchRequest(array $route): void
     {
-        if ($route["http_method"] == $this->application()->request()->server()->get("REQUEST_METHOD")) {
-            $request = parse_url(trim($this->application()->request()->server()->get("REQUEST_URI"), '/'))["path"];
+        if ($route["http_method"] == $this->rudra()->request()->server()->get("REQUEST_METHOD")) {
+            $request = parse_url(trim($this->rudra()->request()->server()->get("REQUEST_URI"), '/'))["path"];
             list($uri, $params) = $this->handlePattern($route, explode('/', $request));
             (implode('/', $uri) !== $request) ?: $this->setCallable($route, $params);
         }
@@ -70,12 +69,6 @@ trait RouterMatchTrait
         $this->directCall($route, $params);
     }
 
-    /**
-     * @param string $className
-     * @param string $namespace
-     * @return string
-     * @throws RouterException
-     */
     protected function setClassName(string $className, string $namespace): string
     {
         $className = (strpos($className, ":fq") !== false)
@@ -89,5 +82,4 @@ trait RouterMatchTrait
     }
 
     abstract public function directCall(array $route, $params = null): void;
-    abstract public function application(): ApplicationInterface;
 }
