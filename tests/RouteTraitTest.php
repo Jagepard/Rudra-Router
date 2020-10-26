@@ -7,7 +7,7 @@
 
 namespace Rudra\Router\Tests;
 
-use Rudra\Container\{Application, Interfaces\ApplicationInterface};
+use Rudra\Container\{Facades\Rudra, Interfaces\RudraInterface};
 use Rudra\Exceptions\RouterException;
 use Rudra\Router\Router;
 use Rudra\Router\Tests\Stub\Controllers\MainController;
@@ -19,11 +19,11 @@ class RouteTraitTest extends PHPUnit_Framework_TestCase
 
     protected function setUp(): void
     {
-        Application::run()->binding()->set([ApplicationInterface::class => Application::run()]);
-        Application::run()->objects()->set(["router", [Router::class, "stub\\"]]);
-        Application::run()->config()->set(["namespaces" => ["web" => 123456]]);
+        Rudra::binding([RudraInterface::class => Rudra::run()]);
+        Rudra::services(["router" => [Router::class, "stub\\"]]);
+        Rudra::config(["namespaces" => ["web" => 123456]]);
 
-        $this->controller = new MainController(Application::run());
+        $this->controller = new MainController(Rudra::run());
         $this->controller->init();
     }
 
