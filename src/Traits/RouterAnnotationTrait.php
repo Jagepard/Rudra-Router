@@ -9,8 +9,6 @@ declare(strict_types=1);
 
 namespace Rudra\Router\Traits;
 
-use Rudra\Container\Interfaces\ApplicationInterface;
-
 trait RouterAnnotationTrait
 {
     public function annotationCollector(array $data, bool $multilevel = false)
@@ -35,7 +33,7 @@ trait RouterAnnotationTrait
     public function annotation(string $controller, string $action = 'actionIndex', int $number = 0): void
     {
         $className  = $this->setClassName($controller, $this->namespace . "Controllers\\");
-        $annotation = $this->application()->objects()->get("annotation")->getAnnotations($className, $action);
+        $annotation = $this->rudra()->get("annotation")->getAnnotations($className, $action);
 
         if (isset($annotation["Routing"])) {
             $httpMethod = $annotation["Routing"][$number]["method"] ?? "GET";
@@ -83,5 +81,4 @@ trait RouterAnnotationTrait
 
     abstract public function set(array $route);
     abstract protected function setClassName(string $className, string $type): string;
-    abstract public function application(): ApplicationInterface;
 }
