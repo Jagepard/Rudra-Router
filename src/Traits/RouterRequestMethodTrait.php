@@ -9,8 +9,6 @@ declare(strict_types=1);
 
 namespace Rudra\Router\Traits;
 
-use Rudra\Container\Interfaces\ApplicationInterface;
-
 trait RouterRequestMethodTrait
 {
     public function get(string $pattern, $target, array $middleware = []): void
@@ -48,15 +46,15 @@ trait RouterRequestMethodTrait
         array $actions = ["read", "create", "update", "delete"]
     ): void
     {
-        switch ($this->application()->request()->server()->get("REQUEST_METHOD")) {
+        switch ($this->rudra()->request()->server()->get("REQUEST_METHOD")) {
             case "GET":
                 $target = (count($actions)) ? $controller . '::' . $actions[0] : $controller;
                 $this->setRoute($pattern, $target, "GET", $middleware);
                 break;
             case "POST":
                 $actionKey  = ["GET" => 0, "POST" => 1, "PUT" => 2, "PATCH" => 2, "DELETE" => 3];
-                $httpMethod = ($this->application()->request()->post()->has("_method"))
-                    ? $this->application()->request()->post()->get("_method") : "POST";
+                $httpMethod = ($this->rudra()->request()->post()->has("_method"))
+                    ? $this->rudra()->request()->post()->get("_method") : "POST";
                 $target     = (count($actions)) ? $controller . '::' . $actions[$actionKey[$httpMethod]] : $controller;
                 $this->setRoute($pattern, $target, $httpMethod, $middleware);
                 break;
@@ -94,5 +92,4 @@ trait RouterRequestMethodTrait
     }
 
     abstract public function set(array $route);
-    abstract public function application(): ApplicationInterface;
 }
