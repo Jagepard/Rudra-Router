@@ -7,19 +7,21 @@
 
 namespace Rudra\Router\Tests;
 
-use Rudra\Container\{Application, Interfaces\ApplicationInterface};
+use Rudra\Container\{Facades\Rudra,Interfaces\RudraInterface};
 use Rudra\Annotation\Annotation;
-use Rudra\Router\Router;
+use Rudra\Router\Router as Rtr;
+use Rudra\Router\RouterFacade as Router;
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 
 class RouterAnnotationTraitTest extends PHPUnit_Framework_TestCase
 {
     protected function setContainer()
     {
-        Application::run()->binding()->set([ApplicationInterface::class => Application::run()]);
-        Application::run()->objects()->set(["annotation", Annotation::class]);
-        Application::run()->objects()->set(["router", Router::class]);
-        Application::run()->objects()->get("router")->setNamespace("Rudra\\Router\\Tests\\Stub\\");
+        Rudra::binding([RudraInterface::class => Rudra::run()]);
+        Rudra::services(["router" => [Rtr::class, "stub\\"]]);
+        Rudra::set(["annotation", Annotation::class]);
+        Rudra::set(["router", Rtr::class]);
+        Router::setNamespace("Rudra\\Router\\Tests\\Stub\\");
     }
 
     public function testAnnotation()
@@ -28,19 +30,19 @@ class RouterAnnotationTraitTest extends PHPUnit_Framework_TestCase
         $_SERVER["REQUEST_METHOD"] = "GET";
 
         $this->setContainer();
-        Application::run()->objects()->get("router")->annotation("MainController", "actionIndex");
-        $this->assertEquals("actionIndex", Application::run()->objects()->get("actionIndex"));
+        Router::annotation("MainController", "actionIndex");
+        $this->assertEquals("actionIndex", Rudra::config()->get("actionIndex"));
     }
 
     public function testAnnotationCollector()
     {
-        $_SERVER['REQUEST_URI']    = "test/123";
-        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER["REQUEST_URI"]    = "test/123";
+        $_SERVER["REQUEST_METHOD"] = "GET";
 
         $this->setContainer();
-        Application::run()->objects()->get("router")->annotationCollector([["MainController", "actionIndex"]]);
+        Router::annotationCollector([["MainController", "actionIndex"]]);
 
-        $this->assertEquals('actionIndex', Application::run()->objects()->get("actionIndex"));
+        $this->assertEquals("actionIndex", Rudra::config()->get("actionIndex"));
     }
 
     public function testAnnotationCollectorMultilevel()
@@ -49,8 +51,8 @@ class RouterAnnotationTraitTest extends PHPUnit_Framework_TestCase
         $_SERVER["REQUEST_METHOD"] = "GET";
 
         $this->setContainer();
-        Application::run()->objects()->get("router")->annotationCollector(["dashboard" => ["blog" => ["MainController", "actionIndex"]]], true);
+        Router::annotationCollector(["dashboard" => ["blog" => ["MainController", "actionIndex"]]], true);
 
-        $this->assertEquals("actionIndex", Application::run()->objects()->get("actionIndex"));
+        $this->assertEquals("actionIndex", Rudra::config()->get("actionIndex"));
     }
 }
