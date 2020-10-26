@@ -7,23 +7,25 @@
 
 namespace Rudra\Router\Tests;
 
-use Rudra\Container\{Application, Interfaces\ApplicationInterface};
-use Rudra\Router\Router;
+use Rudra\Container\{Interfaces\RudraInterface, Rudra as R, Facades\Rudra};
+use Rudra\Router\Router as Rtr;
+use Rudra\Router\RouterFacade as Router;
 use Rudra\Router\Tests\Stub\Controllers\MainController;
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
+use Rudra\Router\Tests\Stub\Middleware\Middleware;
 
 class RouterMiddlewareTraitTest extends PHPUnit_Framework_TestCase
 {
     public function testMiddlewareTrait()
     {
-        Application::$application = null;
-        Application::run()->binding()->set([ApplicationInterface::class => Application::run()]);
-        Application::run()->objects()->set(["router", Router::class]);
-        Application::run()->objects()->get("router")->setNamespace("Rudra\\Router\\Tests\\Stub\\");
+        R::$rudra = null;
+        Rudra::binding()->set([RudraInterface::class => Rudra::run()]);
+        Rudra::set(["router", Rtr::class]);
+        Router::setNamespace("Rudra\\Router\\Tests\\Stub\\");
 
-        $controller = new MainController(Application::run());
+        $controller = new MainController(Rudra::run());
         $controller->middleware([["Middleware", ["int" => 123]], ["Middleware", ["int" => 125]]]);
 
-        $this->assertEquals("middleware", Application::run()->objects()->get("middleware"));
+        $this->assertEquals(Middleware::class, Rudra::config()->get("middleware"));
     }
 }
