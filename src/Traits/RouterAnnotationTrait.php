@@ -32,7 +32,7 @@ trait RouterAnnotationTrait
         }
     }
 
-    public function annotation(string $controller, string $action = 'actionIndex', int $number = 0): void
+    public function annotation(string $controller, string $action = "actionIndex", int $number = 0): void
     {
         $className  = $this->setClassName($controller, $this->namespace . "Controllers\\");
         $annotation = $this->rudra()->get(Annotation::class)->getAnnotations($className, $action);
@@ -71,10 +71,10 @@ trait RouterAnnotationTrait
         $count      = count($annotation);
 
         for ($i = 0; $i < $count; $i++) {
-            $middleware[$i][] = $annotation[$i]['name'];
+            $middleware[$i][] = $annotation[$i]["name"];
 
-            if (isset($annotation[$i]['params'])) {
-                $middleware[$i][] = $annotation[$i]['params'];
+            if (isset($annotation[$i]["params"])) {
+                $middleware[$i][] = $annotation[$i]["params"];
             }
         }
 
