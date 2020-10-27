@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Rudra\Router\Tests;
 
 use Rudra\Container\{Facades\Rudra, Interfaces\RudraInterface};
-use Rudra\Annotation\Annotation;
 use Rudra\Router\Router;
 use Rudra\Router\Tests\Stub\Controllers\MainController;
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
@@ -23,22 +22,21 @@ class RouterTest extends PHPUnit_Framework_TestCase
     protected function setContainer()
     {
         Rudra::binding()->set([RudraInterface::class => Rudra::run()]);
-        Rudra::set(["annotation", Annotation::class]);
-        Rudra::set(["router", Router::class]);
+        Rudra::set([Router::class, Router::class]);
 
-        Rudra::get("router")->setNamespace("Rudra\\Router\\Tests\\Stub\\");
+        Rudra::get(Router::class)->setNamespace("Rudra\\Router\\Tests\\Stub\\");
     }
 
     public function testSetNamespace()
     {
         $this->setContainer();
-        Rudra::get("router")->setNamespace(RudraInterface::class);
-        $class    = new \ReflectionClass(Rudra::get("router"));
+        Rudra::get(Router::class)->setNamespace(RudraInterface::class);
+        $class    = new \ReflectionClass(Rudra::get(Router::class));
         $property = $class->getProperty("namespace");
         $property->setAccessible(true);
 
         $this->assertEquals(
-            RudraInterface::class, $property->getValue(Rudra::get("router"))
+            RudraInterface::class, $property->getValue(Rudra::get(Router::class))
         );
     }
 
