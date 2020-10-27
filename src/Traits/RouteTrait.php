@@ -9,14 +9,16 @@ declare(strict_types=1);
 
 namespace Rudra\Router\Traits;
 
+use Rudra\Container\Facades\Rudra;
 use Rudra\Exceptions\RouterException;
+use Rudra\Router\RouterFacade;
 
 trait RouteTrait
 {
     protected function route(string $bundle, string $driver)
     {
-        rudra()->get('router')->setNamespace(config('namespaces', $bundle));
-        rudra()->get('router')->annotationCollector($this->getRoutes($bundle, $driver));
+        RouterFacade::setNamespace(Rudra::config()->get("namespaces")[$bundle]);
+        RouterFacade::annotationCollector($this->getRoutes($bundle, $driver));
     }
 
     /**
@@ -34,18 +36,15 @@ trait RouteTrait
      */
     protected function getRoutes(string $bundle, string $driver): array
     {
-        $path = '../app/' . $bundle . '/Routes/'. $driver;
+        $path = "../app/" . $bundle . "/Routes/". $driver;
 
-        if (file_exists($path . '.php')) {
-            return require_once $path . '.php';
+        if (file_exists($path . ".php")) {
+            return require_once $path . ".php";
         }
     }
 
-    /**
-     * @throws RouterException
-     */
     protected function handleException()
     {
-        throw new RouterException('404');
+        throw new RouterException("404");
     } // @codeCoverageIgnore
 }
