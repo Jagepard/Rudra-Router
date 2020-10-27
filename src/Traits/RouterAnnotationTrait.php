@@ -48,10 +48,10 @@ trait RouterAnnotationTrait
     protected function setRouteData(string $class, string $method, int $number, $result, $httpMethod)
     {
         $dataRoute = [
-            'controller'  => $class,
-            'method'      => $method,
-            'http_method' => $httpMethod,
-            'pattern'     => $result["Routing"][$number]["url"]
+            "controller"  => $class,
+            "method"      => $method,
+            "http_method" => $httpMethod,
+            "pattern"     => $result["Routing"][$number]["url"]
         ];
 
         if (isset($result["Middleware"])) {
