@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace Rudra\Router\Traits;
 
+use Rudra\Annotation\Annotation;
+
 trait RouterAnnotationTrait
 {
     public function annotationCollector(array $data, bool $multilevel = false)
@@ -30,10 +32,10 @@ trait RouterAnnotationTrait
         }
     }
 
-    public function annotation(string $controller, string $action = 'actionIndex', int $number = 0): void
+    public function annotation(string $controller, string $action = "actionIndex", int $number = 0): void
     {
         $className  = $this->setClassName($controller, $this->namespace . "Controllers\\");
-        $annotation = $this->rudra()->get("annotation")->getAnnotations($className, $action);
+        $annotation = $this->rudra()->get(Annotation::class)->getAnnotations($className, $action);
 
         if (isset($annotation["Routing"])) {
             $httpMethod = $annotation["Routing"][$number]["method"] ?? "GET";
@@ -46,10 +48,10 @@ trait RouterAnnotationTrait
     protected function setRouteData(string $class, string $method, int $number, $result, $httpMethod)
     {
         $dataRoute = [
-            'controller'  => $class,
-            'method'      => $method,
-            'http_method' => $httpMethod,
-            'pattern'     => $result["Routing"][$number]["url"]
+            "controller"  => $class,
+            "method"      => $method,
+            "http_method" => $httpMethod,
+            "pattern"     => $result["Routing"][$number]["url"]
         ];
 
         if (isset($result["Middleware"])) {
@@ -69,10 +71,10 @@ trait RouterAnnotationTrait
         $count      = count($annotation);
 
         for ($i = 0; $i < $count; $i++) {
-            $middleware[$i][] = $annotation[$i]['name'];
+            $middleware[$i][] = $annotation[$i]["name"];
 
-            if (isset($annotation[$i]['params'])) {
-                $middleware[$i][] = $annotation[$i]['params'];
+            if (isset($annotation[$i]["params"])) {
+                $middleware[$i][] = $annotation[$i]["params"];
             }
         }
 

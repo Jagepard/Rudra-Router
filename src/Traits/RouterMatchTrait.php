@@ -65,7 +65,7 @@ trait RouterMatchTrait
             return $route["method"]();
         }
 
-        $route['controller'] = $this->setClassName($route["controller"], $this->namespace . "Controllers\\");
+        $route["controller"] = $this->setClassName($route["controller"], $this->namespace . "Controllers\\");
         $this->directCall($route, $params);
     }
 

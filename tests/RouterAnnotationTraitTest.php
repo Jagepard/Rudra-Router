@@ -19,8 +19,7 @@ class RouterAnnotationTraitTest extends PHPUnit_Framework_TestCase
     {
         Rudra::binding([RudraInterface::class => Rudra::run()]);
         Rudra::services(["router" => [Rtr::class, "stub\\"]]);
-        Rudra::set(["annotation", Annotation::class]);
-        Rudra::set(["router", Rtr::class]);
+        Rudra::set([Annotation::class, Annotation::class]);
         Router::setNamespace("Rudra\\Router\\Tests\\Stub\\");
     }
 

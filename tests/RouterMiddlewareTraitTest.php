@@ -19,8 +19,8 @@ class RouterMiddlewareTraitTest extends PHPUnit_Framework_TestCase
     {
         R::$rudra = null;
         Rudra::binding()->set([RudraInterface::class => Rudra::run()]);
-        Rudra::set(["router", Router::class]);
-        Rudra::get("router")->setNamespace("Rudra\\Router\\Tests\\Stub\\");
+        Rudra::set([Router::class, Router::class]);
+        Rudra::get(Router::class)->setNamespace("Rudra\\Router\\Tests\\Stub\\");
 
         $controller = new MainController(Rudra::run());
         $controller->middleware([["Middleware", ["int" => 123]], ["Middleware", ["int" => 125]]]);
