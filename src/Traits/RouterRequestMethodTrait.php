@@ -59,11 +59,11 @@ trait RouterRequestMethodTrait
                 $this->setRoute($pattern, $target, $httpMethod, $middleware);
                 break;
             case "PUT":
-                $target = (count($actions)) ? $controller . '::' . $actions[2] : $controller;
+                $target = (count($actions)) ? $controller . "::" . $actions[2] : $controller;
                 $this->setRoute($pattern, $target, "PUT", $middleware);
                 break;
             case "DELETE":
-                $target = (count($actions)) ? $controller . '::' . $actions[3] : $controller;
+                $target = (count($actions)) ? $controller . "::" . $actions[3] : $controller;
                 $this->setRoute($pattern, $target, "DELETE", $middleware);
                 break;
         }
@@ -71,22 +71,22 @@ trait RouterRequestMethodTrait
 
     protected function setRoute(string $pattern, $target, string $httpMethod, array $middleware = []): void
     {
-        $route['http_method'] = $httpMethod;
-        $route['pattern']     = $pattern;
+        $route["http_method"] = $httpMethod;
+        $route["pattern"]     = $pattern;
 
         if (count($middleware)) {
-            if (array_key_exists('before', $middleware)) {
-                $route['middleware'] = $middleware['before'];
+            if (array_key_exists("before", $middleware)) {
+                $route["middleware"] = $middleware["before"];
             }
 
-            if (array_key_exists('after', $middleware)) {
-                $route['after_middleware'] = $middleware['after'];
+            if (array_key_exists("after", $middleware)) {
+                $route["after_middleware"] = $middleware["after"];
             }
         }
 
         (is_callable($target))
-            ? $route['method'] = $target
-            : list($route['controller'], $route['method']) = explode('::', $target);
+            ? $route["method"] = $target
+            : list($route["controller"], $route["method"]) = explode("::", $target);
 
         $this->set($route);
     }
