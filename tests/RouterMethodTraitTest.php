@@ -8,9 +8,7 @@
 namespace Rudra\Router\Tests;
 
 use Rudra\Container\{Rudra as R, Facades\Rudra, Interfaces\RudraInterface};
-use Rudra\Annotation\Annotation;
 use Rudra\Exceptions\RouterException;
-use Rudra\Router\Router as Rtr;
 use Rudra\Router\RouterFacade as Router;
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 use Rudra\Router\Tests\Stub\Middleware\Middleware;
@@ -21,8 +19,6 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
     {
         R::$rudra = null;
         Rudra::binding()->set([RudraInterface::class => Rudra::run()]);
-        Rudra::set(["annotation", Annotation::class]);
-        Rudra::set(["router", Rtr::class]);
         Router::setNamespace("Rudra\\Router\\Tests\\Stub\\");
     }
 
