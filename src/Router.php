@@ -63,7 +63,7 @@ class Router implements RouterInterface
         !isset($params) ? $controller->{$route["method"]}() : $controller->{$route["method"]}(...$params);
         !isset($route["after_middleware"]) ?: $this->handleMiddleware($route["after_middleware"]);
         $controller->after();
-        if ($this->rudra()->config()->get("environment") !== "test") return;
+        if ($this->rudra()->config()->get("environment") !== "test") exit();
     }
 
     public function handleMiddleware(array $middleware)
