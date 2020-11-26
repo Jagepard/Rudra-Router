@@ -15,28 +15,28 @@ use Rudra\Router\RouterFacade;
 
 trait RouteTrait
 {
-    protected function route(string $bundle, string $driver)
+    protected function route(string $bundle)
     {
         RouterFacade::setNamespace(Rudra::config()->get("namespaces")[$bundle]);
-        RouterFacade::annotationCollector($this->getRoutes($bundle, $driver));
+        RouterFacade::annotationCollector($this->getRoutes($bundle));
     }
 
     /**
      * Собирает маршруты из конфигурации
      */
-    protected function collect(array $namespaces, string $driver)
+    protected function collect(array $namespaces)
     {
         foreach ($namespaces as $bundle => $item) {
-            $this->route($bundle, $driver);
+            $this->route($bundle);
         }
     }
 
     /**
      * Получает массив маршрутов
      */
-    protected function getRoutes(string $bundle, string $driver): array
+    protected function getRoutes(string $bundle): array
     {
-        $path = "../app/" . $bundle . "/Routes/". $driver;
+        $path = "../app/" . $bundle . "/routes";
 
         if (file_exists($path . ".php")) {
             return require_once $path . ".php";
