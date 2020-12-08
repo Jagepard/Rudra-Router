@@ -20,7 +20,6 @@ class RouteTraitTest extends PHPUnit_Framework_TestCase
     protected function setUp(): void
     {
         Rudra::binding([RudraInterface::class => Rudra::run()]);
-        Rudra::services(["router" => [Router::class, "stub\\"]]);
         Rudra::config(["namespaces" => ["web" => 123456]]);
 
         $this->controller = new MainController(Rudra::run());
