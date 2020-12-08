@@ -2,7 +2,8 @@
 
 namespace Rudra\Router\Tests\Stub\Controllers;
 
-use Rudra\Container\Interfaces\ApplicationInterface;
+use Rudra\Container\Facades\Rudra;
+use Rudra\Container\Interfaces\RudraInterface;
 use Rudra\Tests\Stub\Route;
 use Rudra\ExternalTraits\RouteTrait;
 use Rudra\Interfaces\ContainerInterface;
@@ -13,7 +14,7 @@ class MainController
     use \Rudra\Router\Traits\RouteTrait;
     use \Rudra\Router\Traits\RouterMiddlewareTrait;
 
-    protected ApplicationInterface $application;
+    protected RudraInterface $rudra;
 
     public function run()
     {
@@ -40,71 +41,71 @@ class MainController
      */
     public function actionIndex()
     {
-        $this->application()->objects()->set(["actionIndex", ["actionIndex", "raw"]]);
+        Rudra::config()->set(["actionIndex" => "actionIndex"]);
     }
 
     public function actionGet()
     {
-        $this->application()->objects()->set(["actionGet", ["GET", "raw"]]);
+        Rudra::config()->set(["actionGet" => "GET"]);
     }
 
     public function actionPost()
     {
-        $this->application()->objects()->set(["actionPost", ["POST", "raw"]]);
+        Rudra::config()->set(["actionPost" => "POST"]);
     }
 
     public function actionPut()
     {
-        $this->application()->objects()->set(["actionPut", ["PUT", "raw"]]);
+        Rudra::config()->set(["actionPut" => "PUT"]);
     }
 
     public function actionPatch()
     {
-        $this->application()->objects()->set(["actionPatch", ["PATCH", "raw"]]);
+        Rudra::config()->set(["actionPatch" => "PATCH"]);
     }
 
     public function actionDelete()
     {
-        $this->application()->objects()->set(["actionDelete", ["DELETE", "raw"]]);
+        Rudra::config()->set(["actionDelete" => "DELETE"]);
     }
 
     public function actionAny()
     {
-        $this->application()->objects()->set(["actionAny", ["ANY", "raw"]]);
+        Rudra::config()->set(["actionAny" => "ANY"]);
     }
 
     public function read($params = null)
     {
-        $this->application()->objects()->set(["read", ["read", "raw"]]);
+        Rudra::config()->set(["read" => "read"]);
     }
 
     public function create()
     {
-        $this->application()->objects()->set(["create", ["create", "raw"]]);
+        Rudra::config()->set(["create" => "create"]);
     }
 
     public function update($params)
     {
-        $this->application()->objects()->set(["update", ["update", "raw"]]);
+        Rudra::config()->set(["update" => "update"]);
     }
 
     public function delete($params)
     {
-        $this->application()->objects()->set(["delete", ["delete", "raw"]]);
+        Rudra::config()->set(["delete" => "delete"]);
     }
 
     public function init() {}
     public function before() {}
     public function after() {}
 
-    public function __construct(ApplicationInterface $application)
+    public function __construct(RudraInterface $rudra)
     {
-        $this->application = $application;
-        $this->application()->config()->set(["environment" => "test"]);
+        $this->rudra = $rudra;
+        $this->rudra()->config()->set(["environment" => "test"]);
     }
 
-    public function application(): ApplicationInterface
+    public function rudra(): RudraInterface
     {
-        return $this->application;
+        return $this->rudra;
     }
 }

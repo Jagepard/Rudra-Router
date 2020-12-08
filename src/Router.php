@@ -70,7 +70,7 @@ class Router implements RouterInterface
     {
         foreach ($middleware as $current) {
             $middlewareName = $this->setClassName($current[0], $this->namespace . "Middleware\\");
-            (new $middlewareName())();
+            (isset($current[1])) ? (new $middlewareName())($current[1]) : (new $middlewareName())();
         }
     }
 
