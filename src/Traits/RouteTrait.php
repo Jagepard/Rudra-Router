@@ -34,9 +34,9 @@ trait RouteTrait
     /**
      * Получает массив маршрутов
      */
-    protected function getRoutes(string $bundle): array
+    protected function getRoutes(string $bundle)//: array
     {
-        $path = "../app/" . $bundle . "/routes";
+        $path = "../app/" . ucfirst($bundle) . "/routes";
 
         if (file_exists($path . ".php")) {
             return require_once $path . ".php";
