@@ -58,6 +58,8 @@ class Router implements RouterInterface
         }
 
         $controller->init();
+        $controller->eventRegistration();
+        $controller->generalPreCall();
         $controller->before();
         !isset($route["middleware"]) ?: $this->handleMiddleware($route["middleware"]);
         !isset($params) ? $controller->{$route["method"]}() : $controller->{$route["method"]}(...$params);
