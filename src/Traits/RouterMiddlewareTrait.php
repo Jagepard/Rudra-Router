@@ -14,9 +14,9 @@ use Rudra\Router\Router;
 
 trait RouterMiddlewareTrait
 {
-    public function middleware($middleware): void
+    public function middleware($middleware, $fullName = false): void
     {
-        $this->rudra()->get(Router::class)->handleMiddleware($middleware);
+        $this->rudra()->get(Router::class)->handleMiddleware($middleware, $fullName);
     }
 
     abstract public function rudra(): RudraInterface;
