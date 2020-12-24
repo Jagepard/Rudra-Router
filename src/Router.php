@@ -68,10 +68,10 @@ class Router implements RouterInterface
         if ($this->rudra()->config()->get("environment") !== "test") exit();
     }
 
-    public function handleMiddleware(array $middleware)
+    public function handleMiddleware(array $middleware, bool $fullName = false)
     {
         foreach ($middleware as $current) {
-            $middlewareName = $this->setClassName($current[0], $this->namespace . "Middleware\\");
+            $middlewareName = (!$fullName) ? $this->setClassName($current[0], $this->namespace . "Middleware\\") : $current[0];
             (isset($current[1])) ? (new $middlewareName())($current[1]) : (new $middlewareName())();
         }
     }
