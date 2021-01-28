@@ -88,8 +88,6 @@ trait RouterRequestMethodTrait
             ? $route["method"] = $target
             : list($route["controller"], $route["method"]) = explode("::", $target);
 
-        $this->set($route);
+        $this->setRequestMethod($route);
     }
-
-    abstract public function set(array $route);
 }

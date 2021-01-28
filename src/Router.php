@@ -33,12 +33,12 @@ class Router implements RouterInterface
         $this->namespace = $namespace;
     }
 
-    public function set(array $route): void
+    public function setRequestMethod(array $route): void
     {
         $requestMethod = $this->rudra()->request()->server()->get("REQUEST_METHOD");
+
         if ($this->rudra()->request()->post()->has("_method") && $requestMethod === "POST") {
-            $this->rudra()->request()->server()
-                ->set(["REQUEST_METHOD" => $this->rudra()->request()->post()->get("_method")]);
+            $this->rudra()->request()->server()->set(["REQUEST_METHOD" => $this->rudra()->request()->post()->get("_method")]);
         }
 
         if (in_array($requestMethod, ["PUT", "PATCH", "DELETE"])) {
@@ -46,7 +46,7 @@ class Router implements RouterInterface
             $this->rudra()->request()->{strtolower($requestMethod)}()->set($data);
         }
 
-        $this->handleRequest($route);
+        $this->handleHttpMethod($route);
     } // @codeCoverageIgnore
 
     public function directCall(array $route, $params = null): void
