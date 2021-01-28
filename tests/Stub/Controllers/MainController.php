@@ -11,7 +11,6 @@ use Rudra\ExternalTraits\RouterMiddlewareTrait;
 
 class MainController
 {
-    use \Rudra\Router\Traits\RouteTrait;
     use \Rudra\Router\Traits\RouterMiddlewareTrait;
 
     protected RudraInterface $rudra;

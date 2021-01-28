@@ -183,10 +183,14 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         $_SERVER["REQUEST_METHOD"] = "GET";
         $this->setContainer();
 
+        Rudra::config()->set(["environment" => "test"]);
+
         Router::get("/test/page", function () {
             Rudra::config()->set(["closure" => "closure"]);
         }
         );
+
+        var_dump(Rudra::config()->get("closure"));
 
         $this->assertEquals("closure", Rudra::config()->get("closure"));
     }

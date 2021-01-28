@@ -13,7 +13,7 @@ use Rudra\Exceptions\RouterException;
 
 trait RouterMatchTrait
 {
-    protected function handleRequest(array $route): void
+    protected function handleHttpMethod(array $route): void
     {
         if (strpos($route["http_method"], '|') !== false) {
             $httpMethods = explode('|', $route["http_method"]);
@@ -31,6 +31,7 @@ trait RouterMatchTrait
     {
         if ($route["http_method"] == $this->rudra()->request()->server()->get("REQUEST_METHOD")) {
             $request = parse_url(trim($this->rudra()->request()->server()->get("REQUEST_URI"), '/'))["path"];
+
             list($uri, $params) = $this->handlePattern($route, explode('/', $request));
             (implode('/', $uri) !== $request) ?: $this->setCallable($route, $params);
         }
@@ -62,7 +63,8 @@ trait RouterMatchTrait
     protected function setCallable(array $route, $params)
     {
         if ($route["method"] instanceof \Closure) {
-            return $route["method"]();
+            (is_array($params)) ? $route["method"](...$params) : $route["method"]($params);
+            return;
         }
 
         $route["controller"] = $this->setClassName($route["controller"], $this->namespace . "Controllers\\");
@@ -74,12 +76,11 @@ trait RouterMatchTrait
         $className = (strpos($className, ":fq") !== false)
             ? explode(':', $className)[0]
             : $namespace . $className;
+
         if (!class_exists($className)) {
             throw new RouterException("503");
         }
 
         return $className;
     }
-
-    abstract public function directCall(array $route, $params = null): void;
 }

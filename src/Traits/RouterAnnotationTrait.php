@@ -13,35 +13,24 @@ use Rudra\Annotation\Annotation;
 
 trait RouterAnnotationTrait
 {
-    public function annotationCollector(array $data, bool $multilevel = false)
-    {
-        if (!$multilevel) {
-            $this->handleAnnotation($data);
-            return;
-        }
-
-        foreach ($data as $subData) {
-            $this->handleAnnotation($subData);
-        }
-    }
-
-    protected function handleAnnotation(array $data): void
+    public function annotationCollector(array $data, string $defaultAction = "actionIndex")
     {
         foreach ($data as $item) {
-            $this->annotation($item[0], $item[1] ?? "actionIndex", $item[2] ?? 0);
+            $this->annotation($item[0], $item[1] ?? $defaultAction, $item[2] ?? 0);
         }
     }
 
-    public function annotation(string $controller, string $action = "actionIndex", int $number = 0): void
+    public function annotation(string $controller, string $action, int $number = 0): void
     {
-        $className  = $this->setClassName($controller, $this->namespace . "Controllers\\");
-        $annotation = $this->rudra()->get(Annotation::class)->getAnnotations($className, $action);
+        $annotation = $this->rudra()->get(Annotation::class)
+            ->getAnnotations($this->setClassName($controller, $this->namespace . "Controllers\\"), $action);
 
         if (isset($annotation["Routing"])) {
-            $httpMethod = $annotation["Routing"][$number]["method"] ?? "GET";
-            $routeData  = $this->setRouteData($controller, $action, $number, $annotation, $httpMethod);
+            $routeData  = $this->setRouteData(
+                $controller, $action, $number, $annotation,
+                $annotation["Routing"][$number]["method"] ?? "GET");
 
-            $this->set($routeData);
+            $this->setRequestMethod($routeData);
         }
     }
 
@@ -80,7 +69,4 @@ trait RouterAnnotationTrait
 
         return $middleware;
     }
-
-    abstract public function set(array $route);
-    abstract protected function setClassName(string $className, string $type): string;
 }

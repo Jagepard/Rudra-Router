@@ -13,7 +13,7 @@ use Rudra\Container\Interfaces\RudraInterface;
 
 interface RouterInterface
 {
-    public function set(array $route);
+    public function setRequestMethod(array $route);
     public function annotation(string $class, string $method, int $number = 0): void;
     public function directCall(array $classAndMethod, $params = null): void;
     public function get(string $pattern, $target): void;

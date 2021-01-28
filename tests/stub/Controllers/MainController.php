@@ -11,7 +11,6 @@ use Rudra\ExternalTraits\RouterMiddlewareTrait;
 
 class MainController
 {
-    use \Rudra\Router\Traits\RouteTrait;
     use \Rudra\Router\Traits\RouterMiddlewareTrait;
 
     protected RudraInterface $rudra;
@@ -95,6 +94,8 @@ class MainController
     }
 
     public function init() {}
+    public function eventRegistration() {}
+    public function generalPreCall() {}
     public function before() {}
     public function after() {}
 
