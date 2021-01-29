@@ -85,9 +85,9 @@ trait RouterRequestMethodTrait
         }
 
         (is_callable($target))
-            ? $route["method"] = $target
-            : list($route["controller"], $route["method"]) = explode("::", $target);
+            ? $route["action"] = $target
+            : list($route["controller"], $route["action"]) = explode("::", $target);
 
-        $this->setRequestMethod($route);
+        $this->handleRequestMethod($route);
     }
 }

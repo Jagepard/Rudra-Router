@@ -190,8 +190,6 @@ class RouterMethodTraitTest extends PHPUnit_Framework_TestCase
         }
         );
 
-        var_dump(Rudra::config()->get("closure"));
-
         $this->assertEquals("closure", Rudra::config()->get("closure"));
     }
 }
