@@ -10,12 +10,12 @@ declare(strict_types=1);
 namespace Rudra\Router;
 
 use Rudra\Container\Interfaces\RudraInterface;
-use Rudra\Router\Traits\{RouterMatchTrait, RouterRequestMethodTrait, RouterAnnotationTrait};
+use Rudra\Router\Traits\{RouterHandlerTrait, RouterRequestMethodTrait, RouterAnnotationTrait};
 use Rudra\Exceptions\RouterException;
 
 class Router implements RouterInterface
 {
-    use RouterMatchTrait;
+    use RouterHandlerTrait;
     use RouterRequestMethodTrait;
     use RouterAnnotationTrait;
 
@@ -33,27 +33,11 @@ class Router implements RouterInterface
         $this->namespace = $namespace;
     }
 
-    public function setRequestMethod(array $route): void
-    {
-        $requestMethod = $this->rudra()->request()->server()->get("REQUEST_METHOD");
-
-        if ($this->rudra()->request()->post()->has("_method") && $requestMethod === "POST") {
-            $this->rudra()->request()->server()->set(["REQUEST_METHOD" => $this->rudra()->request()->post()->get("_method")]);
-        }
-
-        if (in_array($requestMethod, ["PUT", "PATCH", "DELETE"])) {
-            parse_str(file_get_contents("php://input"), $data);
-            $this->rudra()->request()->{strtolower($requestMethod)}()->set($data);
-        }
-
-        $this->handleHttpMethod($route);
-    } // @codeCoverageIgnore
-
     public function directCall(array $route, $params = null): void
     {
         $controller = new $route["controller"]($this->rudra);
 
-        if (!method_exists($controller, $route["method"])) {
+        if (!method_exists($controller, $route["action"])) {
             throw new RouterException("503");
         }
 
@@ -62,18 +46,34 @@ class Router implements RouterInterface
         $controller->init();
         $controller->before();
         !isset($route["middleware"]) ?: $this->handleMiddleware($route["middleware"]);
-        !isset($params) ? $controller->{$route["method"]}() : $controller->{$route["method"]}(...$params);
+        !isset($params) ? $controller->{$route["action"]}() : $controller->{$route["action"]}(...$params);
         !isset($route["after_middleware"]) ?: $this->handleMiddleware($route["after_middleware"]);
         $controller->after();
         if ($this->rudra()->config()->get("environment") !== "test") exit();
     }
 
-    public function handleMiddleware(array $middleware, bool $fullName = false)
+    protected function setCallable(array $route, $params)
     {
-        foreach ($middleware as $current) {
-            $middlewareName = (!$fullName) ? $this->setClassName($current[0], $this->namespace . "Middleware\\") : $current[0];
-            (isset($current[1])) ? (new $middlewareName())($current[1]) : (new $middlewareName())();
+        if ($route["action"] instanceof \Closure) {
+            (is_array($params)) ? $route["action"](...$params) : $route["action"]($params);
+            return;
         }
+
+        $route["controller"] = $this->setClassName($route["controller"], $this->namespace . "Controllers\\");
+        $this->directCall($route, $params);
+    }
+
+    protected function setClassName(string $className, string $namespace): string
+    {
+        $className = (strpos($className, ":fq") !== false)
+            ? explode(':', $className)[0]
+            : $namespace . $className;
+
+        if (!class_exists($className)) {
+            throw new RouterException("503");
+        }
+
+        return $className;
     }
 
     public function rudra(): RudraInterface

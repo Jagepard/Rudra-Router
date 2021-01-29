@@ -11,8 +11,23 @@ namespace Rudra\Router\Traits;
 
 use Rudra\Exceptions\RouterException;
 
-trait RouterMatchTrait
+trait RouterHandlerTrait
 {
+    public function handleRequestMethod(array $route): void
+    {
+        $requestMethod = $this->rudra()->request()->server()->get("REQUEST_METHOD");
+
+        if ($this->rudra()->request()->post()->has("_method") && $requestMethod === "POST")
+            $this->rudra()->request()->server()->set(["REQUEST_METHOD" => $this->rudra()->request()->post()->get("_method")]);
+
+        if (in_array($requestMethod, ["PUT", "PATCH", "DELETE"])) {
+            parse_str(file_get_contents("php://input"), $data);
+            $this->rudra()->request()->{strtolower($requestMethod)}()->set($data);
+        }
+
+        $this->handleHttpMethod($route);
+    } // @codeCoverageIgnore
+
     protected function handleHttpMethod(array $route): void
     {
         if (strpos($route["http_method"], '|') !== false) {
@@ -20,14 +35,14 @@ trait RouterMatchTrait
 
             foreach ($httpMethods as $httpMethod) {
                 $route["http_method"] = $httpMethod;
-                $this->matchRequest($route);
+                $this->handleRequestUri($route);
             }
         }
 
-        $this->matchRequest($route);
+        $this->handleRequestUri($route);
     }
 
-    protected function matchRequest(array $route): void
+    protected function handleRequestUri(array $route): void
     {
         if ($route["http_method"] == $this->rudra()->request()->server()->get("REQUEST_METHOD")) {
             $request = parse_url(trim($this->rudra()->request()->server()->get("REQUEST_URI"), '/'))["path"];
@@ -60,27 +75,11 @@ trait RouterMatchTrait
         return [$uri, $params];
     }
 
-    protected function setCallable(array $route, $params)
+    public function handleMiddleware(array $middleware, bool $fullName = false)
     {
-        if ($route["method"] instanceof \Closure) {
-            (is_array($params)) ? $route["method"](...$params) : $route["method"]($params);
-            return;
+        foreach ($middleware as $current) {
+            $middlewareName = (!$fullName) ? $this->setClassName($current[0], $this->namespace . "Middleware\\") : $current[0];
+            (isset($current[1])) ? (new $middlewareName())($current[1]) : (new $middlewareName())();
         }
-
-        $route["controller"] = $this->setClassName($route["controller"], $this->namespace . "Controllers\\");
-        $this->directCall($route, $params);
-    }
-
-    protected function setClassName(string $className, string $namespace): string
-    {
-        $className = (strpos($className, ":fq") !== false)
-            ? explode(':', $className)[0]
-            : $namespace . $className;
-
-        if (!class_exists($className)) {
-            throw new RouterException("503");
-        }
-
-        return $className;
     }
 }
