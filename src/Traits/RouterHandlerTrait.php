@@ -45,9 +45,8 @@ trait RouterHandlerTrait
     protected function handleRequestUri(array $route): void
     {
         if ($route["http_method"] == $this->rudra()->request()->server()->get("REQUEST_METHOD")) {
-            $request = parse_url(trim($this->rudra()->request()->server()->get("REQUEST_URI"), '/'))["path"];
-
-            list($uri, $params) = $this->handlePattern($route, explode('/', $request));
+            $request = parse_url(ltrim($this->rudra()->request()->server()->get("REQUEST_URI"), '/'))["path"];
+            [$uri, $params] = $this->handlePattern($route, explode('/', $request));
             (implode('/', $uri) !== $request) ?: $this->setCallable($route, $params);
         }
     }
@@ -61,7 +60,7 @@ trait RouterHandlerTrait
 
         for ($i = 0; $i < $count; $i++) {
             // Looking for a match with a pattern {...}
-            if (preg_match('/{([a-zA-Z0-9]*?)}/', $pattern[$i]) !== 0) {
+            if (preg_match('/{([a-zA-Z0-9_]*?)}/', $pattern[$i]) !== 0) {
                 if (array_key_exists($i, $request)) {
                     $uri[]    = $request[$i];
                     $params[] = $request[$i];
