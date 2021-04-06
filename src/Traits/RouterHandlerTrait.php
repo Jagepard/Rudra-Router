@@ -9,16 +9,19 @@ declare(strict_types=1);
 
 namespace Rudra\Router\Traits;
 
-use Rudra\Exceptions\RouterException;
-
 trait RouterHandlerTrait
 {
+
+    /**
+     * @param  array  $route
+     */
     public function handleRequestMethod(array $route): void
     {
         $requestMethod = $this->rudra()->request()->server()->get("REQUEST_METHOD");
 
-        if ($this->rudra()->request()->post()->has("_method") && $requestMethod === "POST")
+        if ($this->rudra()->request()->post()->has("_method") && $requestMethod === "POST") {
             $this->rudra()->request()->server()->set(["REQUEST_METHOD" => $this->rudra()->request()->post()->get("_method")]);
+        }
 
         if (in_array($requestMethod, ["PUT", "PATCH", "DELETE"])) {
             parse_str(file_get_contents("php://input"), $data);
@@ -28,6 +31,9 @@ trait RouterHandlerTrait
         $this->handleHttpMethod($route);
     } // @codeCoverageIgnore
 
+    /**
+     * @param  array  $route
+     */
     protected function handleHttpMethod(array $route): void
     {
         if (strpos($route["http_method"], '|') !== false) {
@@ -42,6 +48,9 @@ trait RouterHandlerTrait
         $this->handleRequestUri($route);
     }
 
+    /**
+     * @param  array  $route
+     */
     protected function handleRequestUri(array $route): void
     {
         if ($route["http_method"] == $this->rudra()->request()->server()->get("REQUEST_METHOD")) {
@@ -51,6 +60,12 @@ trait RouterHandlerTrait
         }
     }
 
+    /**
+     * @param  array  $route
+     * @param  array  $request
+     *
+     * @return array|array[]
+     */
     protected function handlePattern(array $route, array $request): array
     {
         $uri     = [];
@@ -74,11 +89,16 @@ trait RouterHandlerTrait
         return [$uri, $params];
     }
 
+    /**
+     * @param  array  $middleware
+     * @param  bool  $fullName
+     */
     public function handleMiddleware(array $middleware, bool $fullName = false)
     {
         foreach ($middleware as $current) {
-            $middlewareName = (!$fullName) ? $this->setClassName($current[0], $this->namespace . "Middleware\\") : $current[0];
+            $middlewareName = (!$fullName) ? $this->setClassName($current[0], $this->namespace."Middleware\\") : $current[0];
             (isset($current[1])) ? (new $middlewareName())($current[1]) : (new $middlewareName())();
         }
     }
+
 }

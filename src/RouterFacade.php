@@ -29,5 +29,6 @@ use Rudra\Container\Traits\FacadeTrait;
  */
 final class RouterFacade
 {
+
     use FacadeTrait;
 }

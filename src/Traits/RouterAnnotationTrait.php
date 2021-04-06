@@ -13,6 +13,11 @@ use Rudra\Annotation\Annotation;
 
 trait RouterAnnotationTrait
 {
+
+    /**
+     * @param  array  $routes
+     * @param  string  $defaultAction
+     */
     public function annotationCollector(array $routes, string $defaultAction = "actionIndex")
     {
         foreach ($routes as $route) {
@@ -20,23 +25,36 @@ trait RouterAnnotationTrait
         }
     }
 
+    /**
+     * @param  string  $controller
+     * @param  string  $action
+     * @param  int  $line
+     */
     public function annotation(string $controller, string $action, int $line = 0): void
     {
         $annotation = $this->rudra()->get(Annotation::class)
-            ->getAnnotations($this->setClassName($controller, $this->namespace . "Controllers\\"), $action);
+            ->getAnnotations($this->setClassName($controller, $this->namespace."Controllers\\"), $action);
 
         if (isset($annotation["Routing"])) {
             $this->handleRequestMethod($this->setRouteData($controller, $action, $line, $annotation));
         }
     }
 
+    /**
+     * @param  string  $class
+     * @param  string  $action
+     * @param  int  $number
+     * @param $annotation
+     *
+     * @return array
+     */
     protected function setRouteData(string $class, string $action, int $number, $annotation)
     {
         $routeData = [
             "controller"  => $class,
             "action"      => $action,
             "http_method" => $annotation["Routing"][$number]["method"] ?? "GET",
-            "pattern"     => $annotation["Routing"][$number]["url"]
+            "pattern"     => $annotation["Routing"][$number]["url"],
         ];
 
         if (isset($annotation["Middleware"])) {
@@ -50,6 +68,11 @@ trait RouterAnnotationTrait
         return $routeData;
     }
 
+    /**
+     * @param  array  $annotation
+     *
+     * @return array
+     */
     protected function handleAnnotationMiddleware(array $annotation): array
     {
         $middleware = [];
@@ -65,4 +88,5 @@ trait RouterAnnotationTrait
 
         return $middleware;
     }
+
 }
