@@ -14,10 +14,19 @@ use Rudra\Router\Router;
 
 trait RouterMiddlewareTrait
 {
+
+    /**
+     * @param $middleware
+     * @param  bool  $fullName
+     */
     public function middleware($middleware, $fullName = false): void
     {
         $this->rudra()->get(Router::class)->handleMiddleware($middleware, $fullName);
     }
 
+    /**
+     * @return \Rudra\Container\Interfaces\RudraInterface
+     */
     abstract public function rudra(): RudraInterface;
+
 }

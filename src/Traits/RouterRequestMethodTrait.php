@@ -11,36 +11,73 @@ namespace Rudra\Router\Traits;
 
 trait RouterRequestMethodTrait
 {
+
+    /**
+     * @param  string  $pattern
+     * @param $target
+     * @param  array  $middleware
+     */
     public function get(string $pattern, $target, array $middleware = []): void
     {
         $this->setRoute($pattern, $target, "GET", $middleware);
     }
 
+    /**
+     * @param  string  $pattern
+     * @param $target
+     * @param  array  $middleware
+     */
     public function post(string $pattern, $target, array $middleware = []): void
     {
         $this->setRoute($pattern, $target, "POST", $middleware);
     }
 
+    /**
+     * @param  string  $pattern
+     * @param $target
+     * @param  array  $middleware
+     */
     public function put(string $pattern, $target, array $middleware = []): void
     {
         $this->setRoute($pattern, $target, "PUT", $middleware);
     }
 
+    /**
+     * @param  string  $pattern
+     * @param $target
+     * @param  array  $middleware
+     */
     public function patch(string $pattern, $target, array $middleware = []): void
     {
         $this->setRoute($pattern, $target, "PATCH", $middleware);
     }
 
+    /**
+     * @param  string  $pattern
+     * @param $target
+     * @param  array  $middleware
+     */
     public function delete(string $pattern, $target, array $middleware = []): void
     {
         $this->setRoute($pattern, $target, "DELETE", $middleware);
     }
 
+    /**
+     * @param  string  $pattern
+     * @param $target
+     * @param  array  $middleware
+     */
     public function any(string $pattern, $target, array $middleware = []): void
     {
         $this->setRoute($pattern, $target, "GET|POST|PUT|PATCH|DELETE", $middleware);
     }
 
+    /**
+     * @param  string  $pattern
+     * @param  string  $controller
+     * @param  array  $middleware
+     * @param  array|string[]  $actions
+     */
     public function resource(
         string $pattern, string $controller, array $middleware = [],
         array $actions = ["read", "create", "update", "delete"]
@@ -69,6 +106,12 @@ trait RouterRequestMethodTrait
         }
     }
 
+    /**
+     * @param  string  $pattern
+     * @param $target
+     * @param  string  $httpMethod
+     * @param  array  $middleware
+     */
     protected function setRoute(string $pattern, $target, string $httpMethod, array $middleware = []): void
     {
         $route["http_method"] = $httpMethod;
