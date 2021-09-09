@@ -54,7 +54,8 @@ trait RouterHandlerTrait
     protected function handleRequestUri(array $route): void
     {
         if ($route["http_method"] == $this->rudra()->request()->server()->get("REQUEST_METHOD")) {
-            $request = parse_url(ltrim($this->rudra()->request()->server()->get("REQUEST_URI"), '/'))["path"];
+            $parsedUrl = parse_url(ltrim($this->rudra()->request()->server()->get("REQUEST_URI"), '/'));
+            $request   = (array_key_exists('path', $parsedUrl)) ? $parsedUrl["path"] : '';
             [$uri, $params] = $this->handlePattern($route, explode('/', $request));
             (implode('/', $uri) !== $request) ?: $this->setCallable($route, $params);
         }
