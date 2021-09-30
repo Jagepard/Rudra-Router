@@ -12,11 +12,13 @@ namespace Rudra\Router;
 use Rudra\Container\Facades\Request;
 use Rudra\Container\Facades\Rudra;
 use Rudra\Exceptions\RouterException;
+use Rudra\Router\Traits\RouterAnnotationTrait;
 use Rudra\Router\Traits\RouterRequestMethodTrait;
 
 class Router implements RouterInterface
 {
     use RouterRequestMethodTrait;
+    use RouterAnnotationTrait;
 
     /**
      * @param  array  $route
