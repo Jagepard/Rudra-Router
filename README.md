@@ -24,9 +24,7 @@ $router->get('123/{id}', [MainController::class, 'read']);
 ```
 _вызывает stub\\MainController::read и добавляет middleware с ключами before или after соответственно_
 ```php
-$router->get('123/122',  [MainController::class, 'read'],
-    ['before'  => [Middleware::class]
-);
+$router->get('123/122',  [MainController::class, 'read'], ['before'  => [Middleware::class]);
 ```
 #### Устанавливаем маршрут 123/{id} для http метода POST
 _вызывает stub\\MainController::create_
