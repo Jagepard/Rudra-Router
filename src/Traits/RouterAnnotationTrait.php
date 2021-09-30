@@ -10,33 +10,24 @@ declare(strict_types=1);
 namespace Rudra\Router\Traits;
 
 use Rudra\Annotation\Annotation;
+use Rudra\Container\Facades\Rudra;
 
 trait RouterAnnotationTrait
 {
-
-    /**
-     * @param  array  $routes
-     * @param  string  $defaultAction
-     */
-    public function annotationCollector(array $routes, string $defaultAction = "actionIndex")
+    public function annotationCollector(array $controllers)
     {
-        foreach ($routes as $route) {
-            $this->annotation($route[0], $route[1] ?? $defaultAction, $route[2] ?? 0);
-        }
-    }
+        foreach ($controllers as $controller) {
+            $methods = get_class_methods($controller);
 
-    /**
-     * @param  string  $controller
-     * @param  string  $action
-     * @param  int  $line
-     */
-    public function annotation(string $controller, string $action, int $line = 0): void
-    {
-        $annotation = $this->rudra()->get(Annotation::class)
-            ->getAnnotations($this->setClassName($controller, $this->namespace."Controllers\\"), $action);
+            foreach ($methods as $method) {
+                $annotation = Rudra::get(Annotation::class)->getAnnotations($controller, $method);
 
-        if (isset($annotation["Routing"])) {
-            $this->handleRequestMethod($this->setRouteData($controller, $action, $line, $annotation));
+                if (isset($annotation["Routing"])) {
+                    foreach ($annotation["Routing"] as $route) {
+                        $this->set([$route['url'], $route["method"] ?? "GET", [$controller, $method]]);
+                    }
+                }
+            }
         }
     }
 
