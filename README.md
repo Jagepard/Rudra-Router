@@ -20,33 +20,33 @@ $router->get('123/{id}', function () {
 ```
 _вызывает stub\\MainController::read_
 ```php
-$router->get('123/{id}', 'MainController::read');
+$router->get('123/{id}', [MainController::class, 'read']);
 ```
 _вызывает stub\\MainController::read и добавляет middleware с ключами before или after соответственно_
 ```php
-$router->get('123/122', 'MainController::read',
-    ['before'  => [['stub\\Middleware', ['int' => 123]], ['stub\\Middleware', ['int' => 125]]]]
+$router->get('123/122',  [MainController::class, 'read'],
+    ['before'  => [Middleware::class]
 );
 ```
 #### Устанавливаем маршрут 123/{id} для http метода POST
 _вызывает stub\\MainController::create_
 ```php
-$router->post('123/{id}','MainController::create');
+$router->post('123/{id}', [MainController::class, 'create']);
 ```
 #### Устанавливаем маршрут 123/{id} для http метода PUT
 _вызывает stub\\MainController::update_
 ```php
-$router->put('123/{id}', 'MainController::update');
+$router->put('123/{id}', [MainController::class, 'update']);
 ```
 #### Устанавливаем маршрут 123/{id} для http метода PATCH
 _вызывает stub\\MainController::update_
 ```php
-$router->patch('123/{id}', 'MainController::'update');
+$router->patch('123/{id}', [MainController::class, 'update']);
 ```
 #### Устанавливаем маршрут 123/{id} для http метода DELETE
 _вызывает stub\\MainController::delete_
 ```php
-$router->delete('123/{id}', 'MainController::'delete');
+$router->delete('123/{id}', [MainController::class, 'delete']);
 ```
 #### Устанавливаем ресурс для маршрута api/{id}, методы GET|POST|PUT|DELETE
 _вызывает stub\\MainController::read для GET_
@@ -57,20 +57,17 @@ _вызывает stub\\MainController::update для PUT_
 
 _вызывает stub\\MainController::delete для DELETE_
 ```php
-$router->resource('api/{id}', 'MainController');
+$router->resource('api/{id}', MainController::class);
 ```
 Изменить методы контроллера по умолчанию можно передав массив с вашими именами
 ```php
-$router->resource('api/{id}', 'MainController', ['actionIndex', 'actionAdd', 'actionUpdate', 'actionDrop']);
+$router->resource('api/{id}', MainController::class, ['actionIndex', 'actionAdd', 'actionUpdate', 'actionDrop']);
 ```
 ##### Вариант объявления маршрута массивом ключ => значение
 #### Устанавливаем маршрут /test/{id} для http методов DELETE|PUT
 _выполняет лямбда-функцию_
 ```php
-$router->set([
-        'pattern' => '/test/page',
-        'http_method' => 'POST|PUT',
-        'method'  => function () {
+$router->set(['/test/page', 'POST|PUT', function () {
             $this->container()->set('closure', 'closure', 'raw');
         }
     ]
@@ -78,20 +75,5 @@ $router->set([
 ```
 _вызывает stub\\MainController::actionIndex_
 ```php
-$router->set([
-        'pattern'     => '/test/{id}',
-        'http_method' => 'DELETE|PUT',
-        'controller'  => 'stub\\MainController::namespace',
-        'method'      => 'actionIndex'
-    ]
-);
-```
-#### Добавление Rudra-Router в  Rudra-Container
-```php
-use Rudra\Container as Rudra;
-use Rudra\ContainerInterface;
-
-Rudra::app()->setBinding(ContainerInterface::class, Rudra::$app);
-Rudra::$app->set('router', 'Rudra\Router', ['namespace' => 'stub\\', 'templateEngine' => 'twig']);
-$router = Rudra::$app->get('router');
+$router->set(['/test/{id}', 'DELETE|PUT', [MainController::class, 'actionIndex']]);
 ```
