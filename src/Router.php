@@ -53,9 +53,9 @@ class Router implements RouterInterface
             throw new RouterException("503");
         }
 
-//        $controller->eventRegistration();
-//        $controller->generalPreCall();
-//        $controller->init();
+        $controller->eventRegistration();
+        $controller->generalPreCall();
+        $controller->init();
         $controller->before();
         !isset($route["before"]) ?: $this->handleMiddleware($route["before"]);
         $this->callAction($params, $action, $controller);
