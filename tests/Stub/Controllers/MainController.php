@@ -11,33 +11,6 @@ use Rudra\ExternalTraits\RouterMiddlewareTrait;
 
 class MainController
 {
-    use \Rudra\Router\Traits\RouterMiddlewareTrait;
-
-    protected RudraInterface $rudra;
-
-    public function run()
-    {
-        return $this->route(Route::class, 'web');
-    }
-
-    public function exceptionRoute()
-    {
-        $this->handleException();
-    } // @codeCoverageIgnore
-
-    /**
-     * @Routing(url = 'test/123', method = 'GET')
-     *
-     * @Middleware(name = 'Middleware', params = {int : '1'})
-     * @Middleware(name = 'Middleware', params = {int : '3'; qwe : '321'})
-     * @Middleware(name = 'Middleware', params = {int : '5'; asd : '456'})
-     * @Middleware(name = 'Middleware', params = {int : '7'})
-     * @Middleware(name = 'Middleware', params = {int : '9'; qwe : '321'})
-     * @Middleware(name = 'Middleware', params = {int : '11'; asd : '456'})
-     *
-     * @AfterMiddleware(name = 'Middleware', params = {int : '13'; qwe : '321'})
-     * @AfterMiddleware(name = 'Middleware', params = {int : '15'; asd : '456'})
-     */
     public function actionIndex()
     {
         Rudra::config()->set(["actionIndex" => "actionIndex"]);
@@ -98,15 +71,4 @@ class MainController
     public function generalPreCall() {}
     public function before() {}
     public function after() {}
-
-    public function __construct(RudraInterface $rudra)
-    {
-        $this->rudra = $rudra;
-        $this->rudra()->config()->set(["environment" => "test"]);
-    }
-
-    public function rudra(): RudraInterface
-    {
-        return $this->rudra;
-    }
 }

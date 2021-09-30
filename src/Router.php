@@ -9,121 +9,100 @@ declare(strict_types=1);
 
 namespace Rudra\Router;
 
-use Rudra\Container\Interfaces\RudraInterface;
-use Rudra\Router\Traits\{RouterHandlerTrait, RouterRequestMethodTrait, RouterAnnotationTrait};
+use Rudra\Container\Facades\Request;
+use Rudra\Container\Facades\Rudra;
 use Rudra\Exceptions\RouterException;
+use Rudra\Router\Traits\RouterRequestMethodTrait;
 
 class Router implements RouterInterface
 {
-
-    use RouterHandlerTrait;
     use RouterRequestMethodTrait;
-    use RouterAnnotationTrait;
-
-    protected ?string        $namespace = null;
-
-    protected RudraInterface $rudra;
-
-    /**
-     * Router constructor.
-     *
-     * @param  \Rudra\Container\Interfaces\RudraInterface  $rudra
-     */
-    public function __construct(RudraInterface $rudra)
-    {
-        $this->rudra = $rudra;
-        set_exception_handler([new RouterException(), "handler"]);
-    }
-
-    /**
-     * @param  string  $namespace
-     */
-    public function setNamespace(string $namespace): void
-    {
-        $this->namespace = $namespace;
-    }
 
     /**
      * @param  array  $route
-     * @param  null  $params
-     *
-     * @throws \Rudra\Exceptions\RouterException
+     */
+    public function set(array $route): void
+    {
+        if (strpos($route[1], '|') !== false) {
+            $httpMethods = explode('|', $route[1]);
+
+            foreach ($httpMethods as $httpMethod) {
+                $route[1] = $httpMethod;
+                $this->handleRequestUri($route);
+            }
+        }
+
+        $this->handleRequestUri($route);
+    }
+
+    /**
+     * @param array $route
+     * @param null $params
+     * @throws RouterException
      */
     public function directCall(array $route, $params = null): void
     {
-        $controller = new $route["controller"]($this->rudra);
-
-        if (!method_exists($controller, $route["action"])) {
+        if ((count($route) < 3) or (count($route[2]) !== 2)) {
             throw new RouterException("503");
         }
 
-        $controller->eventRegistration();
-        $controller->generalPreCall();
-        $controller->init();
+        $controller = new $route[2][0];
+        $action = $route[2][1];
+
+        if (!method_exists($controller, $action)) {
+            throw new RouterException("503");
+        }
+
+//        $controller->eventRegistration();
+//        $controller->generalPreCall();
+//        $controller->init();
         $controller->before();
-        !isset($route["middleware"]) ?: $this->handleMiddleware($route["middleware"]);
-        $this->handleParams($params, $route["action"], $controller);
-        !isset($route["after_middleware"]) ?: $this->handleMiddleware($route["after_middleware"]);
+        !isset($route["before"]) ?: $this->handleMiddleware($route["before"]);
+        $this->callAction($params, $action, $controller);
+        !isset($route["after"]) ?: $this->handleMiddleware($route["after"]);
         $controller->after();
 
-        if ($this->rudra()->config()->get("environment") !== "test") {
+        if (Rudra::config()->get("environment") !== "test") {
             exit();
         }
     }
 
-    /**
-     * @param  array  $route
-     * @param $params
-     *
-     * @throws \Rudra\Exceptions\RouterException
-     */
+    protected function handleRequestMethod(): void
+    {
+        $requestMethod = Request::server()->get("REQUEST_METHOD");
+
+        if ($requestMethod === "POST" && Request::post()->has("_method")) {
+            Request::server()->set(["REQUEST_METHOD" => Request::post()->get("_method")]);
+        }
+
+        if (in_array($requestMethod, ["PUT", "PATCH", "DELETE"])) {
+            parse_str(file_get_contents("php://input"), $data);
+            Request::{strtolower($requestMethod)}()->set($data);
+        }
+    }
+
+    protected function handleRequestUri(array $route)
+    {
+        $this->handleRequestMethod();
+
+        if ($route[1] == Request::server()->get("REQUEST_METHOD")) {
+            $requestString = parse_url(ltrim(Request::server()->get("REQUEST_URI"), '/'))["path"];
+            [$uri, $params] = $this->handlePattern($route, explode('/', $requestString));
+            if (implode('/', $uri) === $requestString) $this->setCallable($route, $params);
+        }
+    }
+
     protected function setCallable(array $route, $params)
     {
-        if ($route["action"] instanceof \Closure) {
-            (is_array($params)) ? $route["action"](...$params) : $route["action"]($params);
+        if ($route[2] instanceof \Closure) {
+            (is_array($params)) ? $route[2](...$params) : $route[2]($params);
             return;
         }
 
-        $route["controller"] = $this->setClassName($route["controller"], $this->namespace . "Controllers\\");
         $this->directCall($route, $params);
     }
 
-    /**
-     * @param  string  $className
-     * @param  string  $namespace
-     *
-     * @return string
-     * @throws \Rudra\Exceptions\RouterException
-     */
-    protected function setClassName(string $className, string $namespace): string
-    {
-        $className = (strpos($className, ":fq") !== false)
-            ? explode(':', $className)[0]
-            : $namespace.$className;
-
-        if (!class_exists($className)) {
-            throw new RouterException("503");
-        }
-
-        return $className;
-    }
-
-    /**
-     * @return \Rudra\Container\Interfaces\RudraInterface
-     */
-    public function rudra(): RudraInterface
-    {
-        return $this->rudra;
-    }
-
-    /**
-     * @param $params
-     * @param $action
-     * @param $controller
-     *
-     * @throws \Rudra\Exceptions\RouterException
-     */
-    protected function handleParams($params, $action, $controller): void
+    protected function callAction($params, $action, $controller): void
     {
         if (!isset($params)) {
             $controller->{$action}();
@@ -136,4 +115,33 @@ class Router implements RouterInterface
         }
     }
 
+    protected function handlePattern(array $route, array $request): array
+    {
+        $uri     = [];
+        $params  = null;
+        $pattern = explode('/', ltrim($route[0], '/'));
+        $count   = count($pattern);
+
+        for ($i = 0; $i < $count; $i++) {
+            // Looking for a match with a pattern {...}
+            if (preg_match('/{([a-zA-Z0-9_]*?)}/', $pattern[$i]) !== 0) {
+                if (array_key_exists($i, $request)) {
+                    $uri[]    = $request[$i];
+                    $params[] = $request[$i];
+                }
+                continue;
+            }
+
+            $uri[] = $pattern[$i];
+        }
+
+        return [$uri, $params];
+    }
+
+    public function handleMiddleware(array $middleware)
+    {
+        foreach ($middleware as $current) {
+            (new $current())();
+        }
+    }
 }

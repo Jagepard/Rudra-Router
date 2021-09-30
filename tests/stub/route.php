@@ -8,7 +8,7 @@ class Route
 {
     public function run(Router $router, $namespace)
     {
-        $router->setNamespace($namespace);
+//        $router->setNamespace($namespace);
 
         // Routes
 
