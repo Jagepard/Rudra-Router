@@ -95,7 +95,9 @@ class Router implements RouterInterface
         if ($route[1] == Request::server()->get("REQUEST_METHOD")) {
             $requestString = parse_url(ltrim(Request::server()->get("REQUEST_URI"), '/'))["path"];
             [$uri, $params] = $this->handlePattern($route, explode('/', $requestString));
-            if (implode('/', $uri) === $requestString) $this->setCallable($route, $params);
+            if (implode('/', $uri) === $requestString) {
+                $this->setCallable($route, $params);
+            }
         }
     }
 
