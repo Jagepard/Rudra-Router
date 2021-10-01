@@ -167,7 +167,7 @@ class Router implements RouterInterface
     public function handleMiddleware(array $middleware)
     {
         foreach ($middleware as $current) {
-            (isset($current[1])) ? (new $current[0]())($current[1]) : (new $current())();
+            (is_array($current) && array_key_exists(1, $current)) ? (new $current[0]())($current[1]) : (new $current())();
         }
     }
 }

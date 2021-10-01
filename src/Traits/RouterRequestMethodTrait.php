@@ -20,7 +20,7 @@ trait RouterRequestMethodTrait
      */
     public function get(string $pattern, $target, array $middleware = []): void
     {
-        $this->set(array_merge([$pattern, "GET", $target], $middleware));
+        $this->set(array_merge([$pattern, "GET", $target], [$middleware]));
     }
 
     /**
@@ -30,7 +30,7 @@ trait RouterRequestMethodTrait
      */
     public function post(string $pattern, $target, array $middleware = []): void
     {
-        $this->set(array_merge([$pattern, "POST", $target], $middleware));
+        $this->set(array_merge([$pattern, "POST", $target], [$middleware]));
     }
 
     /**
@@ -40,7 +40,7 @@ trait RouterRequestMethodTrait
      */
     public function put(string $pattern, $target, array $middleware = []): void
     {
-        $this->set(array_merge([$pattern, "PUT", $target], $middleware));        
+        $this->set(array_merge([$pattern, "PUT", $target], [$middleware]));
     }
 
     /**
@@ -50,7 +50,7 @@ trait RouterRequestMethodTrait
      */
     public function patch(string $pattern, $target, array $middleware = []): void
     {
-        $this->set(array_merge([$pattern, "PATCH", $target], $middleware));
+        $this->set(array_merge([$pattern, "PATCH", $target], [$middleware]));
     }
 
     /**
@@ -60,7 +60,7 @@ trait RouterRequestMethodTrait
      */
     public function delete(string $pattern, $target, array $middleware = []): void
     {
-        $this->set(array_merge([$pattern, "DELETE", $target], $middleware));
+        $this->set(array_merge([$pattern, "DELETE", $target], [$middleware]));
     }
 
     /**
@@ -70,7 +70,7 @@ trait RouterRequestMethodTrait
      */
     public function any(string $pattern, $target, array $middleware = []): void
     {
-        $this->set(array_merge([$pattern, "GET|POST|PUT|PATCH|DELETE", $target], $middleware));
+        $this->set(array_merge([$pattern, "GET|POST|PUT|PATCH|DELETE", $target], [$middleware]));
     }
 
     /**
@@ -83,18 +83,18 @@ trait RouterRequestMethodTrait
     {
         switch (Request::server()->get("REQUEST_METHOD")) {
             case "GET":
-                $this->set(array_merge([$pattern, "GET", [$controller, $actions[0]]], $middleware));
+                $this->set(array_merge([$pattern, "GET", [$controller, $actions[0]]], [$middleware]));
                 break;
             case "POST":
                 $actionKey  = ["GET" => 0, "POST" => 1, "PUT" => 2, "PATCH" => 2, "DELETE" => 3];
                 $httpMethod = (Request::post()->has("_method")) ? Request::post()->get("_method") : "POST";
-                $this->set(array_merge([$pattern, $httpMethod, [$controller, $actions[$actionKey[$httpMethod]]]], $middleware));
+                $this->set(array_merge([$pattern, $httpMethod, [$controller, $actions[$actionKey[$httpMethod]]]], [$middleware]));
                 break;
             case "PUT":
-                $this->set(array_merge([$pattern, "PUT", [$controller, $actions[2]]], $middleware));
+                $this->set(array_merge([$pattern, "PUT", [$controller, $actions[2]]], [$middleware]));
                 break;
             case "DELETE":
-                $this->set(array_merge([$pattern, "DELETE", [$controller, $actions[3]]], $middleware));
+                $this->set(array_merge([$pattern, "DELETE", [$controller, $actions[3]]], [$middleware]));
                 break;
         }
     }
