@@ -14,6 +14,9 @@ use Rudra\Container\Facades\Rudra;
 
 trait RouterAnnotationTrait
 {
+    /**
+     * @param array $controllers
+     */
     public function annotationCollector(array $controllers)
     {
         foreach ($controllers as $controller) {
@@ -21,10 +24,19 @@ trait RouterAnnotationTrait
 
             foreach ($methods as $method) {
                 $annotation = Rudra::get(Annotation::class)->getAnnotations($controller, $method);
+                $middleware = [];
+
+                if (isset($annotation["Middleware"])) {
+                    $middleware = array_merge($middleware, ['before' => $this->handleAnnotationMiddleware($annotation["Middleware"])]);
+                }
+
+                if (isset($annotation["AfterMiddleware"])) {
+                    $middleware = array_merge($middleware, ['after' => $this->handleAnnotationMiddleware($annotation["AfterMiddleware"])]);
+                }
 
                 if (isset($annotation["Routing"])) {
                     foreach ($annotation["Routing"] as $route) {
-                        $this->set([$route['url'], $route["method"] ?? "GET", [$controller, $method]]);
+                        $this->set([$route['url'], $route["method"] ?? "GET", [$controller, $method], $middleware]);
                     }
                 }
             }
@@ -32,36 +44,7 @@ trait RouterAnnotationTrait
     }
 
     /**
-     * @param  string  $class
-     * @param  string  $action
-     * @param  int  $number
-     * @param $annotation
-     *
-     * @return array
-     */
-    protected function setRouteData(string $class, string $action, int $number, $annotation)
-    {
-        $routeData = [
-            "controller"  => $class,
-            "action"      => $action,
-            "http_method" => $annotation["Routing"][$number]["method"] ?? "GET",
-            "pattern"     => $annotation["Routing"][$number]["url"],
-        ];
-
-        if (isset($annotation["Middleware"])) {
-            $routeData = array_merge($routeData, ["middleware" => $this->handleAnnotationMiddleware($annotation["Middleware"])]);
-        }
-
-        if (isset($annotation["AfterMiddleware"])) {
-            $routeData = array_merge($routeData, ["after_middleware" => $this->handleAnnotationMiddleware($annotation["AfterMiddleware"])]);
-        }
-
-        return $routeData;
-    }
-
-    /**
-     * @param  array  $annotation
-     *
+     * @param array $annotation
      * @return array
      */
     protected function handleAnnotationMiddleware(array $annotation): array
@@ -79,5 +62,4 @@ trait RouterAnnotationTrait
 
         return $middleware;
     }
-
 }
