@@ -21,7 +21,8 @@ class Router implements RouterInterface
     use RouterAnnotationTrait;
 
     /**
-     * @param  array  $route
+     * @param array $route
+     * @throws RouterException
      */
     public function set(array $route): void
     {
@@ -59,9 +60,9 @@ class Router implements RouterInterface
         $controller->generalPreCall();
         $controller->init();
         $controller->before();
-        !isset($route["before"]) ?: $this->handleMiddleware($route["before"]);
+        !isset($route[3]["before"]) ?: $this->handleMiddleware($route[3]["before"]);
         $this->callAction($params, $action, $controller);
-        !isset($route["after"]) ?: $this->handleMiddleware($route["after"]);
+        !isset($route[3]["after"]) ?: $this->handleMiddleware($route[3]["after"]);
         $controller->after();
 
         if (Rudra::config()->get("environment") !== "test") {
@@ -83,6 +84,10 @@ class Router implements RouterInterface
         }
     }
 
+    /**
+     * @param array $route
+     * @throws RouterException
+     */
     protected function handleRequestUri(array $route)
     {
         $this->handleRequestMethod();
@@ -94,6 +99,11 @@ class Router implements RouterInterface
         }
     }
 
+    /**
+     * @param array $route
+     * @param       $params
+     * @throws RouterException
+     */
     protected function setCallable(array $route, $params)
     {
         if ($route[2] instanceof \Closure) {
@@ -104,6 +114,12 @@ class Router implements RouterInterface
         $this->directCall($route, $params);
     }
 
+    /**
+     * @param $params
+     * @param $action
+     * @param $controller
+     * @throws RouterException
+     */
     protected function callAction($params, $action, $controller): void
     {
         if (!isset($params)) {
@@ -117,6 +133,11 @@ class Router implements RouterInterface
         }
     }
 
+    /**
+     * @param array $route
+     * @param array $request
+     * @return array
+     */
     protected function handlePattern(array $route, array $request): array
     {
         $uri     = [];
@@ -140,10 +161,13 @@ class Router implements RouterInterface
         return [$uri, $params];
     }
 
+    /**
+     * @param array $middleware
+     */
     public function handleMiddleware(array $middleware)
     {
         foreach ($middleware as $current) {
-            (new $current())();
+            (isset($current[1])) ? (new $current[0]())($current[1]) : (new $current())();
         }
     }
 }
