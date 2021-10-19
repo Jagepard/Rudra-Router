@@ -22,6 +22,7 @@ use Rudra\Container\Traits\FacadeTrait;
  * @method static void any(string $pattern, $target, array $middleware = [])
  * @method static void resource(string $pattern, string $controller, array $actions = [])
  * @method static annotationCollector(array $controllers)
+ * @method static handleMiddleware(array $middleware)
  *
  * @see Router
  */
