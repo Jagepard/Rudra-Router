@@ -11,49 +11,54 @@
 
 # Rudra-Router
 
-#### Устанавливаем маршрут 123/{id} для http метода GET
+#### Устанавливаем маршрут callback/{id} для http метода GET
 _выполняет лямбда-функцию_
 ```php
-$router->get('123/{id}', function () {
+$router->get('callback/{id}', function () {
     echo 'Hello world!';
 });
 ```
-_вызывает stub\\MainController::read_
+_вызывает MainController::read_
 ```php
-$router->get('123/{id}', [MainController::class, 'read']);
+$router->get('read/{id}', [MainController::class, 'read']);
 ```
-_вызывает stub\\MainController::read и добавляет middleware с ключами before или after соответственно_
+_вызывает MainController::read_ и добавляет middleware с ключами before или after соответственно_
 ```php
-$router->get('123/122',  [MainController::class, 'read'], ['before'  => [Middleware::class]);
+$router->get('read/page',  [MainController::class, 'read'], ['before'  => [Middleware::class]);
 ```
 #### Устанавливаем маршрут 123/{id} для http метода POST
-_вызывает stub\\MainController::create_
+_вызывает MainController::create_
 ```php
-$router->post('123/{id}', [MainController::class, 'create']);
+$router->post('create/{id}', [MainController::class, 'create']);
 ```
 #### Устанавливаем маршрут 123/{id} для http метода PUT
-_вызывает stub\\MainController::update_
+_вызывает MainController::update_
 ```php
-$router->put('123/{id}', [MainController::class, 'update']);
+$router->put('update/{id}', [MainController::class, 'update']);
 ```
 #### Устанавливаем маршрут 123/{id} для http метода PATCH
-_вызывает stub\\MainController::update_
+_вызывает MainController::update_
 ```php
-$router->patch('123/{id}', [MainController::class, 'update']);
+$router->patch('update/{id}', [MainController::class, 'update']);
 ```
 #### Устанавливаем маршрут 123/{id} для http метода DELETE
-_вызывает stub\\MainController::delete_
+_вызывает MainController::delete_
 ```php
-$router->delete('123/{id}', [MainController::class, 'delete']);
+$router->delete('delete/{id}', [MainController::class, 'delete']);
+```
+#### Устанавливаем маршрут 123/{id} для http методов GET|POST|PUT|PATCH|DELETE
+_вызывает MainController::any_
+```php
+$router->any('any/{id}', [MainController::class, 'any']);
 ```
 #### Устанавливаем ресурс для маршрута api/{id}, методы GET|POST|PUT|DELETE
-_вызывает stub\\MainController::read для GET_
+_вызывает MainController::read для GET_
 
-_вызывает stub\\MainController::create для POST_
+_вызывает MainController::create для POST_
 
-_вызывает stub\\MainController::update для PUT_
+_вызывает MainController::update для PUT_
 
-_вызывает stub\\MainController::delete для DELETE_
+_вызывает MainController::delete для DELETE_
 ```php
 $router->resource('api/{id}', MainController::class);
 ```
@@ -71,7 +76,7 @@ $router->set(['/test/page', 'POST|PUT', function () {
     ]
 );
 ```
-_вызывает stub\\MainController::actionIndex_
+_вызывает MainController::actionIndex_
 ```php
 $router->set(['/test/{id}', 'DELETE|PUT', [MainController::class, 'actionIndex']]);
 ```
