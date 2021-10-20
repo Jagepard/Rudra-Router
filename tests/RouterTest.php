@@ -147,8 +147,8 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->setContainer();
 
         Router::get("123/{id}", [MainController::class, 'read'],
-            ["before" => [Middleware::class],
-             "after"  => [Middleware::class]]
+            ["before" => [[Middleware::class]],
+             "after"  => [[Middleware::class]]]
         );
 
         $this->assertEquals(Middleware::class, Rudra::config()->get("middleware"));
