@@ -26,27 +26,27 @@ _вызывает MainController::read_ и добавляет middleware с кл
 ```php
 $router->get('read/page',  [MainController::class, 'read'], ['before'  => [Middleware::class]);
 ```
-#### Устанавливаем маршрут 123/{id} для http метода POST
+#### Устанавливаем маршрут create/{id} для http метода POST
 _вызывает MainController::create_
 ```php
 $router->post('create/{id}', [MainController::class, 'create']);
 ```
-#### Устанавливаем маршрут 123/{id} для http метода PUT
+#### Устанавливаем маршрут update/{id} для http метода PUT
 _вызывает MainController::update_
 ```php
 $router->put('update/{id}', [MainController::class, 'update']);
 ```
-#### Устанавливаем маршрут 123/{id} для http метода PATCH
+#### Устанавливаем маршрут update/{id} для http метода PATCH
 _вызывает MainController::update_
 ```php
 $router->patch('update/{id}', [MainController::class, 'update']);
 ```
-#### Устанавливаем маршрут 123/{id} для http метода DELETE
+#### Устанавливаем маршрут delete/{id} для http метода DELETE
 _вызывает MainController::delete_
 ```php
 $router->delete('delete/{id}', [MainController::class, 'delete']);
 ```
-#### Устанавливаем маршрут 123/{id} для http методов GET|POST|PUT|PATCH|DELETE
+#### Устанавливаем маршрут any/{id} для http методов GET|POST|PUT|PATCH|DELETE
 _вызывает MainController::any_
 ```php
 $router->any('any/{id}', [MainController::class, 'any']);
