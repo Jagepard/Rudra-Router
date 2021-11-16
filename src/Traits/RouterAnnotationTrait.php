@@ -16,9 +16,13 @@ trait RouterAnnotationTrait
 {
     /**
      * @param array $controllers
+     * @param false $getter
+     * @return mixed
      */
-    public function annotationCollector(array $controllers)
+    public function annotationCollector(array $controllers, bool $getter = false)
     {
+        $annotations = [];
+
         foreach ($controllers as $controller) {
             $methods = get_class_methods($controller);
 
@@ -36,10 +40,18 @@ trait RouterAnnotationTrait
 
                 if (isset($annotation["Routing"])) {
                     foreach ($annotation["Routing"] as $route) {
-                        $this->set([$route['url'], $route["method"] ?? "GET", [$controller, $method], $middleware]);
+                        if ($getter) {
+                            $annotations[] = [[$route['url'], $route["method"] ?? "GET", [$controller, $method], $middleware]];
+                        } else {
+                            $this->set([$route['url'], $route["method"] ?? "GET", [$controller, $method], $middleware]);
+                        }
                     }
                 }
             }
+        }
+
+        if ($getter) {
+            return $annotations;
         }
     }
 
