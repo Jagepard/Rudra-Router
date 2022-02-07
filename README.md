@@ -116,3 +116,17 @@ class FirstMiddleware
     }
 }
 ```
+_Пример Middleware с параметрами_
+```php
+<?php
+
+namespace App\Containers\Web\Middleware;
+
+class SecondMiddleware
+{
+    public function __invoke($params, $middleware)
+    {
+        var_dump($params);
+    }
+}
+```
