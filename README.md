@@ -101,9 +101,9 @@ _Пример Middleware_
 
 namespace App\Middleware;
 
-use Rudra\Router\RouterFacade as Router;
+use Rudra\Router\Router;
 
-class FirstMiddleware
+class FirstMiddleware  extends Router
 {
     public function __invoke($middlewares)
     {
@@ -112,11 +112,11 @@ class FirstMiddleware
 
     public function next($middlewares)
     {
-        Router::handleMiddleware($middlewares);
+        $this->handleMiddleware($middlewares);
     }
 }
 ```
-_Пример Middleware с параметрами_
+_Пример Middleware с параметрами с использованием Фасада_
 ```php
 <?php
 
