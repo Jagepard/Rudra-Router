@@ -103,7 +103,7 @@ namespace App\Middleware;
 
 use Rudra\Router\Router;
 
-class FirstMiddleware  extends Router
+class FirstMiddleware extends Router
 {
     public function __invoke($middlewares)
     {
