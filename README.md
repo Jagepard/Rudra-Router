@@ -18,7 +18,7 @@ $router->get('callback/{id}', function () {
     echo 'Hello world!';
 });
 ```
-_Для вызов через Фасад_
+_Для вызова через Фасад_
 ```php
 use Rudra\Router\RouterFacade as Router;
 
