@@ -164,12 +164,14 @@ class Router implements RouterInterface
     }
 
     /**
-     * @param array $middleware
+     * @param array $chainOfMiddlewares
      */
-    public function handleMiddleware(array $middleware)
+    public function handleMiddleware(array $chainOfMiddlewares)
     {
-        foreach ($middleware as $current) {
-            array_key_exists(1, $current) ? (new $current[0]())($current[1]) : (new $current[0]())();
+        $current = array_shift($chainOfMiddlewares);
+
+        if (is_array($current)) {
+            (new $current[0]())($chainOfMiddlewares);
         }
     }
 }
