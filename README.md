@@ -124,9 +124,15 @@ namespace App\Middleware;
 
 class SecondMiddleware
 {
-    public function __invoke($params, $middleware)
+    public function __invoke($params, $middlewares)
     {
         var_dump($params);
+        $this->next($middlewares);
+    }
+    
+    public function next($middlewares)
+    {
+        Router::handleMiddleware($middlewares);
     }
 }
 ```
