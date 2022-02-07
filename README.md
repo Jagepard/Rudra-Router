@@ -18,6 +18,14 @@ $router->get('callback/{id}', function () {
     echo 'Hello world!';
 });
 ```
+_Для вызов через Фасад_
+```php
+use Rudra\Router\RouterFacade as Router;
+
+Router::get('callback/{id}', function () {
+    echo 'Hello world!';
+});
+```
 _вызывает MainController::read_
 ```php
 $router->get('read/{id}', [MainController::class, 'read']);
