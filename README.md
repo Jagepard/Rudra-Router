@@ -26,7 +26,7 @@ _вызывает MainController::read_ и добавляет middleware с кл
 ```php
 $router->get('read/page',  [MainController::class, 'read'], ['before'  => [Middleware::class]);
 ```
-_С параметрами для middleware
+_С параметрами для middleware_
 ```php
 $router->get('', [MainController::class, 'read'], [
     'before' => [[FirstMidddleware::class], [SecondMidddleware::class, ['int' => 456, new \stdClass]]],
