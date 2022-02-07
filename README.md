@@ -95,3 +95,24 @@ _вызывает MainController::actionIndex_
 ```php
 $router->set(['/test/{id}', 'DELETE|PUT', [MainController::class, 'actionIndex']]);
 ```
+_Пример Middleware_
+```php
+<?php
+
+namespace App\Middleware;
+
+use Rudra\Router\RouterFacade as Router;
+
+class FirstMiddleware
+{
+    public function __invoke($middlewares)
+    {
+        $this->next($middlewares);
+    }
+
+    public function next($middlewares)
+    {
+        Router::handleMiddleware($middlewares);
+    }
+}
+```
