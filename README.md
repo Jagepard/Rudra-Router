@@ -120,7 +120,7 @@ _Пример Middleware с параметрами_
 ```php
 <?php
 
-namespace App\Containers\Web\Middleware;
+namespace App\Middleware;
 
 class SecondMiddleware
 {
