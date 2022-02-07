@@ -26,6 +26,13 @@ _вызывает MainController::read_ и добавляет middleware с кл
 ```php
 $router->get('read/page',  [MainController::class, 'read'], ['before'  => [Middleware::class]);
 ```
+_С параметрами для middleware
+```php
+$router->get('', [MainController::class, 'read'], [
+    'before' => [[FirstMidddleware::class], [SecondMidddleware::class, ['int' => 456, new \stdClass]]],
+    'after'  => [[FirstMidddleware::class], [SecondMidddleware::class, ['int' => 456, new \stdClass]]]
+]);
+```
 #### Устанавливаем маршрут create/{id} для http метода POST
 _вызывает MainController::create_
 ```php
