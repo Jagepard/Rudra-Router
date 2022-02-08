@@ -133,6 +133,7 @@ _вызывает MainController::any_
 ```php
 $router->any('any/{id}', [MainController::class, 'any']);
 ```
+_в аннотациях_
 ```php
 /**
  * @Routing(url = 'any/{id}', method = 'GET|POST|PUT|PATCH|DELETE')
