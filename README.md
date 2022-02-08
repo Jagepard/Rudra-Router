@@ -102,8 +102,9 @@ _Пример Middleware_
 namespace App\Middleware;
 
 use Rudra\Router\Router;
+use Rudra\Router\MiddlewareInterface;
 
-class FirstMiddleware extends Router
+class FirstMiddleware extends Router implements MiddlewareInterface
 {
     public function __invoke($middlewares)
     {
@@ -121,8 +122,9 @@ _Пример Middleware с параметрами с использование
 <?php
 
 namespace App\Middleware;
+use Rudra\Router\MiddlewareInterface;
 
-class SecondMiddleware
+class SecondMiddleware implements MiddlewareInterface
 {
     public function __invoke($params, $middlewares)
     {
