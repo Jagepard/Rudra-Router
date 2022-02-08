@@ -166,7 +166,10 @@ $router->set(['/test/page', 'POST|PUT', function () {
 ```
 _вызывает MainController::actionIndex_
 ```php
-$router->set(['/test/{id}', 'DELETE|PUT', [MainController::class, 'actionIndex']]);
+$router->set(['/test/{id}', 'DELETE|PUT', [MainController::class, 'actionIndex'], [
+        'before' => [First::class, Second::class],
+        'after'  => [[First::class], [Second::class]]
+]]);
 ```
 _Пример Middleware_
 ```php
