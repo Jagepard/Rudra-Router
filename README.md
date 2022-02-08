@@ -49,6 +49,19 @@ _в аннотациях_
  */
 public function read()
 ```
+_Для сбора аннотаций необходимо передать массив в annotationCollector_
+```php
+$router->annotationCollector([
+    \App\Controllers\MainController::class,
+    \App\Controllers\SecondController::class,
+]);
+```
+```php
+Router::annotationCollector([
+    \App\Controllers\MainController::class,
+    \App\Controllers\SecondController::class,
+]);
+```
 _С параметрами для middleware_
 ```php
 $router->get('', [MainController::class, 'read'], [
