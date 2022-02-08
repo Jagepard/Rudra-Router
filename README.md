@@ -14,16 +14,16 @@
 #### Устанавливаем маршрут callback/{id} для http метода GET
 _выполняет лямбда-функцию_
 ```php
-$router->get('callback/{id}', function () {
-    echo 'Hello world!';
+$router->get('callback/{name}', function ($name) {
+    echo "Hello $name!";
 });
 ```
 _Для вызова через Фасад Rudra-Container_
 ```php
 use Rudra\Router\RouterFacade as Router;
 
-Router::get('callback/{id}', function () {
-    echo 'Hello world!';
+Router::get('callback/{name}', function ($name) {
+    echo "Hello $name!";
 });
 ```
 _вызывает MainController::read_
@@ -35,7 +35,7 @@ _вызывает MainController::read при помощи добавления 
 /**
  * @Routing(url = ''read/{id}')
  */
-public function read()
+public function read($id)
 ```
 _вызывает MainController::read_ и добавляет middleware с ключами before или after соответственно_
 ```php
@@ -103,7 +103,7 @@ _в аннотациях_
 /**
  * @Routing(url = 'create/{id}', method = 'POST')
  */
-public function create()
+public function create($id)
 ```
 #### Устанавливаем маршрут update/{id} для http метода PUT
 _вызывает MainController::update_
@@ -115,7 +115,7 @@ _в аннотациях_
 /**
  * @Routing(url = 'update/{id}', method = 'PUT')
  */
-public function update()
+public function update($id)
 ```
 #### Устанавливаем маршрут update/{id} для http метода PATCH
 _вызывает MainController::update_
@@ -127,7 +127,7 @@ _в аннотациях_
 /**
  * @Routing(url = 'update/{id}', method = 'PATCH')
  */
-public function update()
+public function update($id)
 ```
 #### Устанавливаем маршрут delete/{id} для http метода DELETE
 _вызывает MainController::delete_
@@ -139,7 +139,7 @@ _в аннотациях_
 /**
  * @Routing(url = 'delete/{id}', method = 'DELETE')
  */
-public function delete()
+public function delete($id)
 ```
 #### Устанавливаем маршрут any/{id} для http методов GET|POST|PUT|PATCH|DELETE
 _вызывает MainController::any_
@@ -151,7 +151,7 @@ _в аннотациях_
 /**
  * @Routing(url = 'any/{id}', method = 'GET|POST|PUT|PATCH|DELETE')
  */
-public function any()
+public function any($id)
 ```
 #### Устанавливаем ресурс для маршрута api/{id}, методы GET|POST|PUT|DELETE
 _вызывает MainController::read для GET_
