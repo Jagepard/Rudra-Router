@@ -37,8 +37,8 @@ $router->get('read/page',  [MainController::class, 'read'], ['before'  => [Middl
 _С параметрами для middleware_
 ```php
 $router->get('', [MainController::class, 'read'], [
-    'before' => [[FirstMidddleware::class], [SecondMidddleware::class, ['int' => 456, new \stdClass]]],
-    'after'  => [[FirstMidddleware::class], [SecondMidddleware::class, ['int' => 456, new \stdClass]]]
+    'before' => [FirstMidddleware::class, [SecondMidddleware::class, ['int' => 456, new \stdClass]]],
+    'after'  => [FirstMidddleware::class, [SecondMidddleware::class, ['int' => 456, new \stdClass]]]
 ]);
 ```
 #### Устанавливаем маршрут create/{id} для http метода POST
