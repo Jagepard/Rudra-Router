@@ -41,6 +41,19 @@ $router->get('', [MainController::class, 'read'], [
     'after'  => [FirstMidddleware::class, [SecondMidddleware::class, ['int' => 456, new \stdClass]]]
 ]);
 ```
+_При передаче параметров в Middleware необходимо добавлять параметр array $params_
+```php
+public function __invoke(array $params, array $middlewares)
+```
+_Если параметры не передаются, то:_
+```php
+public function __invoke(array $middlewares)
+```
+_Следующие вызовы без параметров равны_
+```php
+'before' => [FirstMidddleware::class, SecondMidddleware::class]],
+'before' => [[FirstMidddleware::class], [SecondMidddleware::class]]
+```
 #### Устанавливаем маршрут create/{id} для http метода POST
 _вызывает MainController::create_
 ```php
