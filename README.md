@@ -155,7 +155,7 @@ $router->resource('api/{id}', MainController::class);
 ```php
 $router->resource('api/{id}', MainController::class, ['actionIndex', 'actionAdd', 'actionUpdate', 'actionDrop']);
 ```
-##### Вариант объявления маршрута массивом ключ => значение
+##### Вариант объявления маршрута методом set
 #### Устанавливаем маршрут /test/{id} для http методов DELETE|PUT
 _выполняет лямбда-функцию_
 ```php
