@@ -175,6 +175,6 @@ class Router implements RouterInterface
             return;
         }
 
-        (is_array($current)) ? (new $current[0]())($chainOfMiddlewares) : (new $current())($current);
+        (is_array($current)) ? (new $current[0]())($chainOfMiddlewares) : (new $current())($chainOfMiddlewares);
     }
 }
