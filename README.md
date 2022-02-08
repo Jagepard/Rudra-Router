@@ -106,12 +106,12 @@ use Rudra\Router\MiddlewareInterface;
 
 class FirstMiddleware extends Router implements MiddlewareInterface
 {
-    public function __invoke($middlewares)
+    public function __invoke(array $middlewares)
     {
         $this->next($middlewares);
     }
 
-    public function next($middlewares)
+    public function next(array $middlewares): void
     {
         $this->handleMiddleware($middlewares);
     }
@@ -128,13 +128,13 @@ use Rudra\Router\RouterFacade as Router;
 
 class SecondMiddleware implements MiddlewareInterface
 {
-    public function __invoke($params, $middlewares)
+    public function __invoke(array $params, array $middlewares)
     {
         var_dump($params);
         $this->next($middlewares);
     }
     
-    public function next($middlewares)
+    public function next(array $middlewares): void
     {
         Router::handleMiddleware($middlewares);
     }
