@@ -124,6 +124,7 @@ _Пример Middleware с параметрами с использование
 namespace App\Middleware;
 
 use Rudra\Router\MiddlewareInterface;
+use Rudra\Router\RouterFacade as Router;
 
 class SecondMiddleware implements MiddlewareInterface
 {
