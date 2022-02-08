@@ -122,6 +122,7 @@ _Пример Middleware с параметрами с использование
 <?php
 
 namespace App\Middleware;
+
 use Rudra\Router\MiddlewareInterface;
 
 class SecondMiddleware implements MiddlewareInterface
