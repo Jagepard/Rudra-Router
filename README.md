@@ -41,7 +41,7 @@ $router->get('', [MainController::class, 'read'], [
     'after'  => [FirstMidddleware::class, [SecondMidddleware::class, ['int' => 456, new \stdClass]]]
 ]);
 ```
-_При передаче параметров в Middleware необходимо добавлять параметр array $params_
+_При передаче параметров в middleware необходимо добавлять параметр "array $params"_
 ```php
 public function __invoke(array $params, array $middlewares)
 ```
