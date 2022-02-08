@@ -49,7 +49,7 @@ _в аннотациях_
  */
 public function read()
 ```
-_Для сбора аннотаций необходимо передать массив в annotationCollector_
+_Для сбора аннотаций необходимо передать следующий массив в annotationCollector_
 ```php
 $router->annotationCollector([
     \App\Controllers\MainController::class,
