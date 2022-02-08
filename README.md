@@ -30,9 +30,24 @@ _вызывает MainController::read_
 ```php
 $router->get('read/{id}', [MainController::class, 'read']);
 ```
+_вызывает MainController::read при помощи добавления аннотаций к MainController_
+```php
+/**
+ * @Routing(url = ''read/{id}')
+ */
+public function read()
+```
 _вызывает MainController::read_ и добавляет middleware с ключами before или after соответственно_
 ```php
 $router->get('read/page',  [MainController::class, 'read'], ['before'  => [Middleware::class]);
+```
+_в аннотациях_
+```php
+/**
+ * @Routing(url = 'read/page')
+ * @Middleware(name = 'App\Middleware\Middleware')
+ */
+public function read()
 ```
 _С параметрами для middleware_
 ```php
@@ -40,6 +55,17 @@ $router->get('', [MainController::class, 'read'], [
     'before' => [FirstMidddleware::class, [SecondMidddleware::class, ['int' => 456, new \stdClass]]],
     'after'  => [FirstMidddleware::class, [SecondMidddleware::class, ['int' => 456, new \stdClass]]]
 ]);
+```
+_в аннотациях_
+```php
+/**
+ * @Routing(url = '')
+ * @Middleware(name = 'App\Middleware\FirstMidddleware')
+ * @Middleware(name = 'App\Middleware\SecondMidddleware', params = {int : '456'})
+ * @AfterMiddleware(name = 'App\Middleware\FirstMidddleware')
+ * @AfterMiddleware(name = 'App\Middleware\SecondMidddleware', params = {int : '456'})
+ */
+public function read()
 ```
 _При передаче параметров в middleware необходимо добавлять параметр "array $params"_
 ```php
