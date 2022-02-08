@@ -85,25 +85,59 @@ _вызывает MainController::create_
 ```php
 $router->post('create/{id}', [MainController::class, 'create']);
 ```
+_в аннотациях_
+```php
+/**
+ * @Routing(url = 'create/{id}', method = 'POST')
+ */
+public function create()
+```
 #### Устанавливаем маршрут update/{id} для http метода PUT
 _вызывает MainController::update_
 ```php
 $router->put('update/{id}', [MainController::class, 'update']);
+```
+_в аннотациях_
+```php
+/**
+ * @Routing(url = 'update/{id}', method = 'PUT')
+ */
+public function update()
 ```
 #### Устанавливаем маршрут update/{id} для http метода PATCH
 _вызывает MainController::update_
 ```php
 $router->patch('update/{id}', [MainController::class, 'update']);
 ```
+_в аннотациях_
+```php
+/**
+ * @Routing(url = 'update/{id}', method = 'PATCH')
+ */
+public function update()
+```
 #### Устанавливаем маршрут delete/{id} для http метода DELETE
 _вызывает MainController::delete_
 ```php
 $router->delete('delete/{id}', [MainController::class, 'delete']);
 ```
+_в аннотациях_
+```php
+/**
+ * @Routing(url = 'delete/{id}', method = 'DELETE')
+ */
+public function delete()
+```
 #### Устанавливаем маршрут any/{id} для http методов GET|POST|PUT|PATCH|DELETE
 _вызывает MainController::any_
 ```php
 $router->any('any/{id}', [MainController::class, 'any']);
+```
+```php
+/**
+ * @Routing(url = 'any/{id}', method = 'GET|POST|PUT|PATCH|DELETE')
+ */
+public function any()
 ```
 #### Устанавливаем ресурс для маршрута api/{id}, методы GET|POST|PUT|DELETE
 _вызывает MainController::read для GET_
@@ -125,10 +159,9 @@ $router->resource('api/{id}', MainController::class, ['actionIndex', 'actionAdd'
 _выполняет лямбда-функцию_
 ```php
 $router->set(['/test/page', 'POST|PUT', function () {
-            $this->container()->set('closure', 'closure', 'raw');
+            echo 'Hello world!';
         }
-    ]
-);
+]);
 ```
 _вызывает MainController::actionIndex_
 ```php
