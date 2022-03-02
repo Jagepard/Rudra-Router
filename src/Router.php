@@ -171,10 +171,10 @@ class Router implements RouterInterface
         $current = array_shift($chainOfMiddlewares);
 
         if ((is_array($current)) && count($current) === 2) {
-            (new $current[0]())($current[1], $chainOfMiddlewares);
+            (new $current[0]())($chainOfMiddlewares, $current[1]);
             return;
         }
-
+        
         (is_array($current)) ? (new $current[0]())($chainOfMiddlewares) : (new $current())($chainOfMiddlewares);
     }
 }
