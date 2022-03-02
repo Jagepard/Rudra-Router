@@ -217,7 +217,7 @@ use Rudra\Router\RouterFacade as Router;
 
 class SecondMiddleware implements MiddlewareInterface
 {
-    public function __invoke(array $params, array $middlewares)
+    public function __invoke(array $middlewares, array $params)
     {
         var_dump($params);
         $this->next($middlewares);
