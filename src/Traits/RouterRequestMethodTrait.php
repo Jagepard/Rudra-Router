@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace Rudra\Router\Traits;
 
-use Rudra\Container\Facades\Request;
+use Rudra\Container\Interfaces\RudraInterface;
 
 trait RouterRequestMethodTrait
 {
@@ -81,13 +81,13 @@ trait RouterRequestMethodTrait
      */
     public function resource(string $pattern, string $controller, array $middleware = [], array $actions = ["read", "create", "update", "delete"]): void
     {
-        switch (Request::server()->get("REQUEST_METHOD")) {
+        switch ($this->rudra()->server()->get("REQUEST_METHOD")) {
             case "GET":
                 $this->set(array_merge([$pattern, "GET", [$controller, $actions[0]]], [$middleware]));
                 break;
             case "POST":
                 $actionKey  = ["GET" => 0, "POST" => 1, "PUT" => 2, "PATCH" => 2, "DELETE" => 3];
-                $httpMethod = (Request::post()->has("_method")) ? Request::post()->get("_method") : "POST";
+                $httpMethod = ($this->rudra()->post()->has("_method")) ? $this->rudra()->post()->get("_method") : "POST";
                 $this->set(array_merge([$pattern, $httpMethod, [$controller, $actions[$actionKey[$httpMethod]]]], [$middleware]));
                 break;
             case "PUT":
@@ -103,4 +103,6 @@ trait RouterRequestMethodTrait
      * @param array $route
      */
     abstract public function set(array $route): void;
+
+    abstract public function rudra(): RudraInterface;
 }

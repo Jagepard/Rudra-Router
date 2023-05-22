@@ -10,16 +10,17 @@ declare(strict_types=1);
 namespace Rudra\Router\Traits;
 
 use Rudra\Annotation\Annotation;
-use Rudra\Container\Facades\Rudra;
+use Rudra\Container\Interfaces\RudraInterface;
 
 trait RouterAnnotationTrait
 {
     /**
-     * @param array $controllers
-     * @param false $getter
-     * @return mixed
+     * @param  array   $controllers
+     * @param  boolean $getter
+     * @param  boolean $attributes
+     * @return void
      */
-    public function annotationCollector(array $controllers, bool $getter = false)
+    public function annotationCollector(array $controllers, bool $getter = false, bool $attributes = false)
     {
         $annotations = [];
 
@@ -27,7 +28,10 @@ trait RouterAnnotationTrait
             $methods = get_class_methods($controller);
 
             foreach ($methods as $method) {
-                $annotation = Rudra::get(Annotation::class)->getAnnotations($controller, $method);
+                $annotation = ($attributes)
+                    ? Rudra::get(Annotation::class)->getAttributes($controller, $method)
+                    : Rudra::get(Annotation::class)->getAnnotations($controller, $method);
+
                 $middleware = [];
 
                 if (isset($annotation["Middleware"])) {
@@ -74,4 +78,6 @@ trait RouterAnnotationTrait
 
         return $middleware;
     }
+
+    abstract public function rudra(): RudraInterface;
 }
