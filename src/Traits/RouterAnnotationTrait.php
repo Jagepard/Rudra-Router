@@ -29,8 +29,8 @@ trait RouterAnnotationTrait
 
             foreach ($methods as $method) {
                 $annotation = ($attributes)
-                    ? Rudra::get(Annotation::class)->getAttributes($controller, $method)
-                    : Rudra::get(Annotation::class)->getAnnotations($controller, $method);
+                    ? $this->rudra->get(Annotation::class)->getAttributes($controller, $method)
+                    : $this->rudra->get(Annotation::class)->getAnnotations($controller, $method);
 
                 $middleware = [];
 
