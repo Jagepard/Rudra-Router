@@ -49,8 +49,8 @@ class Router implements RouterInterface
             throw new RouterException("503");
         }
 
-        $controller = new $route[2][0];
-        $action = $route[2][1];
+        $controller = new $route[2][0]($this->rudra());
+        $action     = $route[2][1];
 
         if (!method_exists($controller, $action)) {
             throw new RouterException("503");
