@@ -3,11 +3,6 @@
 namespace Rudra\Router\Tests\Stub\Controllers;
 
 use Rudra\Container\Facades\Rudra;
-use Rudra\Container\Interfaces\RudraInterface;
-use Rudra\Tests\Stub\Route;
-use Rudra\ExternalTraits\RouteTrait;
-use Rudra\Interfaces\ContainerInterface;
-use Rudra\ExternalTraits\RouterMiddlewareTrait;
 
 class MainController
 {

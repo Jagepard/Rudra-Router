@@ -81,13 +81,13 @@ trait RouterRequestMethodTrait
      */
     public function resource(string $pattern, string $controller, array $middleware = [], array $actions = ["read", "create", "update", "delete"]): void
     {
-        switch ($this->rudra()->server()->get("REQUEST_METHOD")) {
+        switch ($this->rudra->request()->server()->get("REQUEST_METHOD")) {
             case "GET":
                 $this->set(array_merge([$pattern, "GET", [$controller, $actions[0]]], [$middleware]));
                 break;
             case "POST":
                 $actionKey  = ["GET" => 0, "POST" => 1, "PUT" => 2, "PATCH" => 2, "DELETE" => 3];
-                $httpMethod = ($this->rudra()->post()->has("_method")) ? $this->rudra()->post()->get("_method") : "POST";
+                $httpMethod = ($this->rudra->request()->post()->has("_method")) ? $this->rudra->request()->post()->get("_method") : "POST";
                 $this->set(array_merge([$pattern, $httpMethod, [$controller, $actions[$actionKey[$httpMethod]]]], [$middleware]));
                 break;
             case "PUT":
