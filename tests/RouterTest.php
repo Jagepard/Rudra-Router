@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Rudra\Router\Tests;
 
 use Rudra\Container\{Rudra as R, Facades\Rudra, Interfaces\RudraInterface};
-use Rudra\Exceptions\RouterException;
 use Rudra\Router\RouterFacade as Router;
 use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 use Rudra\Router\Tests\Stub\Controllers\MainController;
