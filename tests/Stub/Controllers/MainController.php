@@ -61,9 +61,9 @@ class MainController
         Rudra::config()->set(["delete" => "delete"]);
     }
 
+    public function shipInit() {}
+    public function containerInit() {}
     public function init() {}
-    public function eventRegistration() {}
-    public function generalPreCall() {}
     public function before() {}
     public function after() {}
 }
