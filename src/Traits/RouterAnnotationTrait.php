@@ -25,12 +25,12 @@ trait RouterAnnotationTrait
         $annotations = [];
 
         foreach ($controllers as $controller) {
-            $methods = get_class_methods($controller);
+            $actions = get_class_methods($controller);
 
-            foreach ($methods as $method) {
+            foreach ($actions as $action) {
                 $annotation = ($attributes)
-                    ? $this->rudra->get(Annotation::class)->getAttributes($controller, $method)
-                    : $this->rudra->get(Annotation::class)->getAnnotations($controller, $method);
+                    ? $this->rudra->get(Annotation::class)->getAttributes($controller, $action)
+                    : $this->rudra->get(Annotation::class)->getAnnotations($controller, $action);
 
                 $middleware = [];
 
@@ -44,10 +44,16 @@ trait RouterAnnotationTrait
 
                 if (isset($annotation["Routing"])) {
                     foreach ($annotation["Routing"] as $route) {
+
+                        $route['controller'] = $controller;
+                        $route['action']     = $action;
+                        $route['middleware'] = $middleware;
+                        $route['method']     = $route['method'] ?? "GET";
+
                         if ($getter) {
-                            $annotations[] = [[$route['url'], $route["method"] ?? "GET", [$controller, $method], $middleware]];
+                            $annotations[] = [$route];
                         } else {
-                            $this->set([$route['url'], $route["method"] ?? "GET", [$controller, $method], $middleware]);
+                            $this->set($route);
                         }
                     }
                 }
