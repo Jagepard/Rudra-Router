@@ -26,11 +26,11 @@ class Router implements RouterInterface
      */
     public function set(array $route): void
     {
-        if (strpos($route[1], '|') !== false) {
-            $httpMethods = explode('|', $route[1]);
+        if (strpos($route['method'], '|') !== false) {
+            $httpMethods = explode('|', $route['method']);
 
             foreach ($httpMethods as $httpMethod) {
-                $route[1] = $httpMethod;
+                $route['method'] = $httpMethod;
                 $this->handleRequestUri($route);
             }
         }
@@ -45,12 +45,8 @@ class Router implements RouterInterface
      */
     public function directCall(array $route, $params = null): void
     {
-        if ((count($route) < 3) or (count($route[2]) !== 2)) {
-            throw new RouterException("503");
-        }
-
-        $controller = new $route[2][0]($this->rudra());
-        $action     = $route[2][1];
+        $controller = new $route['controller']();
+        $action     = $route['action'];
 
         if (!method_exists($controller, $action)) {
             throw new RouterException("503");
@@ -60,9 +56,11 @@ class Router implements RouterInterface
         $controller->containerInit();
         $controller->init();
         $controller->before();
-        !isset($route[3]["before"]) ?: $this->handleMiddleware($route[3]["before"]);
+
+        !isset($route['middleware']["before"]) ?: $this->handleMiddleware($route['middleware']["before"]);
         $this->callAction($params, $action, $controller);
-        !isset($route[3]["after"]) ?: $this->handleMiddleware($route[3]["after"]);
+        !isset($route['middleware']["after"]) ?: $this->handleMiddleware($route['middleware']["after"]);
+
         $controller->after();
 
         if ($this->rudra->config()->get("environment") !== "test") {
@@ -92,9 +90,10 @@ class Router implements RouterInterface
     {
         $this->handleRequestMethod();
 
-        if ($route[1] == $this->rudra->request()->server()->get("REQUEST_METHOD")) {
+        if ($route['method'] == $this->rudra->request()->server()->get("REQUEST_METHOD")) {
             $requestString  = parse_url(ltrim($this->rudra->request()->server()->get("REQUEST_URI"), '/'))["path"] ?? "";
             [$uri, $params] = $this->handlePattern($route, explode('/', $requestString));
+
             if (implode('/', $uri) === $requestString) {
                 $this->setCallable($route, $params);
             }
@@ -108,8 +107,8 @@ class Router implements RouterInterface
      */
     protected function setCallable(array $route, $params)
     {
-        if ($route[2] instanceof \Closure) {
-            (is_array($params)) ? $route[2](...$params) : $route[2]($params);
+        if ($route['controller'] instanceof \Closure) {
+            (is_array($params)) ? $route['controller'](...$params) : $route['controller']($params);
             return;
         }
 
@@ -144,20 +143,33 @@ class Router implements RouterInterface
     {
         $uri     = [];
         $params  = null;
-        $pattern = explode('/', ltrim($route[0], '/'));
-        $count   = count($pattern);
+        $subject = explode('/', ltrim($route['url'], '/'));
+        $count   = count($subject);
 
         for ($i = 0; $i < $count; $i++) {
-            // Looking for a match with a pattern {...}
-            if (preg_match('/{([a-zA-Z0-9_]*?)}/', $pattern[$i]) !== 0) {
-                if (array_key_exists($i, $request)) {
+            // Looking for a match with a subject :...
+            if (preg_match("/:[a-zA-Z0-9_-]+/", $subject[$i]) !== 0) {
+                if (array_key_exists($i, $request)) {                  
                     $uri[]    = $request[$i];
                     $params[] = $request[$i];
                 }
+
+                continue;
+            } elseif (preg_match("/:[\\[\\]a-zA-Z0-9_-]+/", $subject[$i])) {
+                if (array_key_exists($i, $request)) {
+                    $pattern = substr($subject[$i], 1);
+                    if (preg_match("/$pattern+/", $request[$i]) === 0) {
+                        throw new RouterException("404");
+                    }
+
+                    $uri[]    = $request[$i];
+                    $params[] = $request[$i];
+                }
+
                 continue;
             }
 
-            $uri[] = $pattern[$i];
+            $uri[] = $subject[$i];
         }
 
         return [$uri, $params];

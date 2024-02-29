@@ -14,87 +14,98 @@ use Rudra\Container\Interfaces\RudraInterface;
 trait RouterRequestMethodTrait
 {
     /**
-     * @param  string  $pattern
-     * @param $target
-     * @param  array  $middleware
+     * @param  array $route
+     * @return void
      */
-    public function get(string $pattern, $target, array $middleware = []): void
+    public function get(array $route): void
     {
-        $this->set(array_merge([$pattern, "GET", $target], [$middleware]));
+        $route['method'] = "GET";
+        $this->set($route);
     }
 
     /**
-     * @param  string  $pattern
-     * @param $target
-     * @param  array  $middleware
+     * @param  array $route
+     * @return void
      */
-    public function post(string $pattern, $target, array $middleware = []): void
+    public function post(array $route): void
     {
-        $this->set(array_merge([$pattern, "POST", $target], [$middleware]));
+        $route['method'] = "POST";
+        $this->set($route);
     }
 
     /**
-     * @param  string  $pattern
-     * @param $target
-     * @param  array  $middleware
+     * @param  array $route
+     * @return void
      */
-    public function put(string $pattern, $target, array $middleware = []): void
+    public function put(array $route): void
     {
-        $this->set(array_merge([$pattern, "PUT", $target], [$middleware]));
+        $route['method'] = "PUT";
+        $this->set($route);
     }
 
     /**
-     * @param  string  $pattern
-     * @param $target
-     * @param  array  $middleware
+     * @param  array $route
+     * @return void
      */
-    public function patch(string $pattern, $target, array $middleware = []): void
+    public function patch(array $route): void
     {
-        $this->set(array_merge([$pattern, "PATCH", $target], [$middleware]));
+        $route['method'] = "PATCH";
+        $this->set($route);
     }
 
     /**
-     * @param  string  $pattern
-     * @param $target
-     * @param  array  $middleware
+     * @param  array $route
+     * @return void
      */
-    public function delete(string $pattern, $target, array $middleware = []): void
+    public function delete(array $route): void
     {
-        $this->set(array_merge([$pattern, "DELETE", $target], [$middleware]));
+        $route['method'] = "DELETE";
+        $this->set($route);
     }
 
     /**
-     * @param  string  $pattern
-     * @param $target
-     * @param  array  $middleware
+     * @param  array $route
+     * @return void
      */
-    public function any(string $pattern, $target, array $middleware = []): void
+    public function any(array $route): void
     {
-        $this->set(array_merge([$pattern, "GET|POST|PUT|PATCH|DELETE", $target], [$middleware]));
+        $route['method'] = "GET|POST|PUT|PATCH|DELETE";
+        $this->set($route);
     }
 
     /**
-     * @param  string  $pattern
-     * @param  string  $controller
-     * @param  array  $middleware
-     * @param  array|string[]  $actions
+     * @param  array $route
+     * @param  array $actions
+     * @return void
      */
-    public function resource(string $pattern, string $controller, array $middleware = [], array $actions = ["read", "create", "update", "delete"]): void
+    public function resource(array $route, array $actions = ["read", "create", "update", "delete"]): void
     {
         switch ($this->rudra->request()->server()->get("REQUEST_METHOD")) {
             case "GET":
-                $this->set(array_merge([$pattern, "GET", [$controller, $actions[0]]], [$middleware]));
+                $route['method'] = "GET";
+                $route['action'] = $actions[0];
+
+                $this->set($route);
                 break;
             case "POST":
-                $actionKey  = ["GET" => 0, "POST" => 1, "PUT" => 2, "PATCH" => 2, "DELETE" => 3];
-                $httpMethod = ($this->rudra->request()->post()->has("_method")) ? $this->rudra->request()->post()->get("_method") : "POST";
-                $this->set(array_merge([$pattern, $httpMethod, [$controller, $actions[$actionKey[$httpMethod]]]], [$middleware]));
+                $actionKey       = ["GET" => 0, "POST" => 1, "PUT" => 2, "PATCH" => 2, "DELETE" => 3];
+                $httpMethod      = ($this->rudra->request()->post()->has("_method")) ? $this->rudra->request()->post()->get("_method") : "POST";
+                $route['method'] = $httpMethod;
+                $route['action'] = $actions[$actionKey[$httpMethod]];
+
+                $this->set($route);
                 break;
             case "PUT":
-                $this->set(array_merge([$pattern, "PUT", [$controller, $actions[2]]], [$middleware]));
+                $route['method'] = "PUT";
+                $route['action'] = $actions[2];
+
+                $this->set($route);
                 break;
             case "DELETE":
-                $this->set(array_merge([$pattern, "DELETE", [$controller, $actions[3]]], [$middleware]));
+                $route['method'] = "DELETE";
+                $route['action'] = $actions[3];
+
+                $this->set($route);
                 break;
         }
     }
@@ -104,5 +115,8 @@ trait RouterRequestMethodTrait
      */
     abstract public function set(array $route): void;
 
+    /**
+     * @return RudraInterface
+     */
     abstract public function rudra(): RudraInterface;
 }
