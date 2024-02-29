@@ -56,11 +56,9 @@ class Router implements RouterInterface
         $controller->containerInit();
         $controller->init();
         $controller->before();
-
         !isset($route['middleware']["before"]) ?: $this->handleMiddleware($route['middleware']["before"]);
         $this->callAction($params, $action, $controller);
         !isset($route['middleware']["after"]) ?: $this->handleMiddleware($route['middleware']["after"]);
-
         $controller->after();
 
         if ($this->rudra->config()->get("environment") !== "test") {

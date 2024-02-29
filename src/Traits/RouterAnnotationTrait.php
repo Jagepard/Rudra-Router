@@ -25,7 +25,9 @@ trait RouterAnnotationTrait
         $annotations = [];
 
         foreach ($controllers as $controller) {
-            foreach (get_class_methods($controller) as $action) {
+            $actions = get_class_methods($controller);
+
+            foreach ($actions as $action) {
                 $annotation = ($attributes)
                     ? $this->rudra->get(Annotation::class)->getAttributes($controller, $action)
                     : $this->rudra->get(Annotation::class)->getAnnotations($controller, $action);
