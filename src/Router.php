@@ -146,17 +146,17 @@ class Router implements RouterInterface
 
         for ($i = 0; $i < $count; $i++) {
             // Looking for a match with a subject :...
-            if (preg_match("/:[a-zA-Z0-9_-]+/", $subject[$i]) !== 0) {
+            if (preg_match("/^:[a-zA-Z0-9_-]+$/", $subject[$i]) !== 0) {
                 if (array_key_exists($i, $request)) {                  
                     $uri[]    = $request[$i];
                     $params[] = $request[$i];
                 }
 
                 continue;
-            } elseif (preg_match("/:[\\[\\]a-zA-Z0-9_-]+/", $subject[$i])) {
+            } elseif (preg_match("/^:[\\[\\]a-zA-Z0-9_-]+$/", $subject[$i])) {
                 if (array_key_exists($i, $request)) {
                     $pattern = substr($subject[$i], 1);
-                    if (preg_match("/$pattern+/", $request[$i]) === 0) {
+                    if (!preg_match("/^$pattern+$/", $request[$i])) {
                         throw new RouterException("404");
                     }
 
