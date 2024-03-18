@@ -10,10 +10,10 @@
 
 # Rudra-Router
 
-#### Устанавливаем маршрут callback/{id} для http метода GET
+#### Устанавливаем маршрут callback/:name для http метода GET
 _выполняет лямбда-функцию_
 ```php
-$router->get('callback/{name}', function ($name) {
+$router->get('callback/:name', function ($name) {
     echo "Hello $name!";
 });
 ```
@@ -21,18 +21,18 @@ _Для вызова через Фасад Rudra-Container_
 ```php
 use Rudra\Router\RouterFacade as Router;
 
-Router::get('callback/{name}', function ($name) {
+Router::get('callback/:name', function ($name) {
     echo "Hello $name!";
 });
 ```
 _вызывает MainController::read_
 ```php
-$router->get('read/{id}', [MainController::class, 'read']);
+$router->get('read/:id', [MainController::class, 'read']);
 ```
 _вызывает MainController::read при помощи добавления аннотаций к MainController_
 ```php
 /**
- * @Routing(url = ''read/{id}')
+ * @Routing(url = ''read/:id')
  */
 public function read($id)
 ```
@@ -92,67 +92,67 @@ _Следующие вызовы без параметров равны_
 'before' => [FirstMidddleware::class, SecondMidddleware::class]],
 'before' => [[FirstMidddleware::class], [SecondMidddleware::class]]
 ```
-#### Устанавливаем маршрут create/{id} для http метода POST
+#### Устанавливаем маршрут create/:id для http метода POST
 _вызывает MainController::create_
 ```php
-$router->post('create/{id}', [MainController::class, 'create']);
+$router->post('create/:id', [MainController::class, 'create']);
 ```
 _в аннотациях_
 ```php
 /**
- * @Routing(url = 'create/{id}', method = 'POST')
+ * @Routing(url = 'create/:id', method = 'POST')
  */
 public function create($id)
 ```
-#### Устанавливаем маршрут update/{id} для http метода PUT
+#### Устанавливаем маршрут update/:id для http метода PUT
 _вызывает MainController::update_
 ```php
-$router->put('update/{id}', [MainController::class, 'update']);
+$router->put('update/:id', [MainController::class, 'update']);
 ```
 _в аннотациях_
 ```php
 /**
- * @Routing(url = 'update/{id}', method = 'PUT')
+ * @Routing(url = 'update/:id', method = 'PUT')
  */
 public function update($id)
 ```
-#### Устанавливаем маршрут update/{id} для http метода PATCH
+#### Устанавливаем маршрут update/:id для http метода PATCH
 _вызывает MainController::update_
 ```php
-$router->patch('update/{id}', [MainController::class, 'update']);
+$router->patch('update/:id', [MainController::class, 'update']);
 ```
 _в аннотациях_
 ```php
 /**
- * @Routing(url = 'update/{id}', method = 'PATCH')
+ * @Routing(url = 'update/:id', method = 'PATCH')
  */
 public function update($id)
 ```
-#### Устанавливаем маршрут delete/{id} для http метода DELETE
+#### Устанавливаем маршрут delete/:id для http метода DELETE
 _вызывает MainController::delete_
 ```php
-$router->delete('delete/{id}', [MainController::class, 'delete']);
+$router->delete('delete/:id', [MainController::class, 'delete']);
 ```
 _в аннотациях_
 ```php
 /**
- * @Routing(url = 'delete/{id}', method = 'DELETE')
+ * @Routing(url = 'delete/:id', method = 'DELETE')
  */
 public function delete($id)
 ```
-#### Устанавливаем маршрут any/{id} для http методов GET|POST|PUT|PATCH|DELETE
+#### Устанавливаем маршрут any/:id для http методов GET|POST|PUT|PATCH|DELETE
 _вызывает MainController::any_
 ```php
-$router->any('any/{id}', [MainController::class, 'any']);
+$router->any('any/:id', [MainController::class, 'any']);
 ```
 _в аннотациях_
 ```php
 /**
- * @Routing(url = 'any/{id}', method = 'GET|POST|PUT|PATCH|DELETE')
+ * @Routing(url = 'any/:id', method = 'GET|POST|PUT|PATCH|DELETE')
  */
 public function any($id)
 ```
-#### Устанавливаем ресурс для маршрута api/{id}, методы GET|POST|PUT|DELETE
+#### Устанавливаем ресурс для маршрута api/:id, методы GET|POST|PUT|DELETE
 _вызывает MainController::read для GET_
 
 _вызывает MainController::create для POST_
@@ -161,14 +161,14 @@ _вызывает MainController::update для PUT_
 
 _вызывает MainController::delete для DELETE_
 ```php
-$router->resource('api/{id}', MainController::class);
+$router->resource('api/:id', MainController::class);
 ```
 Изменить методы контроллера по умолчанию можно передав массив с вашими именами
 ```php
-$router->resource('api/{id}', MainController::class, ['actionIndex', 'actionAdd', 'actionUpdate', 'actionDrop']);
+$router->resource('api/:id', MainController::class, ['actionIndex', 'actionAdd', 'actionUpdate', 'actionDrop']);
 ```
 ##### Вариант объявления маршрута методом set
-#### Устанавливаем маршрут /test/{id} для http методов DELETE|PUT
+#### Устанавливаем маршрут /test/:id для http методов DELETE|PUT
 _выполняет лямбда-функцию_
 ```php
 $router->set(['/test/page', 'POST|PUT', function () {
@@ -178,7 +178,7 @@ $router->set(['/test/page', 'POST|PUT', function () {
 ```
 _вызывает MainController::actionIndex_
 ```php
-$router->set(['/test/{id}', 'DELETE|PUT', [MainController::class, 'actionIndex'], [
+$router->set(['/test/:id', 'DELETE|PUT', [MainController::class, 'actionIndex'], [
         'before' => [First::class, Second::class],
         'after'  => [[First::class], [Second::class]]
 ]]);
