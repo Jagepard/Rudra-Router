@@ -158,7 +158,7 @@ class Router implements RouterInterface
                     $pattern = substr($subject[$i], 1);
 
                     if (!preg_match("/^$pattern+$/", $request[$i])) {
-                        throw new RouterException("404");
+                        continue;
                     }
 
                     $uri[]    = $request[$i];
