@@ -155,14 +155,13 @@ class Router implements RouterInterface
                 continue;
             } elseif (preg_match("/^:[\[\]\\\:a-zA-Z0-9_-{,}]+$/", $subject[$i])) {
                 if (array_key_exists($i, $request)) {
-                    $pattern = substr($subject[$i], 1);
-
-                    if (!preg_match("/^$pattern+$/", $request[$i])) {
-                        continue;
-                    }
-
+                    $pattern  = substr($subject[$i], 1);
                     $uri[]    = $request[$i];
                     $params[] = $request[$i];
+
+                    if (!preg_match("/^$pattern+$/", $request[$i])) {
+                        $uri[] = '!@#$%^&*';
+                    }
                 }
 
                 continue;
