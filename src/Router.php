@@ -45,7 +45,7 @@ class Router implements RouterInterface
      */
     public function directCall(array $route, $params = null): void
     {
-        $controller = new $route['controller']();
+        $controller = $this->rudra->get($route['controller']);
         $action     = $route['action'];
 
         if (!method_exists($controller, $action)) {
@@ -107,7 +107,7 @@ class Router implements RouterInterface
     {
         if ($route['controller'] instanceof \Closure) {
             (is_array($params)) ? $route['controller'](...$params) : $route['controller']($params);
-            return;
+            exit();
         }
 
         $this->directCall($route, $params);
