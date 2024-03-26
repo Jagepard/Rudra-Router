@@ -9,24 +9,25 @@ declare(strict_types=1);
 
 namespace Rudra\Router;
 
+use ReflectionException;
 use Rudra\Exceptions\RouterException;
-use Rudra\Router\Traits\RouterAnnotationTrait;
-use Rudra\Router\Traits\RouterRequestMethodTrait;
 use Rudra\Container\Traits\SetRudraContainersTrait;
+use Rudra\Router\Traits\{RouterAnnotationTrait, RouterRequestMethodTrait};
 
 class Router implements RouterInterface
 {
+    use RouterAnnotationTrait;
     use SetRudraContainersTrait;
     use RouterRequestMethodTrait;
-    use RouterAnnotationTrait;
 
     /**
      * @param array $route
      * @throws RouterException
+     * @throws ReflectionException
      */
     public function set(array $route): void
     {
-        if (strpos($route['method'], '|') !== false) {
+        if (str_contains($route['method'], '|')) {
             $httpMethods = explode('|', $route['method']);
 
             foreach ($httpMethods as $httpMethod) {
@@ -41,7 +42,7 @@ class Router implements RouterInterface
     /**
      * @param array $route
      * @param null $params
-     * @throws RouterException
+     * @throws RouterException|ReflectionException
      */
     public function directCall(array $route, $params = null): void
     {
@@ -83,8 +84,9 @@ class Router implements RouterInterface
     /**
      * @param array $route
      * @throws RouterException
+     * @throws ReflectionException
      */
-    protected function handleRequestUri(array $route)
+    protected function handleRequestUri(array $route): void
     {
         $this->handleRequestMethod();
 
@@ -101,9 +103,9 @@ class Router implements RouterInterface
     /**
      * @param array $route
      * @param       $params
-     * @throws RouterException
+     * @throws RouterException|ReflectionException
      */
-    protected function setCallable(array $route, $params)
+    protected function setCallable(array $route, $params): void
     {
         if ($route['controller'] instanceof \Closure) {
             (is_array($params)) ? $route['controller'](...$params) : $route['controller']($params);
@@ -176,7 +178,7 @@ class Router implements RouterInterface
     /**
      * @param array $chainOfMiddlewares
      */
-    public function handleMiddleware(array $chainOfMiddlewares)
+    public function handleMiddleware(array $chainOfMiddlewares): void
     {
         $current = array_shift($chainOfMiddlewares);
 
