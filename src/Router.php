@@ -180,6 +180,10 @@ class Router implements RouterInterface
      */
     public function handleMiddleware(array $chainOfMiddlewares): void
     {
+        if (!$chainOfMiddlewares) {
+            return;
+        }
+        
         $current = array_shift($chainOfMiddlewares);
 
         if ((is_array($current)) && count($current) === 2) {
