@@ -127,7 +127,15 @@ class Router implements RouterInterface
             $controller->{$action}();
         } else {
             if (!in_array("", $params)) {
-                $controller->{$action}(...$params);
+                try {
+                    $controller->{$action}(...$params);
+                } catch (\ArgumentCountError $e) {
+                    $trace = $e->getTrace()[0];
+                    $this->rudra()->autowire($this->rudra()->get($trace['class']), $trace['function']);
+                } catch (\TypeError $e) {
+                    $trace = $e->getTrace()[0];
+                    $this->rudra()->autowire($this->rudra()->new($trace['class']), $trace['function'], $trace['args']);
+                }  
             } else {
                 throw new RouterException("404");
             }
