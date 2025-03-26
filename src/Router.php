@@ -123,6 +123,10 @@ class Router implements RouterInterface
      */
     protected function callAction($params, $action, $controller): void
     {
+        if (isset($params) && in_array("", $params)) {
+            throw new RouterException("404");
+        }
+        
         try {
             // Вызываем метод контроллера с параметрами или без них
             $controller->{$action}(...(empty($params) ? [] : $params));
