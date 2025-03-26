@@ -123,22 +123,15 @@ class Router implements RouterInterface
      */
     protected function callAction($params, $action, $controller): void
     {
-        if (!isset($params)) {
-            $controller->{$action}();
-        } else {
-            if (!in_array("", $params)) {
-                try {
-                    $controller->{$action}(...$params);
-                } catch (\ArgumentCountError $e) {
-                    $trace = $e->getTrace()[0];
-                    $this->rudra()->autowire($this->rudra()->get($trace['class']), $trace['function']);
-                } catch (\TypeError $e) {
-                    $trace = $e->getTrace()[0];
-                    $this->rudra()->autowire($this->rudra()->new($trace['class']), $trace['function'], $trace['args']);
-                }  
-            } else {
-                throw new RouterException("404");
-            }
+        try {
+            // Вызываем метод контроллера с параметрами или без них
+            $controller->{$action}(...(empty($params) ? [] : $params));
+        } catch (\ArgumentCountError $e) {
+            $trace = $e->getTrace()[0];
+            $this->rudra()->autowire($this->rudra()->get($trace['class']), $trace['function']);
+        } catch (\TypeError $e) {
+            $trace = $e->getTrace()[0];
+            $this->rudra()->autowire($this->rudra()->new($trace['class']), $trace['function'], $trace['args']);
         }
     }
 
