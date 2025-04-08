@@ -25,7 +25,11 @@ trait RouterAnnotationTrait
         $annotations = [];
 
         foreach ($controllers as $controller) {
-            $actions = get_class_methods($controller);
+            if (class_exists($controller)) {
+                $actions = get_class_methods($controller);
+            } else {
+                throw new \Exception("Удалите контроллер $controller из файла routes.php");
+            }
 
             foreach ($actions as $action) {
                 $annotation = ($attributes)
