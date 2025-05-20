@@ -173,7 +173,7 @@ class Router implements RouterInterface
             $this->handleMiddleware($route['middleware']['before']);
         }
 
-        $this->callAction($params, $action, $controller);
+        $this->callActionThroughReflection($params, $action, $controller);
 
         if (isset($route['middleware']['after'])) {
             $this->handleMiddleware($route['middleware']['after']);
@@ -192,7 +192,27 @@ class Router implements RouterInterface
      * @param  $controller
      * @return void
      */
-    protected function callAction($params, $action, $controller): void
+    protected function callActionThroughReflection(?array $params, string $action, object $controller): void
+    {
+        if ($params && in_array('', $params, true)) {
+            throw new RouterException("404");
+        }
+
+        $reflection = new \ReflectionClass($controller);
+        $method = $reflection->getMethod($action);
+
+        $arguments = $this->rudra()->getParamsIoC($method, $params);
+
+        $method->invokeArgs($controller, $arguments);
+    }
+
+    /**
+     * @param  $params
+     * @param  $action
+     * @param  $controller
+     * @return void
+     */
+    protected function callActionThroughException($params, $action, $controller): void
     {
         if (isset($params) && in_array('', $params)) { //Проверка на пустой элемент
             throw new RouterException("404");
