@@ -20,6 +20,8 @@ class Router implements RouterInterface
     use SetRudraContainersTrait;
     use RouterRequestMethodTrait;
 
+    protected array $reflectionCache = [];
+
     /**
      * @param  array $route
      * @return void
@@ -198,11 +200,15 @@ class Router implements RouterInterface
             throw new RouterException("404");
         }
 
-        $reflection = new \ReflectionClass($controller);
-        $method = $reflection->getMethod($action);
+        $cacheKey = get_class($controller) . "::$action";
+        if (!isset($this->reflectionCache[$cacheKey])) {
+            $this->reflectionCache[$cacheKey] = [
+                'method' => new \ReflectionMethod($controller, $action),
+            ];
+        }
 
+        $method = $this->reflectionCache[$cacheKey]['method'];
         $arguments = $this->rudra()->getParamsIoC($method, $params);
-
         $method->invokeArgs($controller, $arguments);
     }
 
