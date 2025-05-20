@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 /**
- * @author    : Jagepard <jagepard@yandex.ru">
- * @license   https://mit-license.org/ MIT
+ * @author  : Jagepard <jagepard@yandex.ru">
+ * @license https://mit-license.org/ MIT
  */
 
 namespace Rudra\Router\Traits;
@@ -20,53 +20,53 @@ trait RouterAnnotationTrait
      * @param  boolean $attributes
      * @return void
      */
-    public function annotationCollector(array $controllers, bool $getter = false, bool $attributes = false)
+    public function annotationCollector(array $controllers, bool $getter = false, bool $attributes = false): ?array
     {
-        $annotations = [];
+        $annotations       = [];
+        $annotationService = $this->rudra->get(Annotation::class);
 
         foreach ($controllers as $controller) {
-            if (class_exists($controller)) {
-                $actions = get_class_methods($controller);
-            } else {
+            if (!class_exists($controller)) {
                 throw new \Exception("Удалите контроллер $controller из файла routes.php");
             }
 
-            foreach ($actions as $action) {
-                $annotation = ($attributes)
-                    ? $this->rudra->get(Annotation::class)->getAttributes($controller, $action)
-                    : $this->rudra->get(Annotation::class)->getAnnotations($controller, $action);
+            $reflection = new \ReflectionClass($controller);
+            $methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
+
+            foreach ($methods as $method) {
+                $action     = $method->getName();
+                $annotation = $attributes 
+                    ? $annotationService->getAttributes($controller, $action)
+                    : $annotationService->getAnnotations($controller, $action);
 
                 $middleware = [];
 
                 if (isset($annotation["Middleware"])) {
-                    $middleware = array_merge($middleware, ['before' => $this->handleAnnotationMiddleware($annotation["Middleware"])]);
+                    $middleware['before'] = $this->handleAnnotationMiddleware($annotation["Middleware"]);
                 }
 
                 if (isset($annotation["AfterMiddleware"])) {
-                    $middleware = array_merge($middleware, ['after' => $this->handleAnnotationMiddleware($annotation["AfterMiddleware"])]);
+                    $middleware['after'] = $this->handleAnnotationMiddleware($annotation["AfterMiddleware"]);
                 }
 
                 if (isset($annotation["Routing"])) {
                     foreach ($annotation["Routing"] as $route) {
+                        $route += [
+                            'controller' => $controller,
+                            'action'     => $action,
+                            'middleware' => $middleware,
+                            'method'     => 'GET',
+                        ];
 
-                        $route['controller'] = $controller;
-                        $route['action']     = $action;
-                        $route['middleware'] = $middleware;
-                        $route['method']     = $route['method'] ?? "GET";
-
-                        if ($getter) {
-                            $annotations[] = [$route];
-                        } else {
-                            $this->set($route);
-                        }
+                        $getter
+                            ? $annotations[] = [$route]
+                            : $this->set($route);
                     }
                 }
             }
         }
 
-        if ($getter) {
-            return $annotations;
-        }
+        return $getter ? $annotations : null;
     }
 
     /**
@@ -76,18 +76,15 @@ trait RouterAnnotationTrait
     protected function handleAnnotationMiddleware(array $annotation): array
     {
         $middleware = [];
-        $count      = count($annotation);
 
-        for ($i = 0; $i < $count; $i++) {
-            $middleware[$i][] = $annotation[$i]["name"];
-
-            if (isset($annotation[$i]["params"])) {
-                $middleware[$i][] = $annotation[$i]["params"];
+        foreach ($annotation as $item) {
+            $entry = [$item['name']];
+            if (isset($item['params'])) {
+                $entry[] = $item['params'];
             }
+            $middleware[] = $entry;
         }
 
         return $middleware;
     }
-
-    abstract public function rudra(): RudraInterface;
 }
