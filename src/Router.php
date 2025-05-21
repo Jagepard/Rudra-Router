@@ -175,7 +175,8 @@ class Router implements RouterInterface
             $this->handleMiddleware($route['middleware']['before']);
         }
 
-        $this->callActionThroughReflection($params, $action, $controller);
+        $this->callActionThroughException($params, $action, $controller);
+        // $this->callActionThroughReflection($params, $action, $controller);
 
         if (isset($route['middleware']['after'])) {
             $this->handleMiddleware($route['middleware']['after']);
