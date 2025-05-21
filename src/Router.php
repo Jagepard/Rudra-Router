@@ -175,8 +175,9 @@ class Router implements RouterInterface
             $this->handleMiddleware($route['middleware']['before']);
         }
 
-        $this->callActionThroughException($params, $action, $controller);
-        // $this->callActionThroughReflection($params, $action, $controller);
+        ((int) ini_get('zend.exception_ignore_args') === 1)
+            ? $this->callActionThroughReflection($params, $action, $controller)
+            : $this->callActionThroughException($params, $action, $controller);
 
         if (isset($route['middleware']['after'])) {
             $this->handleMiddleware($route['middleware']['after']);
