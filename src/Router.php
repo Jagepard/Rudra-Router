@@ -175,9 +175,7 @@ class Router implements RouterInterface
             $this->handleMiddleware($route['middleware']['before']);
         }
 
-        ((int) ini_get('zend.exception_ignore_args') === 1)
-            ? $this->callActionThroughReflection($params, $action, $controller)
-            : $this->callActionThroughException($params, $action, $controller);
+        $this->callActionThroughReflection($params, $action, $controller);
 
         if (isset($route['middleware']['after'])) {
             $this->handleMiddleware($route['middleware']['after']);
@@ -215,6 +213,8 @@ class Router implements RouterInterface
     }
 
     /**
+     * @deprecated 
+     * 
      * @param  $params
      * @param  $action
      * @param  $controller
@@ -222,15 +222,15 @@ class Router implements RouterInterface
      */
     protected function callActionThroughException($params, $action, $controller): void
     {
-        if (isset($params) && in_array('', $params)) { //Проверка на пустой элемент
+        if (isset($params) && in_array('', $params)) {
             throw new RouterException("404");
         }
 
         try {
             if (empty($params)) {
-                $controller->$action(); //Без параметров
+                $controller->$action();
             } else {
-                $controller->$action(...$params); //С параметрами
+                $controller->$action(...$params);
             }
         } catch (\ArgumentCountError $e) {
             $trace = $e->getTrace()[0];
