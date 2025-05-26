@@ -102,21 +102,20 @@ class Router implements RouterInterface
         $count   = count($subject);
 
         for ($i = 0; $i < $count; $i++) {
-            // Looking for a match with a subject :...
-            if (preg_match("/^:[a-zA-Z0-9_-]+$/", $subject[$i]) !== 0) {
-                if (array_key_exists($i, $request)) {                  
-                    $uri[]    = $request[$i];
-                    $params[] = $request[$i];
-                }
-
+            if (preg_match("/^:[a-zA-Z0-9_-]+$/", $subject[$i]) > 0 && array_key_exists($i, $request)) {
+                $value    = $request[$i];
+                $uri[]    = $value;
+                $params[] = $value;
                 continue;
-            } elseif (preg_match("/^:[\[\]\\\:a-zA-Z0-9_-{,}]+$/", $subject[$i])) {
+            }
+            
+            if (preg_match("/^:([\\[\\]\\\\:a-zA-Z0-9_\\-{,}]+)$/", $subject[$i], $matches)) {
                 if (array_key_exists($i, $request)) {
-                    $pattern  = substr($subject[$i], 1);
-                    $uri[]    = $request[$i];
-                    $params[] = $request[$i];
-
-                    if (!preg_match("/^$pattern+$/", $request[$i])) {
+                    $pattern = $matches[1];
+                    if (preg_match("/^$pattern$/", $request[$i])) {
+                        $uri[] = $request[$i];
+                        $params[] = $request[$i];
+                    } else {
                         $uri[] = '!@#$%^&*';
                     }
                 }
