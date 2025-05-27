@@ -13,15 +13,6 @@ use Rudra\Exceptions\RouterException;
 
 interface RouterInterface
 {
-    /**
-     * @param  array  $route
-     */
     public function set(array $route): void;
-
-    /**
-     * @param array $route
-     * @param null $params
-     * @throws RouterException
-     */
     public function directCall(array $route, $params = null): void;
 }

@@ -20,12 +20,8 @@ class Router implements RouterInterface
     use SetRudraContainersTrait;
     use RouterRequestMethodTrait;
 
-    protected array $reflectionCache = [];
+    private array $reflectionCache = [];
 
-    /**
-     * @param  array $route
-     * @return void
-     */
     public function set(array $route): void
     {
         $httpMethods = str_contains($route['method'], '|')
@@ -38,50 +34,44 @@ class Router implements RouterInterface
         }
     }
 
-    /**
-     * @param  array $route
-     * @return void
-     */
-    protected function handleRequestUri(array $route): void
+    private function handleRequestUri(array $route): void
     {
         $this->handleRequestMethod();
 
         $request = $this->rudra->request();
         $server  = $request->server();
 
-        // Проверяем соответствие HTTP-метода
         if ($route['method'] !== $server->get('REQUEST_METHOD')) {
             return;
         }
 
-        $uriRaw      = $server->get('REQUEST_URI');
-        $parsed      = parse_url($uriRaw);
-        $requestPath = $parsed && isset($parsed['path']) ? ltrim($parsed['path'], '/') : '';
-        $uriSegments = explode('/', $requestPath);
-
+        $uriRaw         = $server->get('REQUEST_URI');
+        $parsed         = parse_url($uriRaw);
+        $requestPath    = $parsed && isset($parsed['path']) ? ltrim($parsed['path'], '/') : '';
+        $uriSegments    = explode('/', $requestPath);
         [$uri, $params] = $this->handlePattern($route, $uriSegments);
+
 
         if ($uri === $uriSegments) {
             $this->setCallable($route, $params);
         }
     }
 
-    protected function handleRequestMethod(): void
+    private function handleRequestMethod(): void
     {
         $request       = $this->rudra->request();
         $requestMethod = $request->server()->get('REQUEST_METHOD');
 
-        // Spoofing метода через _method
+        // Spoofing the method via _method parameter in POST requests
         if ($requestMethod === 'POST' && $request->post()->has('_method')) {
             $spoofedMethod = strtoupper($request->post()->get('_method'));
-
             if (in_array($spoofedMethod, ['PUT', 'PATCH', 'DELETE'])) {
                 $requestMethod = $spoofedMethod;
                 $request->server()->set(['REQUEST_METHOD' => $spoofedMethod]);
             }
         }
 
-        // Обработка PUT/PATCH/DELETE
+        // Handle PUT, PATCH, and DELETE requests by parsing raw input data
         if (in_array($requestMethod, ['PUT', 'PATCH', 'DELETE'])) {
             $rawInput = file_get_contents('php://input');
             parse_str($rawInput, $data);
@@ -89,12 +79,7 @@ class Router implements RouterInterface
         }
     }
 
-    /**
-     * @param array $route
-     * @param array $request
-     * @return array
-     */
-    protected function handlePattern(array $route, array $request): array
+    private function handlePattern(array $route, array $request): array
     {
         $uri     = [];
         $params  = null;
@@ -113,7 +98,7 @@ class Router implements RouterInterface
                 if (array_key_exists($i, $request)) {
                     $pattern = $matches[1];
                     if (preg_match("/^$pattern$/", $request[$i])) {
-                        $uri[] = $request[$i];
+                        $uri[]    = $request[$i];
                         $params[] = $request[$i];
                     } else {
                         $uri[] = '!@#$%^&*';
@@ -129,12 +114,7 @@ class Router implements RouterInterface
         return [$uri, $params];
     }
 
-    /**
-     * @param array $route
-     * @param       $params
-     * @throws RouterException|ReflectionException
-     */
-    protected function setCallable(array $route, $params): void
+    private function setCallable(array $route, $params): void
     {
         if ($route['controller'] instanceof \Closure) {
             if (is_array($params)) {
@@ -149,11 +129,6 @@ class Router implements RouterInterface
         $this->directCall($route, $params);
     }
 
-    /**
-     * @param  array  $route
-     * @param         $params
-     * @return void
-     */
     public function directCall(array $route, $params = null): void
     {
         $controller = $this->rudra->get($route['controller']);
@@ -163,7 +138,6 @@ class Router implements RouterInterface
             throw new RouterException("503");
         }
 
-        // Bootstrap controller
         $controller->shipInit();
         $controller->containerInit();
         $controller->init();
@@ -189,13 +163,7 @@ class Router implements RouterInterface
         }
     }
 
-    /**
-     * @param  $params
-     * @param  $action
-     * @param  $controller
-     * @return void
-     */
-    protected function callActionThroughReflection(?array $params, string $action, object $controller): void
+    private function callActionThroughReflection(?array $params, string $action, object $controller): void
     {
         if ($params && in_array('', $params, true)) {
             throw new RouterException("404");
@@ -213,15 +181,7 @@ class Router implements RouterInterface
         $method->invokeArgs($controller, $arguments);
     }
 
-    /**
-     * @deprecated 
-     * 
-     * @param  $params
-     * @param  $action
-     * @param  $controller
-     * @return void
-     */
-    protected function callActionThroughException($params, $action, $controller): void
+    private function callActionThroughException($params, $action, $controller): void
     {
         if (isset($params) && in_array('', $params)) {
             throw new RouterException("404");
@@ -242,9 +202,6 @@ class Router implements RouterInterface
         }
     }
 
-    /**
-     * @param array $chainOfMiddlewares
-     */
     public function handleMiddleware(array $chainOfMiddlewares): void
     {
         if (!$chainOfMiddlewares) {
