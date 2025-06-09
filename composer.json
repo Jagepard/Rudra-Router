@@ -1,8 +1,8 @@
 {
-    "name"             : "rudra/router",
-    "description"      : "Rudra framework",
-    "type"             : "library",
-    "keywords"         : [
+    "name": "rudra/router",
+    "description": "Rudra framework",
+    "type": "library",
+    "keywords": [
         "rudra",
         "router",
         "routing",
@@ -10,21 +10,22 @@
         "rest",
         "restful"
     ],
-    "license"          : "MIT",
-    "authors"          : [
+    "license": "MIT",
+    "authors": [
         {
-            "name"    : "Jagepard",
-            "email"   : "jagepard@yandex.ru",
+            "name": "Jagepard",
+            "email": "jagepard@yandex.ru",
             "homepage": "https://jagepard.ru",
-            "role"    : "Developer"
+            "role": "Developer"
         }
     ],
-    "support"          : {
+    "support": {
         "email": "jagepard@yandex.ru",
-        "skype": "jagepard.ru"
+        "issues": "https://github.com/Jagepard/Rudra-Router/issues",    
+        "source": "https://github.com/Jagepard/Rudra-Router"    
     },
-    "require"          : {
-        "php"             : ">=8.0",
+    "require": {
+        "php": ">=8.3",
         "rudra/annotation": "self.version",
         "rudra/container" : "self.version",
         "rudra/exception" : "self.version"
@@ -40,8 +41,15 @@
         }
     },
     "minimum-stability": "dev",
-    "config"           : {
+    "prefer-stable": true,
+    "config": {
         "optimize-autoloader": true,
-        "prefer-stable"      : true
+        "sort-packages": true,
+        "platform-check": false
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
     }
 }
