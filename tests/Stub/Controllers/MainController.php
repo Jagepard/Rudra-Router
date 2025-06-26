@@ -61,6 +61,11 @@ class MainController
         Rudra::config()->set(["delete" => "delete"]);
     }
 
+    public function actionRegexGet()
+    {
+        Rudra::config()->set(["regex" => "regex"]);
+    }
+
     public function shipInit() {}
     public function containerInit() {}
     public function init() {}
