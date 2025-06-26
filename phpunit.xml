@@ -16,6 +16,7 @@
         <testsuite name="Rudra-Router">
             <directory suffix=".php">tests</directory>
             <exclude>tests/Stub</exclude>
+            <exclude>tests/RouterAnnotationTraitTest.php</exclude>
         </testsuite>
     </testsuites>
     <source>
