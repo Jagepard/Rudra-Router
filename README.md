@@ -119,10 +119,13 @@ _Exemple / Пример Middleware_
  */
 class SomeMiddleware
 {
-    public function __invoke($params, $next)
+    public function __invoke($next, ...$params)
     {
         // Logic here
-        $next();
+
+        if ($next) {
+            $next();
+        }
     }
 }
 ```
