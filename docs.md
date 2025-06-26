@@ -48,6 +48,7 @@
 ### Class: Rudra\Router\RouterInterface
 | Visibility | Function |
 |:-----------|:---------|
+| abstract public | `set(array $route): void`<br>Sets the route, parsing HTTP methods (if multiple are specified via \|).<br>Registers a route handler for each method.<br>-------------------------<br>Устанавливает маршрут, разбирая HTTP-методы (если указано несколько через \|).<br>Для каждого метода регистрирует обработчик маршрута. |
 | abstract public | `directCall(array $route, ?array $params): void`<br>Calls the controller and its method directly, performing the full lifecycle:<br>This method is used to fully dispatch a route after matching it with the current request.<br>-------------------------<br>Вызывает контроллер и его метод напрямую, выполняя полный жизненный цикл:<br>Метод используется для полной диспетчеризации маршрута после его совпадения с текущим запросом. |
 
 
