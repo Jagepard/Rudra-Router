@@ -3,7 +3,7 @@
          colors="true"
          stopOnFailure="false"
          bootstrap="vendor/autoload.php"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.1/phpunit.xsd" 
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.1/phpunit.xsd "
          cacheDirectory=".phpunit.cache">
     <coverage>
         <report>
