@@ -34,14 +34,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $action                    = "action" . ucfirst($method);
         $this->setContainer();
 
-        $route = [
-            'url'        => $pattern,
-            'method'     => $requestMethod,
-            'action'     => "action" . ucfirst($method),
-            'controller' => $controller
-        ];
-
-        \Rudra\Router\RouterFacade::$method($route);
+        \Rudra\Router\RouterFacade::$method($pattern, [$controller, "action" . ucfirst($method)]);
         $this->assertEquals($requestMethod, Rudra::config()->get($action));
     }
 
@@ -86,12 +79,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $_SERVER["REQUEST_METHOD"] = "PATCH";
         $this->setContainer();
 
-        Router::any([
-            'url'        => '/test/page',
-            'action'     => 'actionAny',
-            'controller' => MainController::class
-        ]);
-        
+        Router::any('/test/page',[MainController::class, 'actionAny']);
         $this->assertEquals("ANY", Rudra::config()->get("actionAny"));
     }
 
@@ -100,12 +88,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $_SERVER["REQUEST_URI"]    = "api/123";
         $_SERVER["REQUEST_METHOD"] = $requestMethod;
         $this->setContainer();
-
-        Router::resource([
-            'url' => "api/:id",
-            'controller' => MainController::class
-        ]);
-
+        Router::resource("api/:id", MainController::class);
         $this->assertEquals($action, Rudra::config()->get($action));
     }
 
@@ -123,12 +106,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $_SERVER["REQUEST_METHOD"] = "POST";
         $_POST["_method"]          = $requestMethod;
         $this->setContainer();
-
-        Router::resource([
-            'url' => "api/:id",
-            'controller' => MainController::class
-        ]);
-
+        Router::resource("api/:id", MainController::class);
         $this->assertEquals($action, Rudra::config()->get($action));
     }
 
@@ -148,11 +126,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
         $method = strtolower($requestMethod);
 
-        Router::resource([
-            'url' => "api/:id",
-            'controller' => MainController::class
-        ]);
-
+        Router::resource("api/:id", MainController::class);
         $this->assertEquals($action, Rudra::config()->get($action));
     }
 
@@ -169,17 +143,15 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $_SERVER["REQUEST_METHOD"] = "GET";
         $this->setContainer();
 
-        Router::get([
-            'url' => "123/:id",
-            'controller' => MainController::class,
-            'action' => 'read', 
-            'middleware' => [
+        Router::get("123/:id", [MainController::class,'read'],
+            [
                 "before" => [[Middleware::class]],
-                "after"  => [[Middleware::class]]
+                "after"  => [function () { Rudra::config()->set(["after" => __FUNCTION__]); }]
             ]
-        ]);
+        );
 
         $this->assertEquals(Middleware::class, Rudra::config()->get("middleware"));
+        $this->assertEquals("{closure:Rudra\Router\Tests\RouterTest::testMiddleware():149}", Rudra::config()->get("after"));
     }
 
     public function testClosure()
@@ -188,15 +160,20 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $_SERVER["REQUEST_METHOD"] = "GET";
         $this->setContainer();
 
-        Rudra::config()->set(["environment" => "test"]);
-
-        Router::get([
-            'url' => "test/page",
-            'controller' => function () {
+        Router::get("test/page", function () {
                 Rudra::config()->set(["closure" => "closure"]);
-            }
-        ]);
+        });
 
         $this->assertEquals("closure", Rudra::config()->get("closure"));
+    }
+
+    public function testRegex(): void
+    {
+        $_SERVER["REQUEST_URI"]    = "test/12";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $this->setContainer();
+
+        Router::get("test/:[\d]{1,3}", [MainController::class, 'actionRegexGet']);
+        $this->assertEquals('regex', Rudra::config()->get("regex"));
     }
 }
