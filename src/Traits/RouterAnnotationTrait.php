@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 /**
- * @author  : Jagepard <jagepard@yandex.ru">
- * @license https://mit-license.org/ MIT
+ * @author  : Jagepard <jagepard@yandex.ru>
+ * @license   https://mit-license.org/  MIT
  */
 
 namespace Rudra\Router\Traits;
@@ -15,10 +15,24 @@ use Rudra\Container\Interfaces\RudraInterface;
 trait RouterAnnotationTrait
 {
     /**
-     * @param  array   $controllers
-     * @param  boolean $getter
-     * @param  boolean $attributes
-     * @return void
+     * Collects and processes annotations from the specified controllers.
+     *
+     * This method scans each controller class for Routing and Middleware annotations,
+     * builds route definitions based on those annotations, and either:
+     * - Registers them directly via `set()` (if $getter = false), or
+     * - Returns them as an array (if $getter = true).
+     * --------------------
+     * Собирает и обрабатывает аннотации указанных контроллеров.
+     *
+     * Метод сканирует каждый контроллер на наличие аннотаций Routing и Middleware,
+     * формирует определения маршрутов и либо:
+     * - Регистрирует их напрямую через `set()` (если $getter = false),
+     * - Возвращает как массив (если $getter = true).
+     *
+     * @param array $controllers
+     * @param bool  $getter
+     * @param bool  $attributes
+     * @return array|null
      */
     public function annotationCollector(array $controllers, bool $getter = false, bool $attributes = false): ?array
     {
@@ -70,21 +84,29 @@ trait RouterAnnotationTrait
     }
 
     /**
+     * Processes middleware annotations into a valid middleware format.
+     * --------------------
+     * Обрабатывает аннотации middleware в поддерживаемый формат.
+     *
+     * ```#[Middleware(name: "Auth", params: "admin")]```
+     * в:
+     * ```['Auth', 'admin']```
+     *
      * @param array $annotation
      * @return array
      */
     protected function handleAnnotationMiddleware(array $annotation): array
     {
-        $middleware = [];
+        $output = [];
 
-        foreach ($annotation as $item) {
-            $entry = [$item['name']];
-            if (isset($item['params'])) {
-                $entry[] = $item['params'];
+        foreach ($annotation as $middleware) {
+            if (!isset($middleware['params'])) {
+                $output[] = $middleware['name'];
+            } else {
+                $output[] = [$middleware['name'], $middleware['params']];
             }
-            $middleware[] = $entry;
         }
 
-        return $middleware;
+        return $output;
     }
 }
