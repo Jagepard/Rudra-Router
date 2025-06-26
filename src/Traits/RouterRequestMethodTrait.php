@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 /**
- * @author  : Jagepard <jagepard@yandex.ru">
- * @license https://mit-license.org/ MIT
+ * @author  : Jagepard <jagepard@yandex.ru>
+ * @license   https://mit-license.org/  MIT
  */
 
 namespace Rudra\Router\Traits;
@@ -12,26 +12,112 @@ namespace Rudra\Router\Traits;
 trait RouterRequestMethodTrait
 {
     /**
-     * @param array $route
+     * Registers a route with the GET HTTP method.
+     * --------------------
+     * Регистрирует маршрут с использованием метода GET.
+     *
+     * @param string $pattern
+     * @param array|callable $target
+     * @param array $middleware
      */
-    abstract public function set(array $route): void;
-
-    public function get(array $route): void { $route['method'] = 'GET';  $this->set($route); }
-    public function post(array $route): void { $route['method'] = 'POST'; $this->set($route); }
-    public function put(array $route): void { $route['method'] = 'PUT';   $this->set($route); }
-    public function patch(array $route): void { $route['method'] = 'PATCH'; $this->set($route); }
-    public function delete(array $route): void { $route['method'] = 'DELETE'; $this->set($route); }
-
-    public function any(array $route): void {
-        $route['method'] = 'GET|POST|PUT|PATCH|DELETE';
-        $this->set($route);
+    public function get(string $pattern, array|callable $target, array $middleware = []): void
+    {
+        $this->setRoute($pattern, $target, 'GET', $middleware);
     }
 
     /**
+     * Registers a route with the POST HTTP method.
+     * --------------------
+     * Регистрирует маршрут с использованием метода POST.
+     *
      * @param array $route
-     * @param array $actions
      */
-    public function resource(array $route, array $actions = ['read', 'create', 'update', 'delete']): void
+    public function post(string $pattern, array|callable $target, array $middleware = []): void
+    {
+        $this->setRoute($pattern, $target, 'POST', $middleware);
+    }
+
+    /**
+     * Registers a route with the PUT HTTP method.
+     * --------------------
+     * Регистрирует маршрут с использованием метода PUT.
+     *
+     * @param array $route
+     */
+    public function put(string $pattern, array|callable $target, array $middleware = []): void
+    {
+        $this->setRoute($pattern, $target, 'PUT', $middleware);
+    }
+
+    /**
+     * Registers a route with the PATCH HTTP method.
+     * --------------------
+     * Регистрирует маршрут с использованием метода PATCH.
+     *
+     * @param array $route
+     */
+    public function patch(string $pattern, array|callable $target, array $middleware = []): void
+    {
+        $this->setRoute($pattern, $target, 'PATCH', $middleware);
+    }
+
+    /**
+     * Registers a route with the DELETE HTTP method.
+     * --------------------
+     * Регистрирует маршрут с использованием метода DELETE.
+     *
+     * @param array $route
+     */
+    public function delete(string $pattern, array|callable $target, array $middleware = []): void
+    {
+        $this->setRoute($pattern, $target, 'DELETE', $middleware);
+    }
+
+    /**
+     * Registers a route that supports all HTTP methods.
+     *
+     * Sets the method to a pipe-separated string ('GET|POST|PUT|PATCH|DELETE'),
+     * allowing the same route to handle multiple request types.
+     * --------------------
+     * Регистрирует маршрут, поддерживающий все HTTP-методы.
+     *
+     * Устанавливает метод как строку с разделителем | ('GET|POST|PUT|PATCH|DELETE'),
+     * что позволяет использовать один маршрут для нескольких типов запросов.
+     *
+     * @param array $route
+     */
+    public function any(string $pattern, array|callable $target, array $middleware = []): void
+    {
+        $this->setRoute($pattern, $target, 'GET|POST|PUT|PATCH|DELETE', $middleware);
+    }
+
+    /**
+     * Registers a resource route, mapping standard actions to controller methods.
+     *
+     * Supports common CRUD operations by default:
+     * - GET    => read
+     * - POST   => create
+     * - PUT    => update
+     * - DELETE => delete
+     *
+     * Can be customized with an optional $actions array.
+     * --------------------
+     * Регистрирует ресурсный маршрут, связывая стандартные действия с методами контроллера.
+     *
+     * По умолчанию поддерживает CRUD-операции:
+     * - GET    => read
+     * - POST   => create
+     * - PUT    => update
+     * - DELETE => delete
+     *
+     * Может быть переопределён с помощью массива $actions.
+     *
+     * @param  string $pattern
+     * @param  string $controller
+     * @param  array  $actions
+     * @return void
+     */
+    public function resource(string $pattern, string $controller, array $actions = ['read', 'create', 'update', 'delete']): void
     {
         $request = $this->rudra->request();
         $server  = $request->server();
@@ -62,6 +148,44 @@ trait RouterRequestMethodTrait
                 break;
             default:
                 return; // Неизвестный метод — игнорируем
+        }
+
+        $route['url'] = $pattern;
+        $route['controller'] = $controller;
+
+        $this->set($route);
+    }
+
+    /**
+     * The method constructs a route definition and passes it to the `set()` method for registration.
+     * --------------------
+     * Метод формирует определение маршрута и передает его в метод `set()` для регистрации.
+     *
+     * @param string $pattern
+     * @param mixed  $target
+     * @param string $httpMethod
+     * @param array  $middleware
+     */
+    protected function setRoute(string $pattern, $target, string $httpMethod, array $middleware = []): void
+    {
+        $route['method'] = $httpMethod;
+        $route['url']    = $pattern;
+
+        if (count($middleware)) {
+            if (array_key_exists('before', $middleware)) {
+                $route['middleware']['before'] = $middleware['before'];
+            }
+
+            if (array_key_exists('after', $middleware)) {
+                $route['middleware']['after'] = $middleware['after'];
+            }
+        }
+
+        if (is_callable($target)) {
+            $route['controller'] = $target;
+        } elseif (is_array($target)) {
+            $route['controller'] = $target[0];
+            $route['action']     = $target[1];
         }
 
         $this->set($route);
