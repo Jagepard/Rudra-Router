@@ -146,12 +146,12 @@ class RouterTest extends PHPUnit_Framework_TestCase
         Router::get("123/:id", [MainController::class,'read'],
             [
                 "before" => [[Middleware::class]],
-                "after"  => [function () { Rudra::config()->set(["after" => __FUNCTION__]); }]
+                "after"  => [function () { Rudra::config()->set(["after" => "after"]); }]
             ]
         );
 
         $this->assertEquals(Middleware::class, Rudra::config()->get("middleware"));
-        $this->assertEquals("{closure:Rudra\Router\Tests\RouterTest::testMiddleware():149}", Rudra::config()->get("after"));
+        $this->assertEquals("after", Rudra::config()->get("after"));
     }
 
     public function testClosure()
