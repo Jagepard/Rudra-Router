@@ -8,18 +8,19 @@
  * @author  Korotkov Danila (Jagepard) <jagepard@yandex.ru>
  * @license https://mozilla.org/MPL/2.0/  MPL-2.0
  * 
- * phpunit src/tests/ContainerTest --coverage-html src/tests/coverage-html
+ * phpunit src/tests/RouterTest --coverage-html src/tests/coverage-html
  */
 
 namespace Rudra\Router\Tests;
 
+use Rudra\Container\Facades\Rudra;
+use Rudra\Container\Interfaces\RudraInterface;
+use Rudra\Container\Rudra as R;
 use Rudra\Router\RouterFacade as Router;
-use Rudra\Router\Tests\Stub\Middleware\Middleware;
 use Rudra\Router\Tests\Stub\Controllers\MainController;
-use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
-use Rudra\Container\{Rudra as R, Facades\Rudra, Interfaces\RudraInterface};
+use Rudra\Router\Tests\Stub\Middleware\Middleware;
 
-class RouterTest extends PHPUnit_Framework_TestCase
+class RouterTest extends \PHPUnit\Framework\TestCase
 {
     protected function setContainer()
     {

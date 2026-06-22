@@ -15,12 +15,6 @@ trait RouterRequestMethodTrait
 {
     /**
      * Registers a route with the GET HTTP method.
-     * --------------------
-     * Регистрирует маршрут с использованием метода GET.
-     *
-     * @param string $pattern
-     * @param array|callable $target
-     * @param array $middleware
      */
     public function get(string $pattern, array|callable $target, array $middleware = []): void
     {
@@ -29,10 +23,6 @@ trait RouterRequestMethodTrait
 
     /**
      * Registers a route with the POST HTTP method.
-     * --------------------
-     * Регистрирует маршрут с использованием метода POST.
-     *
-     * @param array $route
      */
     public function post(string $pattern, array|callable $target, array $middleware = []): void
     {
@@ -41,10 +31,6 @@ trait RouterRequestMethodTrait
 
     /**
      * Registers a route with the PUT HTTP method.
-     * --------------------
-     * Регистрирует маршрут с использованием метода PUT.
-     *
-     * @param array $route
      */
     public function put(string $pattern, array|callable $target, array $middleware = []): void
     {
@@ -53,10 +39,6 @@ trait RouterRequestMethodTrait
 
     /**
      * Registers a route with the PATCH HTTP method.
-     * --------------------
-     * Регистрирует маршрут с использованием метода PATCH.
-     *
-     * @param array $route
      */
     public function patch(string $pattern, array|callable $target, array $middleware = []): void
     {
@@ -65,10 +47,6 @@ trait RouterRequestMethodTrait
 
     /**
      * Registers a route with the DELETE HTTP method.
-     * --------------------
-     * Регистрирует маршрут с использованием метода DELETE.
-     *
-     * @param array $route
      */
     public function delete(string $pattern, array|callable $target, array $middleware = []): void
     {
@@ -80,13 +58,6 @@ trait RouterRequestMethodTrait
      *
      * Sets the method to a pipe-separated string ('GET|POST|PUT|PATCH|DELETE'),
      * allowing the same route to handle multiple request types.
-     * --------------------
-     * Регистрирует маршрут, поддерживающий все HTTP-методы.
-     *
-     * Устанавливает метод как строку с разделителем | ('GET|POST|PUT|PATCH|DELETE'),
-     * что позволяет использовать один маршрут для нескольких типов запросов.
-     *
-     * @param array $route
      */
     public function any(string $pattern, array|callable $target, array $middleware = []): void
     {
@@ -103,21 +74,6 @@ trait RouterRequestMethodTrait
      * - DELETE => delete
      *
      * Can be customized with an optional $actions array.
-     * --------------------
-     * Регистрирует ресурсный маршрут, связывая стандартные действия с методами контроллера.
-     *
-     * По умолчанию поддерживает CRUD-операции:
-     * - GET    => read
-     * - POST   => create
-     * - PUT    => update
-     * - DELETE => delete
-     *
-     * Может быть переопределён с помощью массива $actions.
-     *
-     * @param  string $pattern
-     * @param  string $controller
-     * @param  array  $actions
-     * @return void
      */
     public function resource(string $pattern, string $controller, array $actions = ['read', 'create', 'update', 'delete']): void
     {
@@ -149,7 +105,7 @@ trait RouterRequestMethodTrait
                 $route['action'] = $actions[3]; // delete
                 break;
             default:
-                return; // Неизвестный метод — игнорируем
+                return; // Unknown method — ignore
         }
 
         $route['url'] = $pattern;
@@ -160,13 +116,6 @@ trait RouterRequestMethodTrait
 
     /**
      * The method constructs a route definition and passes it to the `set()` method for registration.
-     * --------------------
-     * Метод формирует определение маршрута и передает его в метод `set()` для регистрации.
-     *
-     * @param string $pattern
-     * @param mixed  $target
-     * @param string $httpMethod
-     * @param array  $middleware
      */
     protected function setRoute(string $pattern, $target, string $httpMethod, array $middleware = []): void
     {

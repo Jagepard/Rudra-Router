@@ -25,7 +25,7 @@
         "source": "https://github.com/Jagepard/Rudra-Router"    
     },
     "require": {
-        "php": ">=8.3",
+        "php": "^8.3",
         "rudra/annotation": "self.version",
         "rudra/container" : "self.version",
         "rudra/exception" : "self.version"

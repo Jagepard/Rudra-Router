@@ -2,18 +2,42 @@
 [![Maintainability](https://qlty.sh/badges/d9252114-5cc4-405e-bbf7-6419ec50266f/maintainability.svg)](https://qlty.sh/gh/Jagepard/projects/Rudra-Router)
 [![CodeFactor](https://www.codefactor.io/repository/github/jagepard/rudra-router/badge)](https://www.codefactor.io/repository/github/jagepard/rudra-router)
 [![Coverage Status](https://coveralls.io/repos/github/Jagepard/Rudra-Router/badge.svg?branch=master)](https://coveralls.io/github/Jagepard/Rudra-Router?branch=master)
+
 -----
 
 # Rudra-Router
 
-#### Basic installation / Базовая установка
+A lightweight and transparent HTTP router for PHP. Supports dynamic parameters, regular expressions, middleware, and RESTful resources.
+
+## Features
+
+- Dynamic URL parameters (`:name`) and regular expressions (`:[\d]{1,3}`)
+- All HTTP methods supported: GET, POST, PUT, PATCH, DELETE
+- Method spoofing via `_method` (for PUT/PATCH/DELETE from POST requests)
+- Middleware executed before and after controller execution
+- RESTful resources in a single line
+- Automatic dependency injection via IoC container
+- Works via instance or Facade
+
+## Installation
+
+```bash
+composer require rudra/router
+```
+
+## Basic Usage
+
+### Initialization
+
 ```php
 use Rudra\Router\Router;
 use Rudra\Container\Rudra;
 
 $router = new Router(Rudra::run());
 ```
-#### Installation for facade use / Установка для использования фасада
+
+### Facade Usage
+
 ```php
 use Rudra\Container\Facades\Rudra;  
 use Rudra\Router\RouterFacade as Router;
@@ -22,113 +46,216 @@ use Rudra\Container\Interfaces\RudraInterface;
 Rudra::binding()->set([RudraInterface::class => Rudra::run()]);
 ```
 
-#### Setting the route / Устанавливаем маршрут callback/:name
+## Route Definition
+
+### Simple Routes with Closure
+
 ```php
-$router->get('callback/:name', function ($name) {
+$router->get('hello/:name', function ($name) {
     echo "Hello $name!";
 });
 ```
-_with Regex_
+
+### With Regular Expressions
+
 ```php
-$router->get('callback/:[\d]{1,3}', function ($name) {
-    echo "Hello $name!";
+$router->get('user/:[\d]{1,3}', function ($id) {
+    echo "User ID: $id";
 });
 ```
-_To call through the Facade / Для вызова через Фасад_
+
+### Controller Method Call
+
+```php
+$router->get('read/:id', [MainController::class, 'read']);
+```
+
+### Via Facade
+
 ```php
 Router::get('callback/:name', function ($name) {
     echo "Hello $name!";
 });
-```
-_with Regex_
-```php
-Router::get('callback/:[\d]{1,3}', function ($name) {
-    echo "Hello $name!";
-});
-```
-_call / вызывает MainController::read_
-```php
-$router->get('read/:id', [MainController::class, 'read']);
-```
-_To call through the Facade / Для вызова через Фасад_
-```php
+
 Router::get('read/:id', [MainController::class, 'read']);
 ```
-_call MainController::read with middleware_
+
+## HTTP Methods
+
 ```php
-$router->get('read/page',  [MainController::class, 'read'], ['before' => [Middleware::class]);
-```
-_To call through the Facade / Для вызова через Фасад_
-```php
-Router::get('read/page',  [MainController::class, 'read'], ['before' => [Middleware::class]);
-```
-_С параметрами для middleware_
-```php
-$router->get('', [MainController::class, 'read'], [
-    'before' => [FirstMidddleware::class, [SecondMidddleware::class, ['int' => 456, new \stdClass]]],
-    'after'  => [FirstMidddleware::class, [SecondMidddleware::class, ['int' => 456, new \stdClass]]]
-]);
-```
-_call / вызывает MainController::create_
-```php
-$router->post('create/:id', [MainController::class, 'create']);
-```
-_call / вызывает MainController::update_
-```php
-$router->put('update/:id', [MainController::class, 'update']);
-```
-_call / вызывает MainController::update_
-```php
-$router->patch('update/:id', [MainController::class, 'update']);
-```
-_call / вызывает MainController::delete_
-```php
+$router->get('read/:id',      [MainController::class, 'read']);
+$router->post('create/:id',   [MainController::class, 'create']);
+$router->put('update/:id',    [MainController::class, 'update']);
+$router->patch('patch/:id',   [MainController::class, 'patch']);
 $router->delete('delete/:id', [MainController::class, 'delete']);
 ```
-_call / вызывает MainController::any 'GET|POST|PUT|PATCH|DELETE'_
+
+### Any Method (GET|POST|PUT|PATCH|DELETE)
+
 ```php
 $router->any('any/:id', [MainController::class, 'any']);
 ```
-_call / вызывает MainController::read для GET_
 
-_call / вызывает MainController::create для POST_
+## Middleware
 
-_call / вызывает MainController::update для PUT_
+Middleware runs before (`before`) and after (`after`) the controller. Each middleware must implement the `__invoke()` method.
 
-_call / вызывает MainController::delete для DELETE_
+### Basic Setup
+
 ```php
-$router->resource('api/:id', MainController::class);
+$router->get('read/page', [MainController::class, 'read'], [
+    'before' => [AuthMiddleware::class],
+    'after'  => [LogMiddleware::class]
+]);
 ```
-Изменить методы контроллера по умолчанию можно передав массив с вашими именами\
-You can change the default controller methods by passing an array with your names
+
+### Middleware with Parameters
+
 ```php
-$router->resource('api/:id', MainController::class, ['actionIndex', 'actionAdd', 'actionUpdate', 'actionDrop']);
+$router->get('admin/:id', [AdminController::class, 'show'], [
+    'before' => [
+        AuthMiddleware::class,
+        [RoleMiddleware::class, ['role' => 'admin', new PermissionChecker()]]
+    ],
+    'after' => [
+        LogMiddleware::class,
+        [CacheMiddleware::class, ['ttl' => 3600]]
+    ]
+]);
 ```
-#### A variant of declaring a route using the set method / Вариант объявления маршрута методом set
-_call / вызывает MainController::actionIndex_
+
+### Middleware Example
+
 ```php
-$router->set(['/test/:id', 'DELETE|PUT', [MainController::class, 'actionIndex'], [
-        'before' => [First::class, Second::class],
-        'after'  => [[First::class], [Second::class]]
-]]);
-```
-_Exemple / Пример Middleware_
-```php
-/**
- * Handles requests as a middleware using __invoke().
- */
-class SomeMiddleware
+use Rudra\Router\RouterFacade as Router;
+
+class AuthMiddleware
 {
     public function __invoke($next, ...$params)
     {
-        // Logic here
+        // Logic before controller
+        if (!Auth::check()) {
+            throw new UnauthorizedException();
+        }
+
+        // Pass control to the next middleware in chain
+        if ($next) {
+            Router::handleMiddleware($next);
+        }
+
+        // Logic after controller (optional)
+    }
+}
+```
+
+Simple middleware without chain:
+
+```php
+class UnsetSessionMiddleware
+{
+    public function __invoke($next, ...$params)
+    {
+        Session::remove('value');
+        Session::remove('alert');
+        Session::remove('errors');
 
         if ($next) {
-            $next();
+            Router::handleMiddleware($next);
         }
     }
 }
 ```
+## RESTful Resources
+
+A single line registers all standard CRUD routes:
+
+```php
+$router->resource('api/users', UserController::class);
+```
+
+This creates the following routes:
+
+| Method | URL       | Controller Method |
+|--------|-----------|-------------------|
+| GET    | api/users | read              |
+| POST   | api/users | create            |
+| PUT    | api/users | update            |
+| PATCH  | api/users | update            |
+| DELETE | api/users | delete            |
+
+### Custom Method Names
+
+```php
+$router->resource('api/posts', PostController::class, [
+    'actionIndex',
+    'actionAdd',
+    'actionUpdate',
+    'actionDrop'
+]);
+```
+## The set() Method — Extended Syntax
+
+Allows defining a route with multiple HTTP methods via `|`:
+
+```php
+$router->set([
+    'url'        => '/api/users/:id',
+    'method'     => 'GET|POST',
+    'controller' => [UserController::class, 'handle'],
+    'middleware' => [
+        'before' => [AuthMiddleware::class],
+        'after'  => [LogMiddleware::class]
+    ]
+]);
+```
+
+## Controller Lifecycle
+
+When a controller method is invoked, the following stages are executed:
+
+1. `shipInit()` — base component initialization
+2. `containerInit()` — container initialization
+3. `init()` — user-defined initialization
+4. `before()` — hook before middleware
+5. **`before` middleware**
+6. **Action method call** (with automatic dependency injection)
+7. **`after` middleware**
+8. `after()` — hook after middleware
+
+## Automatic Dependency Injection
+
+Action method parameters are automatically resolved via the IoC container:
+
+```php
+class UserController extends Controller
+{
+    public function show(int $id, Request $request, UserService $service)
+    {
+        // $id — from URL
+        // $request and $service — injected automatically
+    }
+}
+```
+
+## Method Spoofing
+
+For forms that do not support PUT/PATCH/DELETE, use the `_method` parameter:
+
+```html
+<form method="POST" action="/users/123">
+    <input type="hidden" name="_method" value="PUT">
+    <!-- form fields -->
+</form>
+```
+
+The router automatically recognizes this as a PUT request.
+
+## Error Handling
+
+- `RouterException("Not Found", 404)` — route not found or parameters do not match
+- `RouterException("Service Unavailable", 503)` — controller method does not exist
+- `MiddlewareException` — error in the middleware chain
+
 ## License
 
 This project is licensed under the **Mozilla Public License 2.0 (MPL-2.0)** — a free, open-source license that:
@@ -140,13 +267,3 @@ This project is licensed under the **Mozilla Public License 2.0 (MPL-2.0)** — 
 
 📄 Full license text: [LICENSE](./LICENSE)  
 🌐 Official MPL-2.0 page: https://mozilla.org/MPL/2.0/
-
---------------------------
-Проект распространяется под лицензией **Mozilla Public License 2.0 (MPL-2.0)**. Это означает:
- - Вы можете свободно использовать, изменять и распространять код.
- - При изменении файлов, содержащих исходный код из этого репозитория, вы обязаны оставить их открытыми под той же лицензией.
- - Вы **обязаны сохранять уведомления об авторстве** и ссылку на оригинал.
- - Вы можете встраивать код в проприетарные проекты, если исходные файлы остаются под MPL.
-
-📄  Полный текст лицензии (на английском): [LICENSE](./LICENSE)  
-🌐 Официальная страница: https://mozilla.org/MPL/2.0/

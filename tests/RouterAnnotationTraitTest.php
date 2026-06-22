@@ -8,18 +8,18 @@
  * @author  Korotkov Danila (Jagepard) <jagepard@yandex.ru>
  * @license https://mozilla.org/MPL/2.0/  MPL-2.0
  * 
- * phpunit src/tests/ContainerTest --coverage-html src/tests/coverage-html
+ * phpunit src/tests/RouterAnnotationTraitTest --coverage-html src/tests/coverage-html
  */
 
 namespace Rudra\Router\Tests;
 
-use Rudra\Container\{Facades\Rudra,Interfaces\RudraInterface};
 use Rudra\Annotation\Annotation;
+use Rudra\Container\Facades\Rudra;
+use Rudra\Container\Interfaces\RudraInterface;
 use Rudra\Router\Router as Rtr;
 use Rudra\Router\RouterFacade as Router;
-use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 
-class RouterAnnotationTraitTest extends PHPUnit_Framework_TestCase
+class RouterAnnotationTraitTest extends \PHPUnit\Framework\TestCase
 {
    protected function setContainer()
    {
