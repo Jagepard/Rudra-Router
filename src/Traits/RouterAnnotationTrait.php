@@ -23,18 +23,8 @@ trait RouterAnnotationTrait
      * builds route definitions based on those annotations, and either:
      * - Registers them directly via `set()` (if $getter = false), or
      * - Returns them as an array (if $getter = true).
-     * --------------------
-     * Собирает и обрабатывает аннотации указанных контроллеров.
-     *
-     * Метод сканирует каждый контроллер на наличие аннотаций Routing и Middleware,
-     * формирует определения маршрутов и либо:
-     * - Регистрирует их напрямую через `set()` (если $getter = false),
-     * - Возвращает как массив (если $getter = true).
-     *
-     * @param array $controllers
-     * @param bool  $getter
-     * @param bool  $attributes
-     * @return array|null
+     * 
+     * @throws \Exception If a specified controller class does not exist.
      */
     public function annotationCollector(array $controllers, bool $getter = false, bool $attributes = false): ?array
     {
@@ -43,7 +33,7 @@ trait RouterAnnotationTrait
 
         foreach ($controllers as $controller) {
             if (!class_exists($controller)) {
-                throw new \Exception("Удалите контроллер $controller из файла routes.php");
+                throw new \Exception("Remove the $controller controller from the routes.php file.");
             }
 
             $reflection = new \ReflectionClass($controller);
@@ -87,15 +77,10 @@ trait RouterAnnotationTrait
 
     /**
      * Processes middleware annotations into a valid middleware format.
-     * --------------------
-     * Обрабатывает аннотации middleware в поддерживаемый формат.
      *
      * ```#[Middleware(name: "Auth", params: "admin")]```
-     * в:
+     * to:
      * ```['Auth', 'admin']```
-     *
-     * @param array $annotation
-     * @return array
      */
     protected function handleAnnotationMiddleware(array $annotation): array
     {

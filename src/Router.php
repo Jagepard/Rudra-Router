@@ -13,8 +13,10 @@ namespace Rudra\Router;
 
 use ReflectionException;
 use Rudra\Container\Traits\SetRudraContainersTrait;
-use Rudra\Exceptions\{MiddlewareException, RouterException};
-use Rudra\Router\Traits\{RouterAnnotationTrait, RouterRequestMethodTrait};
+use Rudra\Exceptions\MiddlewareException;
+use Rudra\Exceptions\RouterException;
+use Rudra\Router\Traits\RouterAnnotationTrait;
+use Rudra\Router\Traits\RouterRequestMethodTrait;
 
 class Router implements RouterInterface
 {
@@ -27,12 +29,6 @@ class Router implements RouterInterface
     /**
      * Sets the route, parsing HTTP methods (if multiple are specified via |).
      * Registers a route handler for each method.
-     * -------------------------
-     * Устанавливает маршрут, разбирая HTTP-методы (если указано несколько через |).
-     * Для каждого метода регистрирует обработчик маршрута.
-     *
-     * @param array $route
-     * @return void
      */
     public function set(array $route): void
     {
@@ -48,11 +44,6 @@ class Router implements RouterInterface
 
     /**
      * Processes the incoming URI request and checks if it matches the current route.
-     * -------------------------
-     * Обрабатывает входящий URI-запрос и проверяет его совпадение с текущим маршрутом.
-     *
-     * @param array $route
-     * @return void
      */
     private function handleRequestUri(array $route): void
     {
@@ -78,10 +69,6 @@ class Router implements RouterInterface
 
     /**
      * Processes the HTTP request method, including spoofing via _method (for PUT/PATCH/DELETE)
-     * -------------------------
-     * Обрабатывает HTTP-метод запроса, включая spoofing через _method (для PUT/PATCH/DELETE)
-     *
-     * @return void
      */
     private function handleRequestMethod(): void
     {
@@ -107,14 +94,7 @@ class Router implements RouterInterface
 
     /**
      * Matches the URI from the route with the actual request, processing parameters of the form :param and :regexp.
-     * This method is used to extract dynamic segments from a URI pattern:
-     * -------------------------
-     * Сопоставляет URI из маршрута с фактическим запросом, обрабатывая параметры вида :param и :regexp.
-     * Метод извлекает динамические сегменты из URL-шаблона:
-     * 
-     * @param array $route
-     * @param array $request
-     * @return array
+     * This method is used to extract dynamic segments from a URI pattern
      */
     private function handlePattern(array $route, array $request): array
     {
@@ -153,12 +133,6 @@ class Router implements RouterInterface
 
     /**
      * Calls the controller associated with the route — either a Closure or a controller method.
-     * -------------------------
-     * Вызывает контроллер, связанный с маршрутом — либо Closure, либо метод контроллера.
-     *
-     * @param array $route
-     * @param array|null $params
-     * @return void
      */
     private function setCallable(array $route, ?array $params): void
     {
@@ -182,13 +156,7 @@ class Router implements RouterInterface
     /**
      * Calls the controller and its method directly, performing the full lifecycle:
      * This method is used to fully dispatch a route after matching it with the current request.
-     * -------------------------
-     * Вызывает контроллер и его метод напрямую, выполняя полный жизненный цикл:
-     * Метод используется для полной диспетчеризации маршрута после его совпадения с текущим запросом.
-     *
-     * @param array $route
-     * @param array|null $params
-     * @return void
+     * 
      * @throws RouterException
      */
     public function directCall(array $route, ?array $params = null): void
@@ -197,7 +165,7 @@ class Router implements RouterInterface
         $action = $route['action'];
 
         if (!method_exists($controller, $action)) {
-            throw new RouterException("503");
+            throw new RouterException("Service Unavailable", 503);
         }
 
         $controller->shipInit();
@@ -230,22 +198,13 @@ class Router implements RouterInterface
      *
      * This method is typically used when the zend.exception_ignore_args setting is enabled,
      * allowing for more flexible and type-safe dependency resolution.
-     * -------------------------
-     * Вызывает метод контроллера с помощью Reflection, выполняя автоматическое внедрение параметров на основе типизации.
-     *
-     * Этот метод обычно используется, когда включена настройка zend.exception_ignore_args,
-     * что позволяет более гибко и безопасно разрешать зависимости по типам.
      * 
-     * @param array|null $params
-     * @param string action
-     * @param object $controller
-     * @return void
      * @throws RouterException
      */
     private function callActionThroughReflection(?array $params, string $action, object $controller): void
     {
         if ($params && in_array('', $params, true)) {
-            throw new RouterException("404");
+            throw new RouterException("Not Found", 404);
         }
 
         $cacheKey = get_class($controller) . "::$action";
@@ -272,28 +231,15 @@ class Router implements RouterInterface
      * - \TypeError — thrown when an argument is not compatible with the expected type.
      *
      * In both cases, Rudra's autowire system attempts to resolve and inject the correct dependencies.
-     * -------------------------
-     * Вызывает указанный метод контроллера напрямую.
-     *
-     * Если тип или количество аргументов не совпадает — пытается автоматически внедрить нужные зависимости.
-     * Это механизм отката, используемый, когда недоступен вызов через Reflection.
-     *
-     * Обрабатываются следующие ошибки:
-     * - \ArgumentCountError — выбрасывается, если количество аргументов не совпадает с ожидаемым.
-     * - \TypeError — выбрасывается, если тип аргумента не соответствует ожидаемому.
-     *
-     * В обоих случаях система автовайринга Rudra пытается разрешить и внедрить правильные зависимости.
-     *
-     * @param array|null $params
-     * @param string $action
-     * @param object $controller
-     * @return void
+     * 
      * @throws RouterException
+     * @throws \TypeError
+     * @throws \ArgumentCountError
      */
     private function callActionThroughException(?array $params, string $action, object $controller): void
     {
         if (isset($params) && in_array('', $params)) {
-            throw new RouterException("404");
+            throw new RouterException("Not Found", 404);
         }
 
         try {
@@ -320,18 +266,7 @@ class Router implements RouterInterface
      * - ['MiddlewareClass', $parameter] (array with class and parameter) — passes the parameter to the middleware.
      *
      * Each middleware must implement the __invoke() method to be callable.
-     * --------------------
-     * Выполняет цепочку middleware, рекурсивно вызывая каждый элемент.
-     *
-     * Middleware может быть указан в одном из поддерживаемых форматов:
-     * - 'MiddlewareClass' (строка) — простое имя класса без параметров.
-     * - ['MiddlewareClass'] (массив с именем класса) — аналогично предыдущему, удобно для расширения.
-     * - ['MiddlewareClass', $parameter] (массив с классом и параметром) — передаёт параметр в middleware.
-     *
-     * Каждый middleware должен реализовывать метод __invoke(), чтобы быть вызываемым.
-     *
-     * @param array $chain
-     * @return void
+     * 
      * @throws \Rudra\Router\Exceptions\MiddlewareException
      */
     public function handleMiddleware(array $chain): void
