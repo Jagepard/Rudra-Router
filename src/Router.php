@@ -11,7 +11,6 @@
 
 namespace Rudra\Router;
 
-use ReflectionException;
 use Rudra\Container\Traits\SetRudraContainersTrait;
 use Rudra\Exceptions\MiddlewareException;
 use Rudra\Exceptions\RouterException;
@@ -30,6 +29,7 @@ class Router implements RouterInterface
      * Sets the route, parsing HTTP methods (if multiple are specified via |).
      * Registers a route handler for each method.
      */
+    #[\Override]
     public function set(array $route): void
     {
         $httpMethods = str_contains($route['method'], '|')
@@ -99,9 +99,9 @@ class Router implements RouterInterface
     private function handlePattern(array $route, array $request): array
     {
         $uri = [];
-        $params = null;
+        $params  = null;
         $subject = explode('/', ltrim($route['url'], '/'));
-        $count = count($subject);
+        $count   = count($subject);
 
         for ($i = 0; $i < $count; $i++) {
             if (preg_match("/^:[a-zA-Z0-9_-]+$/", $subject[$i]) > 0 && array_key_exists($i, $request)) {
@@ -115,7 +115,7 @@ class Router implements RouterInterface
                 if (array_key_exists($i, $request)) {
                     $pattern = $matches[1];
                     if (preg_match("/^$pattern$/", $request[$i])) {
-                        $uri[] = $request[$i];
+                        $uri[]    = $request[$i];
                         $params[] = $request[$i];
                     } else {
                         $uri[] = '!@#$%^&*';
@@ -159,10 +159,11 @@ class Router implements RouterInterface
      * 
      * @throws RouterException
      */
+    #[\Override]
     public function directCall(array $route, ?array $params = null): void
     {
         $controller = $this->rudra->get($route['controller']);
-        $action = $route['action'];
+        $action     = $route['action'];
 
         if (!method_exists($controller, $action)) {
             throw new RouterException("Service Unavailable", 503);
@@ -215,8 +216,8 @@ class Router implements RouterInterface
             ];
         }
 
-        $method = $this->reflectionCache[$cacheKey]['method'];
-        $arguments = $this->rudra()->getParamsIoC($method, $params);
+        $method    = $this->reflectionCache[$cacheKey]['method'];
+        $arguments = $this->rudra->getParamsIoC($method, $params);
         $method->invokeArgs($controller, $arguments);
     }
 
@@ -250,10 +251,10 @@ class Router implements RouterInterface
             }
         } catch (\ArgumentCountError $e) {
             $trace = $e->getTrace()[0];
-            $this->rudra()->autowire($this->rudra()->get($trace['class']), $trace['function']);
+            $this->rudra->autowire($this->rudra->get($trace['class']), $trace['function']);
         } catch (\TypeError $e) {
             $trace = $e->getTrace()[0];
-            $this->rudra()->autowire($this->rudra()->new($trace['class']), $trace['function'], $trace['args']);
+            $this->rudra->autowire($this->rudra->new($trace['class']), $trace['function'], $trace['args']);
         }
     }
 

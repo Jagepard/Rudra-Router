@@ -12,7 +12,6 @@
 namespace Rudra\Router\Traits;
 
 use Rudra\Annotation\Annotation;
-use Rudra\Container\Interfaces\RudraInterface;
 
 trait RouterAnnotationTrait
 {
