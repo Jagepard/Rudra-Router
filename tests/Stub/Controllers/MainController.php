@@ -50,6 +50,12 @@ class MainController
         Rudra::config()->set(["actionAny" => "ANY"]);
     }
 
+    public function index()
+    {
+        Rudra::config()->set(["index" => "index"]);
+    }
+
+
     public function read($params = null)
     {
         Rudra::config()->set(["read" => "read"]);
