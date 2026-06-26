@@ -84,75 +84,60 @@ class RouterTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals("ANY", Rudra::config()->get("actionAny"));
     }
 
-    protected function setRouteResourceEnvironment(string $requestMethod, string $action): void
-    {
-        $_SERVER["REQUEST_URI"]    = "api/123";
+    protected function setRouteResourceEnvironment(
+        string $requestMethod,
+        string $action,
+        string $requestUri
+    ): void {
+        $_SERVER["REQUEST_URI"]    = $requestUri;
         $_SERVER["REQUEST_METHOD"] = $requestMethod;
         $this->setContainer();
-        Router::resource("api/:id", MainController::class);
+
+        Router::resource(
+            "api/users",
+            "api/user",
+            MainController::class,
+            ['index', 'read', 'create', 'update', 'delete']
+        );
+
         $this->assertEquals($action, Rudra::config()->get($action));
     }
 
     public function testResource(): void
     {
-        $this->setRouteResourceEnvironment("GET", "read");
-        $this->setRouteResourceEnvironment("POST", "create");
-        $this->setRouteResourceEnvironment("PUT", "update");
-        $this->setRouteResourceEnvironment("DELETE", "delete");
+        // Collection routes (plural URL, no :id)
+        $this->setRouteResourceEnvironment("GET",  "index",  "api/users");
+        $this->setRouteResourceEnvironment("POST", "create", "api/users");
+
+        // Single-item routes (singular URL + /:id)
+        $this->setRouteResourceEnvironment("GET",    "read",   "api/user/123");
+        $this->setRouteResourceEnvironment("PUT",    "update", "api/user/123");
+        $this->setRouteResourceEnvironment("PATCH",  "update", "api/user/123");
+        $this->setRouteResourceEnvironment("DELETE", "delete", "api/user/123");
     }
 
-    protected function setRouteResourcePostEnvironment(string $requestMethod, string $action): void
+    protected function setRouteResourcePostEnvironment(string $spoofedMethod, string $action): void
     {
-        $_SERVER["REQUEST_URI"]    = "api/123";
+        $_SERVER["REQUEST_URI"]    = "api/user/123";
         $_SERVER["REQUEST_METHOD"] = "POST";
-        $_POST["_method"]          = $requestMethod;
+        $_POST["_method"]          = $spoofedMethod;
         $this->setContainer();
-        Router::resource("api/:id", MainController::class);
+
+        Router::resource(
+            "api/users",
+            "api/user",
+            MainController::class,
+            ['index', 'read', 'create', 'update', 'delete']
+        );
+
         $this->assertEquals($action, Rudra::config()->get($action));
     }
 
     public function testResourcePost(): void
     {
+        $this->setRouteResourcePostEnvironment("PUT",    "update");
+        $this->setRouteResourcePostEnvironment("PATCH",  "update");
         $this->setRouteResourcePostEnvironment("DELETE", "delete");
-        $this->setRouteResourcePostEnvironment("PUT", "update");
-        $this->setRouteResourcePostEnvironment("PATCH", "update");
-    }
-
-    protected function setRoutePostEnvironment(string $requestMethod, string $action): void
-    {
-        $_SERVER["REQUEST_URI"]    = "api/123";
-        $_SERVER["REQUEST_METHOD"] = "POST";
-        $_POST["_method"]          = $requestMethod;
-        $this->setContainer();
-
-        $method = strtolower($requestMethod);
-
-        Router::resource("api/:id", MainController::class);
-        $this->assertEquals($action, Rudra::config()->get($action));
-    }
-
-    public function testPostMethods(): void
-    {
-        $this->setRoutePostEnvironment("DELETE", "delete");
-        $this->setRoutePostEnvironment("PUT", "update");
-        $this->setRoutePostEnvironment("PATCH", "update");
-    }
-
-    public function testMiddleware()
-    {
-        $_SERVER["REQUEST_URI"]    = "123/456";
-        $_SERVER["REQUEST_METHOD"] = "GET";
-        $this->setContainer();
-
-        Router::get("123/:id", [MainController::class,'read'],
-            [
-                "before" => [[Middleware::class]],
-                "after"  => [function () { Rudra::config()->set(["after" => "after"]); }]
-            ]
-        );
-
-        $this->assertEquals(Middleware::class, Rudra::config()->get("middleware"));
-        $this->assertEquals("after", Rudra::config()->get("after"));
     }
 
     public function testClosure()

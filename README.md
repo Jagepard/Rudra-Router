@@ -167,32 +167,37 @@ class UnsetSessionMiddleware
 ```
 ## RESTful Resources
 
-A single line registers all standard CRUD routes:
+Registers standard CRUD routes with explicit plural and singular URL patterns. 
+No magic pluralization — you define exactly what the URLs look like.
 
 ```php
-$router->resource('api/users', UserController::class);
+$router->resource('api/users', 'api/user', UserController::class);
 ```
 
 This creates the following routes:
 
-| Method | URL       | Controller Method |
-|--------|-----------|-------------------|
-| GET    | api/users | read              |
-| POST   | api/users | create            |
-| PUT    | api/users | update            |
-| PATCH  | api/users | update            |
-| DELETE | api/users | delete            |
-
+| Method | URL | Controller Method | Description |
+|--------|-----|-------------------|-------------|
+| GET    | api/users      | index  | List all users |
+| GET    | api/user/:id   | read   | Get single user |
+| POST   | api/users      | create | Create new user |
+| PUT    | api/user/:id   | update | Full update user |
+| PATCH  | api/user/:id   | update | Partial update user |
+| DELETE | api/user/:id   | delete | Delete user |
+>The default action names are [index, read, create, update, delete].
 ### Custom Method Names
+You can override the default action names by passing a custom array of 5 methods:
 
 ```php
-$router->resource('api/posts', PostController::class, [
-    'actionIndex',
-    'actionAdd',
-    'actionUpdate',
-    'actionDrop'
+$router->resource('api/posts', 'api/post', PostController::class, [
+    'actionIndex',   // GET    api/posts       — list all posts
+    'actionView',    // GET    api/post/:id    — get single post
+    'actionAdd',     // POST   api/posts       — create new post
+    'actionUpdate',  // PUT/PATCH api/post/:id — update post
+    'actionDrop'     // DELETE api/post/:id    — delete post
 ]);
 ```
+>The array order is fixed: [index, read, create, update, delete].
 ## The set() Method — Extended Syntax
 
 Allows defining a route with multiple HTTP methods via `|`:

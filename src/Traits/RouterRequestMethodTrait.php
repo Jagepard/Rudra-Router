@@ -65,53 +65,73 @@ trait RouterRequestMethodTrait
     }
 
     /**
-     * Registers a resource route, mapping standard actions to controller methods.
+     * Registers RESTful resource routes with explicit plural and singular URL patterns.
      *
-     * Supports common CRUD operations by default:
-     * - GET    => read
-     * - POST   => create
-     * - PUT    => update
-     * - DELETE => delete
+     * No magic pluralization — you define exactly what the URLs look like.
      *
-     * Can be customized with an optional $actions array.
+     * Creates the following routes:
+     *  - GET    {plural}          => actions[0] (index — list all)
+     *  - GET    {singular}/:id    => actions[1] (read — get single)
+     *  - POST   {plural}          => actions[2] (create)
+     *  - PUT    {singular}/:id    => actions[3] (full update)
+     *  - PATCH  {singular}/:id    => actions[3] (partial update)
+     *  - DELETE {singular}/:id    => actions[4] (delete)
      */
-    public function resource(string $pattern, string $controller, array $actions = ['read', 'create', 'update', 'delete']): void
-    {
-        $request = $this->rudra->request();
-        $server  = $request->server();
-        $post    = $request->post();
+    public function resource(string $plural, string $singular, string $controller,
+        array $actions = ['index', 'read', 'create', 'update', 'delete']
+    ): void {
+        [$index, $read, $create, $update, $delete] = $actions;
 
-        $requestMethod = $server->get('REQUEST_METHOD');
-        $httpMethod = $requestMethod === 'POST' && $post->has('_method')
-            ? strtoupper($post->get('_method'))
-            : $requestMethod;
+        $plural   = ltrim($plural, '/');
+        $singular = ltrim($singular, '/');
 
-        switch ($httpMethod) {
-            case 'GET':
-                $route['method'] = 'GET';
-                $route['action'] = $actions[0]; // read
-                break;
-            case 'POST':
-                $route['method'] = 'POST';
-                $route['action'] = $actions[1]; // create
-                break;
-            case 'PUT':
-            case 'PATCH':
-                $route['method'] = $httpMethod;
-                $route['action'] = $actions[2]; // update
-                break;
-            case 'DELETE':
-                $route['method'] = 'DELETE';
-                $route['action'] = $actions[3]; // delete
-                break;
-            default:
-                return; // Unknown method — ignore
-        }
+        // GET    api/users       => index
+        $this->set([
+            'method'     => 'GET',
+            'url'        => $plural,
+            'controller' => $controller,
+            'action'     => $index,
+        ]);
 
-        $route['url'] = $pattern;
-        $route['controller'] = $controller;
+        // GET    api/user/:id    => read
+        $this->set([
+            'method'     => 'GET',
+            'url'        => $singular . '/:id',
+            'controller' => $controller,
+            'action'     => $read,
+        ]);
 
-        $this->set($route);
+        // POST   api/users       => create
+        $this->set([
+            'method'     => 'POST',
+            'url'        => $plural,
+            'controller' => $controller,
+            'action'     => $create,
+        ]);
+
+        // PUT    api/user/:id    => update
+        $this->set([
+            'method'     => 'PUT',
+            'url'        => $singular . '/:id',
+            'controller' => $controller,
+            'action'     => $update,
+        ]);
+
+        // PATCH  api/user/:id    => update
+        $this->set([
+            'method'     => 'PATCH',
+            'url'        => $singular . '/:id',
+            'controller' => $controller,
+            'action'     => $update,
+        ]);
+
+        // DELETE api/user/:id    => delete
+        $this->set([
+            'method'     => 'DELETE',
+            'url'        => $singular . '/:id',
+            'controller' => $controller,
+            'action'     => $delete,
+        ]);
     }
 
     /**
