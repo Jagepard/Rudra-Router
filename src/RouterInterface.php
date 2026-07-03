@@ -11,8 +11,6 @@
 
 namespace Rudra\Router;
 
-use Rudra\Exceptions\RouterException;
-
 interface RouterInterface
 {
     public function set(array $route): void;
