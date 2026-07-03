@@ -81,9 +81,23 @@ class MainController
         Rudra::config()->set(["regex" => "regex"]);
     }
 
-    public function shipInit() {}
-    public function containerInit() {}
-    public function init() {}
-    public function before() {}
-    public function after() {}
+    public function shipInit() 
+    {
+    }
+    
+    public function containerInit() 
+    {
+    }
+    
+    public function init() 
+    {
+    }
+    
+    public function before() 
+    {
+    }
+    
+    public function after()
+    {
+    }
 }
