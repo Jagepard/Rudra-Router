@@ -16,7 +16,6 @@ use Rudra\Container\Interfaces\RudraInterface;
 use Rudra\Container\Rudra as R;
 use Rudra\Router\RouterFacade as Router;
 use Rudra\Router\Tests\Stub\Controllers\MainController;
-use Rudra\Router\Tests\Stub\Middleware\Middleware;
 
 class RouterTest extends \PHPUnit\Framework\TestCase
 {
