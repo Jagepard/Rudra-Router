@@ -281,7 +281,8 @@ class Router implements RouterInterface
         try {
             if (is_array($current) && count($current) === 2 && is_string($current[0])) {
                 $middleware = new $current[0]();
-                $middleware($chain, ...$current[1]);
+                $params = is_array($current[1]) ? $current[1] : [$current[1]];
+                $middleware($chain, ...$params);
                 return;
             }
 
