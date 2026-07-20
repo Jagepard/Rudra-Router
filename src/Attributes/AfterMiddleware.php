@@ -9,6 +9,8 @@
  * @license https://mozilla.org/MPL/2.0/  MPL-2.0
  */
 
+namespace Rudra\Router\Attributes;
+
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
 class AfterMiddleware
 {
