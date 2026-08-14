@@ -374,4 +374,35 @@ class RouterAnnotationTraitTest extends TestCase
             $this->assertEquals('adminAction', $route['action']);
         }
     }
+
+    public function testArrayOfUrlsWithOptionalSegments(): void
+    {
+        $controller = new class {
+            #[Routing(url: ['admin[/item[/page[/:page]]]', 'another[/item[/page[/:page]]]'])]
+            public function multiPrefix() {}
+        };
+
+        $router = $this->getRouter();
+        $routes = $router->annotationCollector(
+            [get_class($controller)],
+            getter: true,
+            attributes: true
+        );
+
+        $this->assertCount(8, $routes);
+
+        $urls = array_column($this->flattenRoutes($routes), 'url');
+        sort($urls);
+
+        $this->assertEquals([
+            'admin',
+            'admin/item',
+            'admin/item/page',
+            'admin/item/page/:page',
+            'another',
+            'another/item',
+            'another/item/page',
+            'another/item/page/:page',
+        ], $urls);
+    }
 }

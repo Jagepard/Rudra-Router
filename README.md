@@ -7,11 +7,14 @@
 
 # Rudra-Router
 
-A lightweight and transparent HTTP router for PHP. Supports dynamic parameters, regular expressions, middleware, and RESTful resources.
+A lightweight and transparent HTTP router for PHP. Supports dynamic parameters, regular expressions, optional URL segments, middleware, and RESTful resources.
 
 ## Features
 
 - Dynamic URL parameters (`:name`) and regular expressions (`:[\d]{1,3}`)
+- **Optional URL segments** with bracket syntax (`admin[/item[/page[/:page]]]`)
+- **Multiple URLs per route** via arrays
+- **Attribute-based routing** with `#[Routing]` and `#[Middleware]`
 - All HTTP methods supported: GET, POST, PUT, PATCH, DELETE
 - Method spoofing via `_method` (for PUT/PATCH/DELETE from POST requests)
 - Middleware executed before and after controller execution
@@ -78,6 +81,106 @@ Router::get('callback/:name', function ($name) {
 });
 
 Router::get('read/:id', [MainController::class, 'read']);
+```
+
+## Attribute-based Routing
+
+The most concise way to define routes — declare them directly on controller methods using PHP 8 attributes. Routes are discovered automatically via `annotationCollector()`.
+
+### Basic Attribute Route
+
+```php
+use Rudra\Router\Attributes\Routing;
+
+class UserController
+{
+    #[Routing(url: 'users/:id')]
+    public function show(int $id): void
+    {
+        // handle /users/123
+    }
+}
+```
+
+### Optional URL Segments
+
+Use square brackets `[...]` to mark segments as optional. Nested brackets are supported for deeply optional paths.
+
+```php
+#[Routing(url: 'admin[/item[/page[/:page]]]')]
+public function adminPanel(): void {}
+```
+
+This single attribute expands into **4 separate routes** at cache-build time:
+
+| # | Expanded URL |
+|---|--------------|
+| 1 | `admin` |
+| 2 | `admin/item` |
+| 3 | `admin/item/page` |
+| 4 | `admin/item/page/:page` |
+
+> **Note:** Expansion happens once during cache generation. At runtime the router works with flat strings — zero performance overhead.
+
+### Multiple URLs per Route
+
+Pass an array of URLs to register several routes for a single method:
+
+```php
+#[Routing(url: ['blog', 'articles', 'news'])]
+public function list(): void {}
+```
+
+### Combining Arrays and Optional Segments
+
+Both features compose naturally — each element of the array is expanded independently:
+
+```php
+#[Routing(url: ['admin[/item[/page[/:page]]]', 'manager[/item[/page[/:page]]]'])]
+public function adminPanel(): void {}
+```
+
+This produces **8 routes** (4 for `admin/*` + 4 for `manager/*`).
+
+### Regex Parameters Inside Routes
+
+Regular expressions can be used freely — the bracket syntax for optional segments does **not** interfere with regex character classes:
+
+```php
+#[Routing(url: 'lang/:[a-z]{1,3}')]     // /lang/en, /lang/ru
+public function setLanguage(): void {}
+
+#[Routing(url: 'page/:[\d]{1,3}')]      // /page/1 ... /page/999
+public function showPage(): void {}
+
+#[Routing(url: 'admin[/item]/:[a-z]+')] // combination: optional + regex
+public function mixedRoute(): void {}
+```
+
+### Attributes with Middleware
+
+Combine `#[Routing]` and `#[Middleware]` on the same method:
+
+```php
+use Rudra\Router\Attributes\Routing;
+use Rudra\Router\Attributes\Middleware;
+
+#[Routing(url: 'admin/:id', method: 'GET')]
+#[Middleware(name: "Auth", params: ["admin"])]
+public function show(int $id): void
+{
+    // Only accessible for authenticated admins
+}
+```
+
+### Preserving Route Parameters
+
+All route parameters are preserved across expanded routes:
+
+```php
+#[Routing(url: 'admin[/item[/page]]', method: 'POST')]
+public function adminAction(): void {}
+// All 3 expanded routes will be registered with method: POST
 ```
 
 ## HTTP Methods
@@ -165,6 +268,7 @@ class UnsetSessionMiddleware
     }
 }
 ```
+
 ## RESTful Resources
 
 Registers standard CRUD routes with explicit plural and singular URL patterns. 
@@ -185,7 +289,9 @@ This creates the following routes:
 | PATCH  | api/user/:id   | update | Partial update user |
 | DELETE | api/user/:id   | delete | Delete user |
 >The default action names are [index, read, create, update, delete].
+
 ### Custom Method Names
+
 You can override the default action names by passing a custom array of 5 methods:
 
 ```php
@@ -198,6 +304,7 @@ $router->resource('api/posts', 'api/post', PostController::class, [
 ]);
 ```
 >The array order is fixed: [index, read, create, update, delete].
+
 ## The set() Method — Extended Syntax
 
 Allows defining a route with multiple HTTP methods via `|`:
