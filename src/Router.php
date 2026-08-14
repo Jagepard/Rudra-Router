@@ -98,34 +98,36 @@ class Router implements RouterInterface
      */
     private function handlePattern(array $route, array $request): array
     {
-        $uri = [];
-        $params  = null;
-        $subject = explode('/', ltrim($route['url'], '/'));
-        $count   = count($subject);
-
-        for ($i = 0; $i < $count; $i++) {
-            if (preg_match("/^:[a-zA-Z0-9_-]+$/", $subject[$i]) > 0 && array_key_exists($i, $request)) {
-                $value = $request[$i];
-                $uri[] = $value;
-                $params[] = $value;
+        $uri    = [];
+        $params = null;
+        
+        foreach (explode('/', ltrim($route['url'], '/')) as $i => $segment) {
+            if (!str_starts_with($segment, ':')) {
+                $uri[] = $segment;
                 continue;
             }
             
-            if (preg_match("/^:([\\[\\]\\\\:a-zA-Z0-9_\\-{,}]+)$/", $subject[$i], $matches)) {
-                if (array_key_exists($i, $request)) {
-                    $pattern = $matches[1];
-                    if (preg_match("/^$pattern$/", $request[$i])) {
-                        $uri[]    = $request[$i];
-                        $params[] = $request[$i];
-                    } else {
-                        $uri[] = '!@#$%^&*';
-                    }
+            $pattern    = substr($segment, 1);
+            $hasSegment = array_key_exists($i, $request);
+            
+            // Simple parameter like :id, :page
+            if (preg_match('/^[a-zA-Z0-9_-]+$/', $pattern)) {
+                if ($hasSegment) {
+                    $uri[]    = $request[$i];
+                    $params[] = $request[$i];
+                } else {
+                    $uri[] = $segment;
                 }
-
                 continue;
             }
-
-            $uri[] = $subject[$i];
+            
+            // Regex parameter like :[\d]+ or :[a-z]{1,3}
+            if ($hasSegment && @preg_match("/^$pattern$/", $request[$i]) === 1) {
+                $uri[]    = $request[$i];
+                $params[] = $request[$i];
+            } else {
+                $uri[] = $hasSegment ? '!@#$%^&*' : $segment;
+            }
         }
 
         return [$uri, $params];
