@@ -16,6 +16,7 @@ use Rudra\Annotation\Annotation;
 use Rudra\Container\Facades\Rudra;
 use Rudra\Container\Interfaces\RudraInterface;
 use Rudra\Router\Router;
+use Rudra\Router\Attributes\Routing;
 use Rudra\Router\Tests\Stub\Controllers\AnnotatedController;
 use Rudra\Router\Tests\Stub\Controllers\MainController;
 
@@ -226,5 +227,151 @@ class RouterAnnotationTraitTest extends TestCase
             'LogMiddleware',
             ['CacheMiddleware', ['3600']],
         ], $result);
+    }
+
+    /**
+     * Tests that optional segments in square brackets are expanded into multiple routes.
+     * Example: 'admin[/item[/page[/:page]]]' should expand to 4 separate routes.
+     */
+    public function testExpandOptionalSegments(): void
+    {
+        $controller = new class {
+            #[Routing(url: 'admin[/item[/page[/:page]]]')]
+            public function adminPanel() {}
+        };
+
+        $router = $this->getRouter();
+        $routes = $router->annotationCollector(
+            [get_class($controller)],
+            getter: true,
+            attributes: true
+        );
+
+        $this->assertCount(4, $routes);
+
+        $urls = array_column($this->flattenRoutes($routes), 'url');
+        sort($urls);
+
+        $this->assertEquals([
+            'admin',
+            'admin/item',
+            'admin/item/page',
+            'admin/item/page/:page',
+        ], $urls);
+    }
+
+    /**
+     * Tests that passing an array of URLs registers multiple routes for the same action.
+     */
+    public function testArrayOfUrls(): void
+    {
+        $controller = new class {
+            #[Routing(url: ['admin', 'admin/item', 'admin/item/page'])]
+            public function adminPanel() {}
+        };
+
+        $router = $this->getRouter();
+        $routes = $router->annotationCollector(
+            [get_class($controller)],
+            getter: true,
+            attributes: true
+        );
+
+        $this->assertCount(3, $routes);
+
+        $urls = array_column($this->flattenRoutes($routes), 'url');
+        sort($urls);
+
+        $this->assertEquals([
+            'admin',
+            'admin/item',
+            'admin/item/page',
+        ], $urls);
+    }
+
+    /**
+     * Tests that regex parameters like :[a-z]{1,3} are NOT treated as optional segments.
+     * The brackets inside regex patterns must be ignored by expandOptionalSegments.
+     */
+    public function testRegexParametersIgnoredInExpand(): void
+    {
+        $controller = new class {
+            #[Routing(url: 'lang/:[a-z]{1,3}')]
+            public function setLanguage() {}
+
+            #[Routing(url: 'page/:[\d]{1,3}')]
+            public function showPage() {}
+        };
+
+        $router = $this->getRouter();
+        $routes = $router->annotationCollector(
+            [get_class($controller)],
+            getter: true,
+            attributes: true
+        );
+
+        // Each method should produce exactly 1 route (regex brackets are not expanded)
+        $this->assertCount(2, $routes);
+
+        $flat = $this->flattenRoutes($routes);
+        $urls = array_column($flat, 'url');
+
+        $this->assertContains('lang/:[a-z]{1,3}', $urls);
+        $this->assertContains('page/:[\d]{1,3}', $urls);
+    }
+
+    /**
+     * Tests combined usage of optional segments and regex parameters in one URL.
+     * Example: 'admin[/item]/:[a-z]+' should expand to 2 routes, both keeping regex intact.
+     */
+    public function testExpandWithRegexAndOptionalSegments(): void
+    {
+        $controller = new class {
+            #[Routing(url: 'admin[/item]/:[a-z]+')]
+            public function mixedRoute() {}
+        };
+
+        $router = $this->getRouter();
+        $routes = $router->annotationCollector(
+            [get_class($controller)],
+            getter: true,
+            attributes: true
+        );
+
+        $this->assertCount(2, $routes);
+
+        $urls = array_column($this->flattenRoutes($routes), 'url');
+        sort($urls);
+
+        $this->assertEquals([
+            'admin/:[a-z]+',
+            'admin/item/:[a-z]+',
+        ], $urls);
+    }
+
+    /**
+     * Tests that expanded routes preserve HTTP method and other route parameters.
+     */
+    public function testExpandedRoutesPreserveMethod(): void
+    {
+        $controller = new class {
+            #[Routing(url: 'admin[/item[/page]]', method: 'POST')]
+            public function adminAction() {}
+        };
+
+        $router = $this->getRouter();
+        $routes = $router->annotationCollector(
+            [get_class($controller)],
+            getter: true,
+            attributes: true
+        );
+
+        $flat = $this->flattenRoutes($routes);
+
+        $this->assertCount(3, $flat);
+        foreach ($flat as $route) {
+            $this->assertEquals('POST', $route['method']);
+            $this->assertEquals('adminAction', $route['action']);
+        }
     }
 }
