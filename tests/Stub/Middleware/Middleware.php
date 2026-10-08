@@ -17,6 +17,6 @@ class Middleware
 {
     public function __invoke()
     {
-        Rudra::config()->set(["middleware" => Middleware::class]);
+        Rudra::config()->set(['middleware' => Middleware::class]);
     }
 }

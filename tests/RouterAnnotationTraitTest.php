@@ -26,8 +26,8 @@ class RouterAnnotationTraitTest extends TestCase
     {
         parent::setUp();
 
-        $_SERVER["REQUEST_URI"]    = "test/123";
-        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER['REQUEST_URI']    = 'test/123';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
 
         Rudra::binding([RudraInterface::class => Rudra::run()]);
         Rudra::set([Annotation::class, Annotation::class]);
@@ -36,7 +36,7 @@ class RouterAnnotationTraitTest extends TestCase
     protected function tearDown(): void
     {
         parent::tearDown();
-        unset($_SERVER["REQUEST_URI"], $_SERVER["REQUEST_METHOD"]);
+        unset($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
     }
 
     private function getRouter(): Router
@@ -112,7 +112,7 @@ class RouterAnnotationTraitTest extends TestCase
     public function testAnnotationCollectorWithInvalidController(): void
     {
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage("Remove the InvalidController controller from the routes.php file.");
+        $this->expectExceptionMessage('Remove the InvalidController controller from the routes.php file.');
 
         $router = $this->getRouter();
         $router->annotationCollector(['InvalidController']);

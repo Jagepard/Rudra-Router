@@ -46,16 +46,16 @@ trait RouterAnnotationTrait
 
                 $middleware = [];
 
-                if (isset($annotation["Middleware"])) {
-                    $middleware['before'] = $this->handleAnnotationMiddleware($annotation["Middleware"]);
+                if (isset($annotation['Middleware'])) {
+                    $middleware['before'] = $this->handleAnnotationMiddleware($annotation['Middleware']);
                 }
 
-                if (isset($annotation["AfterMiddleware"])) {
-                    $middleware['after'] = $this->handleAnnotationMiddleware($annotation["AfterMiddleware"]);
+                if (isset($annotation['AfterMiddleware'])) {
+                    $middleware['after'] = $this->handleAnnotationMiddleware($annotation['AfterMiddleware']);
                 }
 
-                if (isset($annotation["Routing"])) {
-                    foreach ($annotation["Routing"] as $route) {
+                if (isset($annotation['Routing'])) {
+                    foreach ($annotation['Routing'] as $route) {
                         $route += [
                             'controller' => $controller,
                             'action'     => $action,
@@ -117,7 +117,7 @@ trait RouterAnnotationTrait
 
     /**
      * Processes middleware annotations into a valid middleware format.
-     * #[Middleware(name: "Auth", params: "admin")] to: ['Auth', 'admin']
+     * #[Middleware(name: 'Auth', params: 'admin')] to: ['Auth', 'admin']
      */
     protected function handleAnnotationMiddleware(array $annotation): array
     {

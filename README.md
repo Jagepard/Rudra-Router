@@ -166,7 +166,7 @@ use Rudra\Router\Attributes\Routing;
 use Rudra\Router\Attributes\Middleware;
 
 #[Routing(url: 'admin/:id', method: 'GET')]
-#[Middleware(name: "Auth", params: ["admin"])]
+#[Middleware(name: 'Auth', params: ['admin'])]
 public function show(int $id): void
 {
     // Only accessible for authenticated admins
@@ -364,8 +364,8 @@ The router automatically recognizes this as a PUT request.
 
 ## Error Handling
 
-- `RouterException("Not Found", 404)` — route not found or parameters do not match
-- `RouterException("Service Unavailable", 503)` — controller method does not exist
+- `RouterException('Not Found', 404)` — route not found or parameters do not match
+- `RouterException('Service Unavailable', 503)` — controller method does not exist
 - `MiddlewareException` — error in the middleware chain
 
 ## License

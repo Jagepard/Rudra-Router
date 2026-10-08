@@ -23,64 +23,64 @@ class RouterTest extends \PHPUnit\Framework\TestCase
     {
         R::$rudra = null;
         Rudra::binding()->set([RudraInterface::class => Rudra::run()]);
-        Rudra::config()->set(["environment" => "test"]);
+        Rudra::config()->set(['environment' => 'test']);
     }
 
     protected function setRouteEnvironment(string $requestUri, string $requestMethod, string $pattern, string $controller = MainController::class): void
     {
-        $_SERVER["REQUEST_URI"]    = $requestUri;
-        $_SERVER["REQUEST_METHOD"] = $requestMethod;
+        $_SERVER['REQUEST_URI']    = $requestUri;
+        $_SERVER['REQUEST_METHOD'] = $requestMethod;
         $method                    = strtolower($requestMethod);
-        $action                    = "action" . ucfirst($method);
+        $action                    = 'action' . ucfirst($method);
         $this->setContainer();
 
-        \Rudra\Router\RouterFacade::$method($pattern, [$controller, "action" . ucfirst($method)]);
+        \Rudra\Router\RouterFacade::$method($pattern, [$controller, 'action' . ucfirst($method)]);
         $this->assertEquals($requestMethod, Rudra::config()->get($action));
     }
 
     public function testGetWithFullQualifiedNamespace()
     {
         $this->setRouteEnvironment(
-            "test/page",
-            "GET",
-            "/test/page",
+            'test/page',
+            'GET',
+            '/test/page',
             MainController::class
         );
     }
 
     public function testGet(): void
     {
-        $this->setRouteEnvironment("test/page?id=98", "GET", "/test/page");
+        $this->setRouteEnvironment('test/page?id=98', 'GET', '/test/page');
     }
 
     public function testPost(): void
     {
-        $this->setRouteEnvironment("test/page?some=123", "POST", "/test/page");
+        $this->setRouteEnvironment('test/page?some=123', 'POST', '/test/page');
     }
 
     public function testPut(): void
     {
-        $this->setRouteEnvironment("test/page", 'PUT', "/test/page");
+        $this->setRouteEnvironment('test/page', 'PUT', '/test/page');
     }
 
     public function testPatch(): void
     {
-        $this->setRouteEnvironment("test/page", 'PATCH', "/test/page");
+        $this->setRouteEnvironment('test/page', 'PATCH', '/test/page');
     }
 
     public function testDelete(): void
     {
-        $this->setRouteEnvironment("test/page", 'DELETE', "/test/page");
+        $this->setRouteEnvironment('test/page', 'DELETE', '/test/page');
     }
 
     public function testAny(): void
     {
-        $_SERVER["REQUEST_URI"]    = "test/page";
-        $_SERVER["REQUEST_METHOD"] = "PATCH";
+        $_SERVER['REQUEST_URI']    = 'test/page';
+        $_SERVER['REQUEST_METHOD'] = 'PATCH';
         $this->setContainer();
 
         Router::any('/test/page',[MainController::class, 'actionAny']);
-        $this->assertEquals("ANY", Rudra::config()->get("actionAny"));
+        $this->assertEquals('ANY', Rudra::config()->get('actionAny'));
     }
 
     protected function setRouteResourceEnvironment(
@@ -88,13 +88,13 @@ class RouterTest extends \PHPUnit\Framework\TestCase
         string $action,
         string $requestUri
     ): void {
-        $_SERVER["REQUEST_URI"]    = $requestUri;
-        $_SERVER["REQUEST_METHOD"] = $requestMethod;
+        $_SERVER['REQUEST_URI']    = $requestUri;
+        $_SERVER['REQUEST_METHOD'] = $requestMethod;
         $this->setContainer();
 
         Router::resource(
-            "api/users",
-            "api/user",
+            'api/users',
+            'api/user',
             MainController::class,
             ['index', 'read', 'create', 'update', 'delete']
         );
@@ -105,26 +105,26 @@ class RouterTest extends \PHPUnit\Framework\TestCase
     public function testResource(): void
     {
         // Collection routes (plural URL, no :id)
-        $this->setRouteResourceEnvironment("GET",  "index",  "api/users");
-        $this->setRouteResourceEnvironment("POST", "create", "api/users");
+        $this->setRouteResourceEnvironment('GET',  'index',  'api/users');
+        $this->setRouteResourceEnvironment('POST', 'create', 'api/users');
 
         // Single-item routes (singular URL + /:id)
-        $this->setRouteResourceEnvironment("GET",    "read",   "api/user/123");
-        $this->setRouteResourceEnvironment("PUT",    "update", "api/user/123");
-        $this->setRouteResourceEnvironment("PATCH",  "update", "api/user/123");
-        $this->setRouteResourceEnvironment("DELETE", "delete", "api/user/123");
+        $this->setRouteResourceEnvironment('GET',    'read',   'api/user/123');
+        $this->setRouteResourceEnvironment('PUT',    'update', 'api/user/123');
+        $this->setRouteResourceEnvironment('PATCH',  'update', 'api/user/123');
+        $this->setRouteResourceEnvironment('DELETE', 'delete', 'api/user/123');
     }
 
     protected function setRouteResourcePostEnvironment(string $spoofedMethod, string $action): void
     {
-        $_SERVER["REQUEST_URI"]    = "api/user/123";
-        $_SERVER["REQUEST_METHOD"] = "POST";
-        $_POST["_method"]          = $spoofedMethod;
+        $_SERVER['REQUEST_URI']    = 'api/user/123';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST['_method']          = $spoofedMethod;
         $this->setContainer();
 
         Router::resource(
-            "api/users",
-            "api/user",
+            'api/users',
+            'api/user',
             MainController::class,
             ['index', 'read', 'create', 'update', 'delete']
         );
@@ -134,31 +134,31 @@ class RouterTest extends \PHPUnit\Framework\TestCase
 
     public function testResourcePost(): void
     {
-        $this->setRouteResourcePostEnvironment("PUT",    "update");
-        $this->setRouteResourcePostEnvironment("PATCH",  "update");
-        $this->setRouteResourcePostEnvironment("DELETE", "delete");
+        $this->setRouteResourcePostEnvironment('PUT',    'update');
+        $this->setRouteResourcePostEnvironment('PATCH',  'update');
+        $this->setRouteResourcePostEnvironment('DELETE', 'delete');
     }
 
     public function testClosure()
     {
-        $_SERVER["REQUEST_URI"]    = "test/page";
-        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER['REQUEST_URI']    = 'test/page';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
         $this->setContainer();
 
-        Router::get("test/page", function () {
-                Rudra::config()->set(["closure" => "closure"]);
+        Router::get('test/page', function () {
+                Rudra::config()->set(['closure' => 'closure']);
         });
 
-        $this->assertEquals("closure", Rudra::config()->get("closure"));
+        $this->assertEquals('closure', Rudra::config()->get('closure'));
     }
 
     public function testRegex(): void
     {
-        $_SERVER["REQUEST_URI"]    = "test/12";
-        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER['REQUEST_URI']    = 'test/12';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
         $this->setContainer();
 
-        Router::get("test/:[\d]{1,3}", [MainController::class, 'actionRegexGet']);
-        $this->assertEquals('regex', Rudra::config()->get("regex"));
+        Router::get('test/:[\d]{1,3}', [MainController::class, 'actionRegexGet']);
+        $this->assertEquals('regex', Rudra::config()->get('regex'));
     }
 }
