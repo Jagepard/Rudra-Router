@@ -168,7 +168,7 @@ class Router implements RouterInterface
         $action     = $route['action'];
 
         if (!method_exists($controller, $action)) {
-            throw new RouterException("Service Unavailable", 503);
+            throw new RouterException('Service Unavailable', 503);
         }
 
         $controller->shipInit();
@@ -207,7 +207,7 @@ class Router implements RouterInterface
     private function callActionThroughReflection(?array $params, string $action, object $controller): void
     {
         if ($params && in_array('', $params, true)) {
-            throw new RouterException("Not Found", 404);
+            throw new RouterException('Not Found', 404);
         }
 
         $cacheKey = get_class($controller) . "::$action";
@@ -242,7 +242,7 @@ class Router implements RouterInterface
     private function callActionThroughException(?array $params, string $action, object $controller): void
     {
         if (isset($params) && in_array('', $params)) {
-            throw new RouterException("Not Found", 404);
+            throw new RouterException('Not Found', 404);
         }
 
         try {
@@ -307,7 +307,7 @@ class Router implements RouterInterface
 
             throw new MiddlewareException('Invalid middleware format');
         } catch (\Throwable $e) {
-            throw new MiddlewareException("Failed to process middleware: " . json_encode($current), 0, $e);
+            throw new MiddlewareException('Failed to process middleware: ' . json_encode($current), 0, $e);
         }
     }
 }

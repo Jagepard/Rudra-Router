@@ -9,25 +9,25 @@ use Rudra\Container\Facades\Rudra;
 
 class AnnotatedController
 {
-    #[Routing(url: "annotated/index", method: "GET")]
-    #[Middleware(name: "AuthMiddleware", params: ["admin"])]
+    #[Routing(url: 'annotated/index', method: 'GET')]
+    #[Middleware(name: 'AuthMiddleware', params: ['admin'])]
     public function actionIndex(): void
     {
-        Rudra::config()->set(["annotatedIndex" => "annotatedIndex"]);
+        Rudra::config()->set(['annotatedIndex' => 'annotatedIndex']);
     }
 
-    #[Routing(url: "annotated/edit/:id", method: "POST")]
-    #[Middleware(name: "AuthMiddleware")]
-    #[AfterMiddleware(name: "LogMiddleware", params: ["edit"])]
+    #[Routing(url: 'annotated/edit/:id', method: 'POST')]
+    #[Middleware(name: 'AuthMiddleware')]
+    #[AfterMiddleware(name: 'LogMiddleware', params: ['edit'])]
     public function actionEdit(string $id): void
     {
-        Rudra::config()->set(["annotatedEdit" => "annotatedEdit"]);
+        Rudra::config()->set(['annotatedEdit' => 'annotatedEdit']);
     }
 
-    #[Routing(url: "annotated/view/:id", method: "GET")]
+    #[Routing(url: 'annotated/view/:id', method: 'GET')]
     public function actionView(string $id): void
     {
-        Rudra::config()->set(["annotatedView" => "annotatedView"]);
+        Rudra::config()->set(['annotatedView' => 'annotatedView']);
     }
 
     public function shipInit() 
