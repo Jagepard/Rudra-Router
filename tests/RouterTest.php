@@ -161,4 +161,19 @@ class RouterTest extends \PHPUnit\Framework\TestCase
         Router::get('test/:[\d]{1,3}', [MainController::class, 'actionRegexGet']);
         $this->assertEquals('regex', Rudra::config()->get('regex'));
     }
+
+    public function testRequestBodyNotParsedForWrongMethod(): void
+    {
+        $_SERVER['REQUEST_URI']    = 'test/page';
+        $_SERVER['REQUEST_METHOD'] = 'POST';  // POST request
+        $this->setContainer();
+
+        // Register only GET route (method doesn't match)
+        Router::get('test/page', function () {
+            Rudra::config()->set(['get_called' => true]);
+        });
+
+        // GET route should not be called - check that key was never set
+        $this->assertFalse(Rudra::config()->has('get_called'));
+    }
 }

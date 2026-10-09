@@ -47,14 +47,16 @@ class Router implements RouterInterface
      */
     private function handleRequestUri(array $route): void
     {
-        $this->handleRequestMethod();
-
         $request = $this->rudra->request();
-        $server = $request->server();
+        $server  = $request->server();
+
+        $this->spoofRequestMethod();
 
         if ($route['method'] !== $server->get('REQUEST_METHOD')) {
             return;
         }
+
+        $this->parseRequestBody();
 
         $uriRaw = $server->get('REQUEST_URI');
         $parsed = parse_url($uriRaw);
@@ -67,24 +69,24 @@ class Router implements RouterInterface
         }
     }
 
-    /**
-     * Processes the HTTP request method, including spoofing via _method (for PUT/PATCH/DELETE)
-     */
-    private function handleRequestMethod(): void
+    private function spoofRequestMethod(): void
     {
         $request = $this->rudra->request();
         $requestMethod = $request->server()->get('REQUEST_METHOD');
 
-        // Spoofing the method via _method parameter in POST requests
         if ($requestMethod === 'POST' && $request->post()->has('_method')) {
             $spoofedMethod = strtoupper($request->post()->get('_method'));
             if (in_array($spoofedMethod, ['PUT', 'PATCH', 'DELETE'])) {
-                $requestMethod = $spoofedMethod;
                 $request->server()->set(['REQUEST_METHOD' => $spoofedMethod]);
             }
         }
+    }
 
-        // Handle PUT, PATCH, and DELETE requests by parsing raw input data
+    private function parseRequestBody(): void
+    {
+        $request = $this->rudra->request();
+        $requestMethod = $request->server()->get('REQUEST_METHOD');
+
         if (in_array($requestMethod, ['PUT', 'PATCH', 'DELETE'])) {
             $rawInput = file_get_contents('php://input');
             parse_str($rawInput, $data);
@@ -241,7 +243,7 @@ class Router implements RouterInterface
      */
     private function callActionThroughException(?array $params, string $action, object $controller): void
     {
-        if (isset($params) && in_array('', $params)) {
+        if (isset($params) && in_array('', $params, true)) {
             throw new RouterException('Not Found', 404);
         }
 
