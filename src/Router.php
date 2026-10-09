@@ -26,6 +26,15 @@ class Router implements RouterInterface
     private array $reflectionCache = [];
 
     /**
+     * Performance optimization caches
+     */
+    private bool $isMethodSpoofed = false;        // Cache spoofing - run only once per request
+    private ?array $cachedUriSegments = null;     // Cache parsed URI segments
+    private array $patternCache = [];             // Cache regex validation results
+    private $cachedRequest = null;                // Cache request object
+    private $cachedServer = null;                 // Cache server object
+
+    /**
      * Sets the route, parsing HTTP methods (if multiple are specified via |).
      * Registers a route handler for each method.
      */
@@ -47,8 +56,7 @@ class Router implements RouterInterface
      */
     private function handleRequestUri(array $route): void
     {
-        $request = $this->rudra->request();
-        $server  = $request->server();
+        $server = $this->getServer();
 
         $this->spoofRequestMethod();
 
@@ -58,10 +66,7 @@ class Router implements RouterInterface
 
         $this->parseRequestBody();
 
-        $uriRaw = $server->get('REQUEST_URI');
-        $parsed = parse_url($uriRaw);
-        $requestPath = $parsed && isset($parsed['path']) ? ltrim($parsed['path'], '/') : '';
-        $uriSegments = explode('/', $requestPath);
+        $uriSegments = $this->getRequestUriSegments();
         [$uri, $params] = $this->handlePattern($route, $uriSegments);
 
         if ($uri === $uriSegments) {
@@ -69,29 +74,87 @@ class Router implements RouterInterface
         }
     }
 
+    /**
+     * Returns cached request object to avoid repeated container calls
+     */
+    private function getRequest()
+    {
+        return $this->cachedRequest ??= $this->rudra->request();
+    }
+
+    /**
+     * Returns cached server object to avoid repeated method calls
+     */
+    private function getServer()
+    {
+        return $this->cachedServer ??= $this->getRequest()->server();
+    }
+
+    /**
+     * Returns cached URI segments - parsed only once per request
+     */
+    private function getRequestUriSegments(): array
+    {
+        if ($this->cachedUriSegments !== null) {
+            return $this->cachedUriSegments;
+        }
+
+        $uriRaw = $this->getServer()->get('REQUEST_URI');
+        $parsed = parse_url($uriRaw);
+        $requestPath = $parsed && isset($parsed['path']) ? ltrim($parsed['path'], '/') : '';
+
+        return $this->cachedUriSegments = explode('/', $requestPath);
+    }
+
+    /**
+     * Spoofs the request method via _method parameter in POST requests.
+     * Cached to run only once per request.
+     */
     private function spoofRequestMethod(): void
     {
-        $request = $this->rudra->request();
-        $requestMethod = $request->server()->get('REQUEST_METHOD');
+        if ($this->isMethodSpoofed) {
+            return;
+        }
+
+        $request = $this->getRequest();
+        $server = $this->getServer();
+        $requestMethod = $server->get('REQUEST_METHOD');
 
         if ($requestMethod === 'POST' && $request->post()->has('_method')) {
             $spoofedMethod = strtoupper($request->post()->get('_method'));
             if (in_array($spoofedMethod, ['PUT', 'PATCH', 'DELETE'])) {
-                $request->server()->set(['REQUEST_METHOD' => $spoofedMethod]);
+                $server->set(['REQUEST_METHOD' => $spoofedMethod]);
             }
         }
+
+        $this->isMethodSpoofed = true;
     }
 
+    /**
+     * Parses request body for PUT, PATCH, DELETE methods
+     */
     private function parseRequestBody(): void
     {
-        $request = $this->rudra->request();
-        $requestMethod = $request->server()->get('REQUEST_METHOD');
+        $request = $this->getRequest();
+        $requestMethod = $this->getServer()->get('REQUEST_METHOD');
 
         if (in_array($requestMethod, ['PUT', 'PATCH', 'DELETE'])) {
             $rawInput = file_get_contents('php://input');
             parse_str($rawInput, $data);
             $request->{strtolower($requestMethod)}()->set($data);
         }
+    }
+
+    /**
+     * Checks if the pattern is a simple parameter (cached)
+     */
+    private function isSimpleParam(string $pattern): bool
+    {
+        $cacheKey = 'simple_' . $pattern;
+        if (!isset($this->patternCache[$cacheKey])) {
+            $this->patternCache[$cacheKey] = (bool) preg_match('/^[a-zA-Z0-9_-]+$/', $pattern);
+        }
+        return $this->patternCache[$cacheKey];
     }
 
     /**
@@ -102,18 +165,18 @@ class Router implements RouterInterface
     {
         $uri    = [];
         $params = null;
-        
+
         foreach (explode('/', ltrim($route['url'], '/')) as $i => $segment) {
             if (!str_starts_with($segment, ':')) {
                 $uri[] = $segment;
                 continue;
             }
-            
+
             $pattern    = substr($segment, 1);
             $hasSegment = array_key_exists($i, $request);
-            
-            // Simple parameter like :id, :page
-            if (preg_match('/^[a-zA-Z0-9_-]+$/', $pattern)) {
+
+            // Simple parameter like :id, :page (cached check)
+            if ($this->isSimpleParam($pattern)) {
                 if ($hasSegment) {
                     $uri[]    = $request[$i];
                     $params[] = $request[$i];
@@ -122,7 +185,7 @@ class Router implements RouterInterface
                 }
                 continue;
             }
-            
+
             // Regex parameter like :[\d]+ or :[a-z]{1,3}
             if ($hasSegment && @preg_match("/^$pattern$/", $request[$i]) === 1) {
                 $uri[]    = $request[$i];
@@ -160,7 +223,7 @@ class Router implements RouterInterface
     /**
      * Calls the controller and its method directly, performing the full lifecycle:
      * This method is used to fully dispatch a route after matching it with the current request.
-     * 
+     *
      * @throws RouterException
      */
     #[\Override]
@@ -203,7 +266,7 @@ class Router implements RouterInterface
      *
      * This method is typically used when the zend.exception_ignore_args setting is enabled,
      * allowing for more flexible and type-safe dependency resolution.
-     * 
+     *
      * @throws RouterException
      */
     private function callActionThroughReflection(?array $params, string $action, object $controller): void
@@ -230,13 +293,13 @@ class Router implements RouterInterface
      *
      * If the argument type or number does not match — tries to automatically inject required dependencies.
      * This is a fallback mechanism for cases where Reflection-based injection is disabled or unavailable.
-     * 
+     *
      * Handles two types of errors during invocation:
      * - \ArgumentCountError — thrown when the number of arguments doesn't match the method signature.
      * - \TypeError — thrown when an argument is not compatible with the expected type.
      *
      * In both cases, Rudra's autowire system attempts to resolve and inject the correct dependencies.
-     * 
+     *
      * @throws RouterException
      * @throws \TypeError
      * @throws \ArgumentCountError
@@ -271,7 +334,7 @@ class Router implements RouterInterface
      * - ['MiddlewareClass', $parameter] (array with class and parameter) — passes the parameter to the middleware.
      *
      * Each middleware must implement the __invoke() method to be callable.
-     * 
+     *
      * @throws \Rudra\Router\Exceptions\MiddlewareException
      */
     public function handleMiddleware(array $chain): void
